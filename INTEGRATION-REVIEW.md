@@ -25,3 +25,7 @@ Production configuration and existing `CNAME`, `privacy.html`, `support.html`, a
 ## Review locally
 
 Serve the repository root using any static HTTP server. Check the homepage with mouse, Tab/Enter, Escape, and a narrow touch viewport. Open Games and Information menus; verify only one remains open. Follow Account Management to the existing deletion page while signed out. Confirm the approved horizon sentence, mascot, and in-development game status. Review the development branch before authorizing any production merge.
+
+## Local hero revision
+
+The subsequent visual-review revision replaces the cropped placeholder with `assets/hero-frameless.jpg`, derived from the intro video at 0.75 seconds and edited to remove the circular frame. Branding now sits below the full image. See HERO-REVIEW.md for provenance, the editing prompt, and updated verification. This replacement is pending owner visual approval; the earlier hero limitation above describes the initial V3 integration.
