@@ -22,3 +22,11 @@ Source mapping:
 - Screenshot 2026-10-26 075544.png → state-information
 
 Release date and younger-player advertising protections remain planned. Final store prices may vary. Automated checks do not replace a full assistive-technology audit.
+
+## Base updates and Theme Packs revision
+
+Added the prominent Future Base Content Included callout, explicitly limited to standard Base library updates. Added the seven-game Free/Base comparison and a lavender Theme Packs section immediately after it, before Play Together. Theme Packs are optional, separately purchased, excluded from Base, and coming soon; no packs, prices, dates, or artwork were invented. An empty CSS grid supports approved future cards without publishing placeholders.
+
+Expanded family copy for solo/group play and passenger-led verbal participation, with explicit driver attention/no-device-use limits. Restyled the existing screenshots as staggered travel-album frames without editing image content.
+
+Verified at 320, 375, 768, 1024, and 1440 pixels: gallery keyboard opening, Close/Escape focus restoration, image decoding, menus, no horizontal overflow or JavaScript errors, and zero detected WCAG A/AA axe violations in both page and dialog states. Site regression passed nine URLs and 100 local link/resource checks. Desktop/mobile screenshots visually reviewed. Shared styles, homepage, account, support/legal files, production configuration, and gallery JavaScript unchanged.
