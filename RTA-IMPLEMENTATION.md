@@ -42,3 +42,7 @@ Replaced the orderly row with a deterministic scattered desktop/tablet arrangeme
 Screenshot sidebars are removed from the rendered thumbnail and enlarged view using source-specific CSS display windows, preserving game pixels and original source files. Native enlargement, Escape/Close, alt descriptions and focus restoration remain intact. No screenshot artwork was regenerated.
 
 Five-width RTA gallery/image/accessibility tests passed. Additional checks verified desktop galleries require no scrolling, rotated cards stay inside their gallery area, mobile-only hint visibility, and hover transforms. Site regression passed nine URLs and 100 link/resource checks. Gallery screenshots visually reviewed at desktop, hover, and narrow mobile sizes.
+
+## Base naming and Play Together revision
+
+Added “with ads to unlock more” to every Free game bullet with a per-day allowance, without duplicating the phrase on the first two games. Updated the paid title to “Unlock the Full Base Experience” and its price label to “Unlock Road Trip Arcade Base — $6.99,” retaining No Subscription. Moved Play Together immediately above the Free/Base boxes and used the supplied Private Multiplayer, Matching Trip Seeds, and No Strangers descriptions in three compact responsive cards. Theme Packs remains after the Free/Base boxes. Five-width RTA and site regression checks passed, including exact copy/order assertions, gallery/keyboard/accessibility checks, nine URLs and 100 local resources.
