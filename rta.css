@@ -9,16 +9,18 @@
 .rta-base-updates{margin:18px 0;padding:18px;background:#fffdf3;border:2px solid #b69434;border-radius:15px}
 .rta-base-updates h3{font-size:1.15rem;line-height:1.25;margin:0 0 10px}
 .rta-base-updates>p:first-of-type{font-weight:700}
-.rta-comparison{padding-bottom:30px}
-.rta-table-scroll{overflow-x:auto;border:1px solid #c9dce0;border-radius:14px;margin:16px 0 12px}
-.rta-comparison table{width:100%;border-collapse:collapse;font-size:.9rem;line-height:1.45}
-.rta-comparison caption{text-align:left;padding:12px 16px;font-weight:750;background:#f2f9f6}
-.rta-comparison th,.rta-comparison td{padding:12px 16px;text-align:left;vertical-align:top;border-bottom:1px solid #dce7e7}
-.rta-comparison thead{background:var(--sea)}
-.rta-comparison tbody tr:nth-child(even){background:#edf6fc}
-.rta-comparison tbody th{width:23%}
+
+
+
+
+
+
+
+
 .rta-theme-section{padding-bottom:32px}
 .rta-theme-section .rta-panel{padding:28px}
 .rta-theme-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:18px}
 .rta-theme-grid:empty{display:none}
-@media(max-width:760px){.rta-gallery figure{flex-basis:180px}.rta-theme-section .rta-panel{padding:22px}.rta-comparison th,.rta-comparison td{padding:10px 8px;font-size:.8rem;overflow-wrap:anywhere}.rta-comparison tbody th{width:25%}}
+@media(max-width:760px){.rta-gallery figure{flex-basis:180px}.rta-theme-section .rta-panel{padding:22px}}
+
+.rta-game-details{padding-left:21px;margin:18px 0 22px;font-size:.94rem}.rta-game-details li{margin-bottom:12px;line-height:1.6}.rta-benefits-title{font-size:1.2rem;margin:24px 0 12px}.rta-extra-benefits{padding-left:21px}
