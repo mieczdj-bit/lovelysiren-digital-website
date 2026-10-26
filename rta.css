@@ -24,3 +24,32 @@
 @media(max-width:760px){.rta-gallery figure{flex-basis:180px}.rta-theme-section .rta-panel{padding:22px}}
 
 .rta-game-details{padding-left:21px;margin:18px 0 22px;font-size:.94rem}.rta-game-details li{margin-bottom:12px;line-height:1.6}.rta-benefits-title{font-size:1.2rem;margin:24px 0 12px}.rta-extra-benefits{padding-left:21px}
+/* A handful of travel memories, tossed onto the page. */
+.rta-mobile-scroll-hint{display:none}
+.rta-gallery{position:relative;display:block;overflow:visible;height:850px;padding:24px 0;scroll-snap-type:none}
+.rta-gallery .rta-memory{position:absolute;margin:0;background:var(--cream);border:2px solid #111;padding:10px 10px 20px;border-radius:1px;box-shadow:5px 9px 14px #182c4033;transform:rotate(var(--tilt));transition:transform .22s ease,box-shadow .22s ease;transform-origin:center;z-index:1}
+.rta-memory-1{left:2%;top:35px;width:30%;--tilt:-7deg}
+.rta-memory-2{left:38%;top:28px;width:29%;--tilt:9deg}
+.rta-memory-3{left:77%;top:90px;width:21%;--tilt:-6deg}
+.rta-memory-4{left:12%;top:340px;width:23%;--tilt:6deg}
+.rta-memory-5{left:47%;top:355px;width:23%;--tilt:-9deg}
+.rta-gallery .rta-memory:hover,.rta-gallery .rta-memory:focus-within{z-index:10;transform:translateY(-15px) rotate(0deg) scale(1.06);box-shadow:10px 26px 32px #10243566}
+.rta-memory .rta-screenshot{display:block;height:auto;padding:10px;border:0;border-radius:0;background:#000}
+.rta-screen{display:block;position:relative;width:100%;aspect-ratio:var(--screen-ratio);overflow:hidden}
+.rta-screen img{position:absolute;top:0;left:var(--screen-left);width:var(--screen-width);height:100%;max-width:none;max-height:none}
+.rta-gallery .rta-memory figcaption{font-size:.8rem;margin:12px 0 0;text-align:center;line-height:1.25}
+.rta-sticker{position:absolute;pointer-events:none;z-index:2;padding:5px 12px;max-width:95%;font-weight:900;line-height:1.05;font-size:clamp(1.15rem,2.6vw,2rem);color:#172e3b;background:var(--sun);box-shadow:2px 3px 0 #000;outline:2px solid #172e3b;font-family:'Comic Sans MS','Segoe Print',cursive;transform:rotate(-12deg)}
+.rta-memory-1 .rta-sticker{left:-8px;top:5px;background:var(--peach)}
+.rta-memory-2 .rta-sticker{right:-12px;bottom:55px;font-family:Impact,'Arial Black',sans-serif;letter-spacing:.04em;transform:rotate(-8deg)}
+.rta-memory-3 .rta-sticker{left:-16px;top:50%;background:var(--sea);transform:rotate(12deg)}
+.rta-memory-4 .rta-sticker{right:-15px;top:12px;background:var(--lav);font-family:Impact,'Arial Black',sans-serif;transform:rotate(-10deg)}
+.rta-memory-5 .rta-sticker{left:-16px;bottom:55px;background:var(--peach);transform:rotate(8deg)}
+.rta-enlarged-view{position:relative;aspect-ratio:var(--screen-ratio);width:min(80vw,calc((85dvh - 100px) * var(--screen-ratio)));overflow:hidden;margin:auto;background:#000}
+.rta-enlarged-view .rta-enlarged{position:absolute;top:0;left:var(--screen-left);width:var(--screen-width);height:100%;max-width:none;max-height:none;margin:0}
+@media(min-width:761px) and (max-width:999px){.rta-gallery{height:1040px}.rta-memory-1{left:3%;top:30px;width:43%}.rta-memory-2{left:53%;top:55px;width:41%}.rta-memory-3{left:5%;top:325px;width:32%}.rta-memory-4{left:54%;top:390px;width:33%}.rta-memory-5{left:15%;top:650px;width:29%}}
+@media(max-width:760px){.rta-mobile-scroll-hint{display:inline}.rta-gallery{display:flex;align-items:flex-start;gap:36px;height:auto;overflow-x:auto;padding:45px 28px 50px;scroll-snap-type:x proximity}.rta-gallery .rta-memory{position:relative;left:auto;top:auto;flex:0 0 220px;width:220px;scroll-snap-align:center}.rta-gallery .rta-memory:nth-child(even){margin-top:40px}.rta-gallery .rta-memory:nth-child(3){margin-top:12px}.rta-sticker{font-size:1.4rem}}
+@media(prefers-reduced-motion:reduce){.rta-gallery .rta-memory{transition:none}}
+
+
+/* Labels carry the visible captions; retain the descriptive captions for assistive tech. */
+.rta-gallery .rta-memory figcaption{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}

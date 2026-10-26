@@ -7,6 +7,7 @@ document.querySelectorAll('.rta-screenshot').forEach(link => {
     // Keep the original PNG link as a fallback when dialogs are unavailable.
     if (typeof screenshotDialog.showModal !== 'function') return;
     event.preventDefault();
+    enlargedScreenshot.parentElement.style.cssText = link.dataset.screenStyle;
     enlargedScreenshot.src = link.href;
     enlargedScreenshot.alt = link.querySelector('img').alt;
     screenshotCaption.textContent = link.dataset.caption;
