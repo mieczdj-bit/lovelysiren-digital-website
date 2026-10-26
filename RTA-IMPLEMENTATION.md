@@ -34,3 +34,11 @@ Verified at 320, 375, 768, 1024, and 1440 pixels: gallery keyboard opening, Clos
 ## Exact game allowances correction
 
 Removed the separate comparison table. The existing Free and Base boxes now each contain seven game bullets with the producer-supplied library sizes and daily allowances/unlimited Base play. Free Scavenger Hunt and Road Bingo describe ads to unlock more, following the owner's example. The Base Roadblock bullet includes rescue without a rewarded video. Additional Great Benefits and the future Base content callout follow the paid game list. Theme Packs remains immediately after the two boxes. Removed obsolete table styles. Five-width gallery/accessibility/keyboard tests and site regression passed.
+
+## Scattered screenshot gallery
+
+Replaced the orderly row with a deterministic scattered desktop/tablet arrangement: independent positions, varied rotations, black 10px image surrounds, an outer black outline with 10px light spacing and 20px bottom spacing, and varied playful HTML sticker captions. Hover/keyboard focus lifts and enlarges each card; reduced-motion preferences disable transitions. Mobile keeps an angled horizontal gallery with the scroll hint visible only on narrow screens.
+
+Screenshot sidebars are removed from the rendered thumbnail and enlarged view using source-specific CSS display windows, preserving game pixels and original source files. Native enlargement, Escape/Close, alt descriptions and focus restoration remain intact. No screenshot artwork was regenerated.
+
+Five-width RTA gallery/image/accessibility tests passed. Additional checks verified desktop galleries require no scrolling, rotated cards stay inside their gallery area, mobile-only hint visibility, and hover transforms. Site regression passed nine URLs and 100 link/resource checks. Gallery screenshots visually reviewed at desktop, hover, and narrow mobile sizes.
