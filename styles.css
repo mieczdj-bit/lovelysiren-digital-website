@@ -20,3 +20,6 @@
 .hero h1{font-size:clamp(2rem,4vw,3.5rem)}
 @media(max-width:760px){.hero{height:clamp(330px,65vw,430px)}.hero-picture{object-fit:contain;object-position:center top}.hero::after{background:linear-gradient(to bottom,transparent 20%,rgba(5,20,32,.25) 40%,#102b3d 68%)}.hero-text{padding-bottom:22px}.hero h1{font-size:clamp(1.8rem,7vw,3rem)}.hero-text>p:last-child{font-size:1rem;max-width:34rem;margin:auto}}
 .hero-text{margin:0 auto}
+.account-menu-signout{display:block;width:100%;border:0;text-align:left;background:transparent;color:inherit;padding:10px 12px;border-radius:8px;font:inherit;cursor:pointer}.account-menu-signout:hover{background:#e7f9f3}
+.account>summary span:nth-child(2){max-width:9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:760px){.account>summary span:nth-child(2){max-width:clamp(3.5rem,calc(100vw - 270px),9rem)}}
