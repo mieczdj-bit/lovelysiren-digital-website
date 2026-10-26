@@ -45,3 +45,5 @@ Install pinned dev dependencies using `pnpm install --frozen-lockfile`. Run `pnp
 Firebase implementation references: [password auth](https://firebase.google.com/docs/auth/web/password-auth), [persistence](https://firebase.google.com/docs/auth/web/auth-state-persistence), [Auth API verification/linking](https://firebase.google.com/docs/reference/js/auth), [Google branding](https://developers.google.com/identity/branding-guidelines).
 
 Do not merge this branch or activate registration on production before separate security/integration review and approval.
+
+Google icon follow-up: reused the existing four-color Google G as a shared local SVG and added it to every Google sign-in dropdown entry, Continue with Google button, and Connect Google control. Checked all eight dropdowns at 320px and 1440px: icons decoded, accessible link names were preserved, no overflow or JavaScript errors, and authentication remained disabled. Development branch only.

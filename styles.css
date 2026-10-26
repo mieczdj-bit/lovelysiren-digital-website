@@ -23,3 +23,5 @@
 .account-menu-signout{display:block;width:100%;border:0;text-align:left;background:transparent;color:inherit;padding:10px 12px;border-radius:8px;font:inherit;cursor:pointer}.account-menu-signout:hover{background:#e7f9f3}
 .account>summary span:nth-child(2){max-width:9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:760px){.account>summary span:nth-child(2){max-width:clamp(3.5rem,calc(100vw - 270px),9rem)}}
+.google-mark{display:block;width:20px;height:20px;flex-shrink:0}
+.dropdown-list>a.google-signin-option{display:flex;align-items:center;gap:12px;min-height:44px}
