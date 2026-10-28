@@ -1,0 +1,19 @@
+{
+  "websiteTerms": {
+    "documentId": "website-terms-v1.0",
+    "version": "1.0",
+    "status": "published",
+    "effectiveDate": "2026-10-28",
+    "source": "legal/website-terms/v1.0/source.md",
+    "publicationApproved": true,
+    "contentSha256": "963bac3c70804f34e9aa184149b46c714d720e37ba6181529744d7d465ef44de"
+  },
+  "publishedVersions": [
+    {
+      "documentId": "website-terms-v1.0",
+      "effectiveDate": "2026-10-28",
+      "url": "/legal/website-terms/v1.0/index.html",
+      "sha256": "963bac3c70804f34e9aa184149b46c714d720e37ba6181529744d7d465ef44de"
+    }
+  ]
+}
