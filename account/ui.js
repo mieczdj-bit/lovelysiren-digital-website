@@ -3,7 +3,7 @@ import { accountConfig } from './config.js';
 import { registrationErrors,validEmail,normalizeEmail,validPhone,displayNameError,friendlyError } from './validation.js';
 const page=document.body.dataset.accountPage;
 const message=document.getElementById('form-message');
-let processing=false;
+let processing=false;let reviewedPolicy=null;
 function announce(text,success=false){message.textContent=text;message.classList.toggle('success',success);}
 function clearErrors(){document.querySelectorAll('.field-error').forEach(e=>{e.hidden=true;e.textContent='';});document.querySelectorAll('[aria-invalid]').forEach(e=>e.removeAttribute('aria-invalid'));announce('');}
 function showErrors(errors){
@@ -27,15 +27,26 @@ async function run(action,operation){
 function routeAfterSignIn(state){
  if(state.status==='authenticated')location.assign('index.html');
  else if(state.status==='verification-pending')location.assign('verify-email.html');
+ else if(state.status==='policy-required')location.assign('settings.html');
  else{announce('Your sign-in is recognized, but account setup is not complete. Full account access is unavailable.');location.assign('index.html');}
 }
 const dateInput=document.getElementById('birthDate');
 if(dateInput){const today=new Date();dateInput.max=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;}
 const createForm=document.getElementById('create-form');
+const eligibilityForm=document.getElementById('eligibility-form');
+if(eligibilityForm){
+ document.getElementById('check-eligibility').disabled=!service.registrationAvailable();
+ eligibilityForm.addEventListener('submit',event=>{event.preventDefault();clearErrors();void run('eligibility',async()=>{
+  const result=await service.checkEligibility(dateInput.value);
+  const status=document.getElementById('eligibility-status');
+  if(result.eligible){document.getElementById('eligible-birth-date').value=dateInput.value;eligibilityForm.hidden=true;createForm.hidden=false;status.textContent='Eligibility check complete. Continue with your authorized account registration.';document.getElementById('invitationCode').focus();}
+  else{dateInput.value='';status.textContent='Account registration is not available for this applicant. No account has been created.';}
+ });});
+}
 if(createForm){
  const ready=service.registrationAvailable();
  document.getElementById('accepted').disabled=!ready;createForm.querySelector('button[type="submit"]').disabled=!ready;
- if(ready){const label=document.getElementById('terms-label');const link=document.createElement('a');link.textContent='Terms of Service';link.href=accountConfig.policies.termsUrl;label.replaceWith(link);document.querySelector('.account-acceptance a[href="../privacy.html"]').href=accountConfig.policies.privacyUrl;document.getElementById('policy-status').textContent='Please read and accept both policies before creating an account.';}
+ if(ready){const label=document.getElementById('terms-label');const link=document.createElement('a');link.textContent='Terms of Service';link.href=accountConfig.emulators?.enabled?'../drafts/emulator-policy-fixture.html':accountConfig.policies.termsUrl;label.replaceWith(link);document.querySelector('.account-acceptance a[href="../privacy.html"]').href=accountConfig.emulators?.enabled?'../drafts/emulator-policy-fixture.html':accountConfig.policies.privacyUrl;document.getElementById('policy-status').textContent='Please read and accept both policies before creating an account.';}
  createForm.addEventListener('submit',event=>{event.preventDefault();clearErrors();const data=values(createForm);data.accepted=document.getElementById('accepted').checked;const errors=registrationErrors(data);if(!data.invitationCode||data.invitationCode.trim().length<20)errors.invitationCode='Enter your authorized test invitation code.';if(Object.keys(errors).length){showErrors(errors);return;}void run('register',async()=>{const result=await service.register(data);createForm.reset();if(result.verificationSent)sessionStorage.setItem('lovelysiren-verification-sent','1');routeAfterSignIn(result.state);});});
 }
 const signinForm=document.getElementById('signin-form');
@@ -72,19 +83,20 @@ document.querySelectorAll('[data-signout]').forEach(button=>button.addEventListe
 document.getElementById('profile-form')?.addEventListener('submit',event=>{event.preventDefault();clearErrors();const data=values(event.currentTarget);const errors={};const nameError=displayNameError(data.displayName);if(nameError)errors.displayName=nameError;if(!validPhone(data.phone))errors.phone='Use international format with + and country code, or leave it blank.';if(Object.keys(errors).length){showErrors(errors);return;}void run('profile',async()=>{await service.updateProfile(data);announce('Profile updated.',true);});});
 document.getElementById('connect-google-form')?.addEventListener('submit',event=>{event.preventDefault();clearErrors();const password=values(event.currentTarget).reauthPassword;if(!password){showErrors({reauthPassword:'Enter your current password to confirm this change.'});return;}void run('link',async()=>{await service.connectGoogle(password);announce('Google is connected to your existing account.',true);});});
 service.subscribe(state=>{
- document.querySelectorAll('.account-notice').forEach(notice=>{notice.hidden=service.available()&&!accountConfig.emulators?.enabled;if(accountConfig.emulators?.enabled)notice.textContent='Local Firebase emulator test only. No real customer accounts or verification emails are created. Draft policies here are not approved for production.';});
+ document.querySelectorAll('.account-notice').forEach(notice=>{notice.hidden=service.available()&&!accountConfig.emulators?.enabled;if(accountConfig.emulators?.enabled)notice.textContent='Local Firebase emulator test only. No real customer accounts or verification emails are created. Policy records are synthetic test fixtures, not acceptance of these draft legal documents.';});
  const dashboard=state.status==='authenticated';
  if(page==='signin')document.getElementById('signin-pending').hidden=state.status!=='verification-pending';
  if(page==='dashboard'){
   document.getElementById('signed-out-account').hidden=Boolean(state.user);document.getElementById('account-pending').hidden=!state.user||dashboard;
   document.getElementById('profile-view').hidden=!dashboard;
-  if(state.user&&!dashboard){document.getElementById('pending-copy').textContent=state.status==='checking'?'Checking your account…':state.status==='verification-pending'?'Verify your email to continue.':'Your sign-in is recognized, but full account setup is not available yet.';document.getElementById('pending-verify').hidden=state.status!=='verification-pending';}
+  if(state.status==='policy-required'){const link=document.createElement('a');link.href='settings.html';link.textContent='Review updated policies in Account Settings';document.getElementById('pending-copy').replaceChildren(link);}else if(state.user&&!dashboard){document.getElementById('pending-copy').textContent=state.status==='checking'?'Checking your account…':state.status==='verification-pending'?'Verify your email to continue.':'Your sign-in is recognized, but full account setup is not available yet.';document.getElementById('pending-verify').hidden=state.status!=='verification-pending';}
   if(dashboard){const fields={displayName:state.profile.displayName,email:state.user.email,verification:'Verified',lovelySirenId:state.profile.lovelySirenId,phone:state.profile.phone||'Not provided',providers:state.user.providers.map(p=>p==='password'?'Email/password':p==='google.com'?'Google':p).join(', ')};document.querySelectorAll('[data-profile]').forEach(el=>el.textContent=String(fields[el.dataset.profile]||''));}
  }
  if(page==='settings'){
-  document.getElementById('settings-gate').hidden=dashboard;document.getElementById('settings-content').hidden=!dashboard;
+  document.getElementById('settings-gate').hidden=dashboard||state.status==='policy-required';document.getElementById('policy-renewal').hidden=state.status!=='policy-required';if(state.status==='policy-required'){void service.currentPolicies().then(policy=>{reviewedPolicy=policy;document.getElementById('renew-terms').href=policy.terms.url;document.getElementById('renew-privacy').href=policy.privacy.url;document.getElementById('renew-version').textContent=policy.terms.version+' / '+policy.privacy.version;}).catch(error=>announce(friendlyError(error)));}document.getElementById('settings-content').hidden=!dashboard;
   if(dashboard){document.getElementById('displayName').value=state.profile.displayName||'';document.getElementById('phone').value=state.profile.phone||'';document.getElementById('password-provider').textContent=state.user.providers.includes('password')?'Connected':'Not connected';const google=state.user.providers.includes('google.com');document.getElementById('google-provider').textContent=google?'Connected':'Not connected';document.getElementById('connect-google-form').hidden=google;document.querySelector('#connect-google-form button').disabled=!(service.googleAvailable?.() ?? false);}
  }
  if(page==='verify'){updateResendButton();document.getElementById('recheck-verification').disabled=!service.available();}
 });
+document.getElementById('renew-form')?.addEventListener('submit',event=>{event.preventDefault();if(!document.getElementById('renew-accepted').checked){announce('Read and accept both published policies to continue.');return;}void run('policy',async()=>{await service.acceptPolicies(true,reviewedPolicy);document.getElementById('renew-accepted').checked=false;announce('Policy acceptance saved.',true);});});
 service.init().catch(error=>announce(friendlyError(error)));

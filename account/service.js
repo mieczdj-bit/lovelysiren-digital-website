@@ -35,6 +35,7 @@ export function createAccountService(config, dependencies = {}) {
     });
     if (!response.ok) {
       if (response.status === 401) { await sdk.signOut(auth); throw problem('auth/requires-recent-login'); }
+      if(response.status===428)throw problem('service/policy-required');
       if (response.status === 403) throw problem(path.startsWith('registration/')?'service/registration-denied':'service/setup-required');
       if (response.status === 429) throw problem('auth/too-many-requests');
       if (response.status === 409 && path.startsWith('registration/')) throw problem('service/registration-retry');
@@ -67,7 +68,7 @@ export function createAccountService(config, dependencies = {}) {
         displayName: record.displayName, phone: record.phone || null, accountStatus: record.accountStatus };
       emit({status:'authenticated',user:publicUser(user),profile});
     } catch (error) {
-      if (currentRevision === revision) emit({status:auth.currentUser?'setup-required':'signed-out',user:auth.currentUser?publicUser(auth.currentUser):null,profile:null,error});
+      if (currentRevision === revision) emit({status:auth.currentUser?(error.code==='service/policy-required'?'policy-required':'setup-required'):'signed-out',user:auth.currentUser?publicUser(auth.currentUser):null,profile:null,error});
     }
   }
   async function init() {
@@ -121,6 +122,9 @@ export function createAccountService(config, dependencies = {}) {
   const service = {
     init, getState:()=>state, available:()=>Boolean(configured()), registrationAvailable:()=>Boolean(registrationReady()), googleAvailable:()=>Boolean(configured() && config.googleEnabled && registrationReady()),
     subscribe(listener){listeners.add(listener);listener(state);return()=>listeners.delete(listener);},
+    async checkEligibility(birthDate){if(!registrationReady())throw problem('service/policy-pending');return backend('registration/eligibility',{birthDate},false);},
+    async currentPolicies(){await requireAuth();return backend('policies/status');},
+    async acceptPolicies(accepted,reviewed){await verifyAllowed();if(!reviewed?.terms?.version||!reviewed?.privacy?.version)throw problem('service/policy-required');await backend('policies/accept',{accepted,termsVersion:reviewed.terms.version,privacyVersion:reviewed.privacy.version});await reconcile(auth.currentUser);return state;},
     async signIn(email,password){await requireAuth();await sdk.signInWithEmailAndPassword(auth,normalizeEmail(email),password);await reconcile(auth.currentUser);return state;},
     async googleSignIn(){
       await requireAuth();

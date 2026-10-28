@@ -1,0 +1,21 @@
+{
+  "websiteTerms": {
+    "documentId": "website-terms-v1.0",
+    "version": "1.0",
+    "status": "review",
+    "effectiveDate": null,
+    "source": "legal/website-terms/v1.0/source.md",
+    "publicationApproved": false,
+    "contentSha256": "48617ef1ac8db5f2391028fa427c67a667690aafff37b0432e75b69c0f590317"
+  },
+  "rtaTerms": {
+    "documentId": "rta-terms-v1.0",
+    "version": "1.0",
+    "status": "release-review",
+    "effectiveDate": null,
+    "source": "legal/rta-terms/v1.0/source.md",
+    "publicationApproved": false,
+    "contentSha256": "79ee4c28dc93618ba927e1d3e4af202fcc199e84ce14cfb4631e58047ecf6092"
+  },
+  "publishedVersions": []
+}

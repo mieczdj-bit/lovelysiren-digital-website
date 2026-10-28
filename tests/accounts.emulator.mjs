@@ -5,7 +5,7 @@ import {hash,NAMESPACE,createAccountBackend} from '../functions/src/accounts.js'
 if(process.env.FIREBASE_AUTH_EMULATOR_HOST!=='127.0.0.1:19099'||process.env.FIREBASE_DATABASE_EMULATOR_HOST!=='127.0.0.1:19000')throw Error('Refusing tests without both loopback emulator hosts');
 const require=createRequire(new URL('../functions/package.json',import.meta.url));const {initializeApp}=require('firebase-admin/app');const {getAuth}=require('firebase-admin/auth');const {getDatabase}=require('firebase-admin/database');
 const adminApp=initializeApp({projectId:'demo-road-trip-arcade',databaseURL:'https://demo-road-trip-arcade-default-rtdb.firebaseio.com'},'account-e2e');const adminAuth=getAuth(adminApp);const db=getDatabase(adminApp);const base='http://127.0.0.1:19501/demo-road-trip-arcade/us-central1/lovelysirenAccountsApi/';const origin='http://127.0.0.1:18766';const invitation='emulator-only-invitation-code-256-bit-fixture';const password='Emulator only passphrase 987!';
-const config={serviceEnabled:true,mode:'controlled-test',registrationEnabled:true,googleLinkingEnabled:true,allowedOrigins:[origin],policy:{approved:true,minimumAge:18,termsVersion:'emulator-terms-v1',privacyVersion:'emulator-privacy-v1'}};
+const config={serviceEnabled:true,mode:'controlled-test',registrationEnabled:true,googleLinkingEnabled:true,allowedOrigins:[origin],policy:{approved:true,minimumAge:18,termsVersion:'emulator-terms-v1',privacyVersion:'emulator-privacy-v1',documents:{terms:{kind:'website-terms',status:'test-fixture',version:'emulator-terms-v1',effectiveDate:'2026-01-01',sha256:'a'.repeat(64),url:'http://127.0.0.1:18766/drafts/emulator-policy-fixture.html'},privacy:{kind:'website-privacy',status:'test-fixture',version:'emulator-privacy-v1',effectiveDate:'2026-01-01',sha256:'b'.repeat(64),url:'http://127.0.0.1:18766/drafts/emulator-policy-fixture.html'}}}};
 const body=(email,overrides={})=>({method:'password',invitationCode:invitation,displayName:'Captain Test',birthDate:'1990-01-01',email,accepted:true,termsVersion:config.policy.termsVersion,privacyVersion:config.policy.privacyVersion,...overrides});
 async function invite(email,extra={}){await db.ref(`${NAMESPACE}/testInvitations/${hash(email.toLowerCase())}`).set({enabled:true,codeHash:hash(invitation),expiresAt:Date.now()+3600000,...extra});}
 async function api(path,data={},token){const res=await fetch(base+path,{method:'POST',headers:{Origin:origin,'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:JSON.stringify(data)});return{status:res.status,body:await res.json()};}
@@ -93,6 +93,29 @@ await test('real Firebase emulators: controlled registration, ownership, verific
   await adminAuth.createUser({uid:'profile_retry_uid',email:'profile-retry@example.test',password,emailVerified:true});await invite('profile-retry@example.test',{existingUid:'profile_retry_uid'});const c=client('profile-retry-'+Date.now());await signInWithEmailAndPassword(c.auth,'profile-retry@example.test',password);const ct=await c.auth.currentUser.getIdToken();const decoded=await adminAuth.verifyIdToken(ct,true);const g=await api('registration/prepare',body('profile-retry@example.test'));
   let inject=true;const flakyDb={ref:path=>{const reference=db.ref(path);if(path===NAMESPACE+'/profiles/profile_retry_uid'&&inject){inject=false;return new Proxy(reference,{get(target,key){if(key==='transaction')return async()=>{throw Error('Injected profile transaction interruption')};const value=target[key];return typeof value==='function'?value.bind(target):value;}});}return reference;}};
   const backend=createAccountBackend({db:flakyDb,auth:adminAuth});await assert.rejects(backend.complete({registrationGrant:g.body.registrationGrant},decoded));const firstId=(await db.ref(NAMESPACE+'/identityByUid/profile_retry_uid').get()).val().lovelySirenId;assert.equal((await api('registration/complete',{registrationGrant:g.body.registrationGrant},ct)).status,200);assert.equal((await db.ref(NAMESPACE+'/profiles/profile_retry_uid').get()).val().lovelySirenId,firstId);await deleteApp(c.app);
+ });
+ await t.test('age-only eligibility rejects unrelated fields and creates no permanent identity',async()=>{
+  const before=(await db.ref(NAMESPACE+'/identityByUid').get()).val();
+  assert.deepEqual((await api('registration/eligibility',{birthDate:'2020-01-01'})).body,{eligible:false});
+  assert.deepEqual((await api('registration/eligibility',{birthDate:'1990-01-01'})).body,{eligible:true});
+  assert.equal((await api('registration/eligibility',{birthDate:'1990-01-01',email:'not-collected@example.test'})).status,400);
+  assert.deepEqual((await db.ref(NAMESPACE+'/identityByUid').get()).val(),before);
+ });
+ await t.test('draft policies block preparation and provision; version-aware renewal keeps identity and history',async()=>{
+  await invite('policy-gate@example.test');const prepared=await api('registration/prepare',body('policy-gate@example.test'));assert.equal(prepared.status,200);
+  await db.ref(NAMESPACE+'/controls/config/policy/documents/terms/status').set('review');
+  assert.equal((await api('registration/prepare',body('policy-gate@example.test'))).status,503);
+  assert.equal((await api('registration/provision',{registrationGrant:prepared.body.registrationGrant,password})).status,503);
+  await db.ref(NAMESPACE+'/controls/config/policy').set({...config.policy,requiresReacceptance:true,termsVersion:'emulator-terms-v2',documents:{...config.policy.documents,terms:{...config.policy.documents.terms,version:'emulator-terms-v2'}}});
+  assert.equal((await api('profile/read',{},token)).status,428);
+  assert.equal((await api('profile/update',{displayName:'No change',phone:null},token)).status,428);
+  const current=await api('policies/status',{},token);assert.equal(current.status,200);assert.equal(current.body.terms.version,'emulator-terms-v2');
+  assert.equal((await api('policies/accept',{accepted:true,termsVersion:config.policy.termsVersion,privacyVersion:config.policy.privacyVersion},token)).status,403);
+  assert.equal((await api('policies/accept',{accepted:false,termsVersion:'emulator-terms-v2',privacyVersion:config.policy.privacyVersion},token)).status,403);
+  assert.equal((await api('policies/accept',{accepted:true,termsVersion:'emulator-terms-v2',privacyVersion:config.policy.privacyVersion},token)).status,200);
+  assert.equal((await api('profile/read',{},token)).body.profile.lovelySirenId,id);
+  const history=(await db.ref(NAMESPACE+'/policyHistory/'+uid).get()).val();assert.equal(Object.keys(history).length,2);assert.ok(Object.values(history).every(a=>typeof a.acceptedAt==='number'&&!a.rtaTermsVersion));
+  await db.ref(NAMESPACE+'/controls/config/policy').set(config.policy);
  });
  await signOut(a.auth);await deleteApp(a.app);
 });

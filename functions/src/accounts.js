@@ -4,18 +4,34 @@ export const hash=value=>createHash('sha256').update(String(value)).digest('hex'
 export const normalizeEmail=value=>String(value||'').trim().toLowerCase();
 export class AccountError extends Error{constructor(status,code){super(code);this.status=status;this.code=code;}}
 export const fail=(status,code)=>{throw new AccountError(status,code);};
+export function eligibleAdult(birthDate,now){
+ const dob=String(birthDate||'');if(!/^\d{4}-\d{2}-\d{2}$/.test(dob))fail(400,'invalid-input');
+ const [y,m,d]=dob.split('-').map(Number);const date=new Date(0);date.setUTCFullYear(y,m-1,d);date.setUTCHours(0,0,0,0);
+ if(y<1||date.getUTCFullYear()!==y||date.getUTCMonth()+1!==m||date.getUTCDate()!==d||date.getTime()>now)fail(403,'not-authorized');
+ const today=new Date(now);let age=today.getUTCFullYear()-y;if(today.getUTCMonth()+1<m||(today.getUTCMonth()+1===m&&today.getUTCDate()<d))age--;
+ return age>=18;
+}
+export function publishedPolicies(policy,now,{emulator=process.env.FUNCTIONS_EMULATOR==='true'}={}){
+ if(policy?.approved!==true||policy.minimumAge!==18||!policy.termsVersion||!policy.privacyVersion)fail(503,'policy-pending');
+ const result={};
+ for(const [key,kind,version]of [['terms','website-terms',policy.termsVersion],['privacy','website-privacy',policy.privacyVersion]]){
+  const doc=policy.documents?.[key];
+  const fixture=emulator&&doc?.status==='test-fixture';
+  if(!doc||(!fixture&&doc.status!=='published')||doc.kind!==kind||doc.version!==version||!/^\d{4}-\d{2}-\d{2}$/.test(doc.effectiveDate||'')||!Number.isFinite(Date.parse(doc.effectiveDate))||Date.parse(doc.effectiveDate)>now||!/^([a-f0-9]{64})$/.test(doc.sha256||''))fail(503,'policy-pending');
+  let url;try{url=new URL(doc.url);}catch{fail(503,'policy-pending');}
+  if(!fixture&&(url.origin!=='https://lovelysirendigital.com'||url.pathname!==(key==='terms'?'/terms.html':'/privacy.html')||url.search||url.hash))fail(503,'policy-pending');
+  result[key]={version:doc.version,url:doc.url,sha256:doc.sha256,effectiveDate:doc.effectiveDate};
+ }
+ return result;
+}
 export function validatePreparation(input,policy,now){
- if(policy.approved!==true||policy.minimumAge!==18||!policy.termsVersion||!policy.privacyVersion)fail(503,'policy-pending');
+ const documents=publishedPolicies(policy,now);
  if(input.accepted!==true||input.termsVersion!==policy.termsVersion||input.privacyVersion!==policy.privacyVersion)fail(403,'not-authorized');
  const name=String(input.displayName||'').trim();const email=normalizeEmail(input.email);const phone=String(input.phone||'').trim().replace(/[\s().-]/g,'');
  if([...name].length<2||[...name].length>40||!/^[\p{L}\p{M}\p{N} ._'’-]+$/u.test(name)||!/^\S+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254||phone&&!/^\+[1-9]\d{6,14}$/.test(phone))fail(400,'invalid-input');
- const dob=String(input.birthDate||'');if(!/^\d{4}-\d{2}-\d{2}$/.test(dob))fail(400,'invalid-input');
- const [y,m,d]=dob.split('-').map(Number);const date=new Date(Date.UTC(y,m-1,d));
- if(y<1900||date.getUTCFullYear()!==y||date.getUTCMonth()+1!==m||date.getUTCDate()!==d||date.getTime()>now)fail(403,'not-authorized');
- const today=new Date(now);let age=today.getUTCFullYear()-y;if(today.getUTCMonth()+1<m||(today.getUTCMonth()+1===m&&today.getUTCDate()<d))age--;
- if(age<18)fail(403,'not-authorized');
+ if(!eligibleAdult(input.birthDate,now))fail(403,'not-authorized');
  if('password' in input||'uid' in input||'lovelySirenId' in input)fail(400,'invalid-input');
- return{displayName:name,email,...(phone?{phone}:{}),ageCategory:'adult',policyAcceptance:{termsVersion:policy.termsVersion,privacyVersion:policy.privacyVersion,acceptedAt:now}};
+ return{displayName:name,email,...(phone?{phone}:{}),ageCategory:'adult',policyAcceptance:{termsVersion:policy.termsVersion,privacyVersion:policy.privacyVersion,termsSha256:documents.terms.sha256,privacySha256:documents.privacy.sha256,acceptedAt:now}};
 }
 export function validateProfile(input){
  if(Object.keys(input).some(k=>!['displayName','phone'].includes(k)))fail(400,'invalid-input');
@@ -41,16 +57,28 @@ export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,sec
   }
   fail(503,'retry-later');
  }
- async function ownedProfile(token,verified=true){
-  await config();if(verified&&token.email_verified!==true)fail(403,'verify-required');
+ async function ownedProfile(token,verified=true,enforcePolicy=true){
+  const c=await config();if(verified&&token.email_verified!==true)fail(403,'verify-required');
   const p=await read('profiles/'+token.uid);if(!p||p.firebaseUid!==token.uid||!['pendingVerification','active'].includes(p.state))fail(403,'setup-required');
   const canonical=await read('identityByUid/'+token.uid);const owner=canonical&&await read('uidByIdentity/'+canonical.lovelySirenId);
   if(!canonical||canonical.lovelySirenId!==p.lovelySirenId||owner!==token.uid)fail(403,'setup-required');
+  if(enforcePolicy&&c.policy?.requiresReacceptance){publishedPolicies(c.policy,clock());if(p.policyAcceptance?.termsVersion!==c.policy.termsVersion||p.policyAcceptance?.privacyVersion!==c.policy.privacyVersion)fail(428,'policy-required');}
   return p;
  }
  function view(p){return{firebaseUid:p.firebaseUid,lovelySirenId:p.lovelySirenId,displayName:p.displayName,phone:p.phone||null,accountStatus:'active'};}
  return{
   config,
+  async eligibility(input,context){const c=await config();if(!c.registrationEnabled)fail(403,'not-authorized');if(Object.keys(input).some(k=>k!=='birthDate'))fail(400,'invalid-input');await throttle('eligibility-ip:'+context.ip,30,3600000);return{eligible:eligibleAdult(input.birthDate,clock())};},
+  async policyStatus(input,token){if(Object.keys(input).length)fail(400,'invalid-input');await ownedProfile(token,true,false);return publishedPolicies((await config()).policy,clock());},
+  async acceptPolicies(input,token){
+   if(Object.keys(input).some(k=>!['accepted','termsVersion','privacyVersion'].includes(k)))fail(400,'invalid-input');
+   await ownedProfile(token,true,false);const c=await config();const documents=publishedPolicies(c.policy,clock());
+   if(input.accepted!==true||input.termsVersion!==c.policy.termsVersion||input.privacyVersion!==c.policy.privacyVersion)fail(403,'not-authorized');
+   const acceptance={termsVersion:c.policy.termsVersion,privacyVersion:c.policy.privacyVersion,termsSha256:documents.terms.sha256,privacySha256:documents.privacy.sha256,acceptedAt:clock()};
+   const key=hash(acceptance.termsVersion+'|'+acceptance.privacyVersion);
+   await ref('policyHistory/'+token.uid+'/'+key).transaction(current=>current||acceptance,undefined,false);
+   await ref('profiles/'+token.uid).update({policyAcceptance:acceptance,updatedAt:clock()});return{accepted:true};
+  },
   async prepare(input,context){
    const c=await config();if(!c.registrationEnabled)fail(403,'not-authorized');
    await throttle('registration-ip:'+context.ip,20,3600000);
@@ -63,8 +91,9 @@ export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,sec
    return{registrationGrant:token,flow:reservation.existingAccount?'sign-in-existing':'controlled-provisioning'};
   },
   async provision(input,context){
-   await config();await throttle('provision-ip:'+context.ip,20,3600000);
+   const c=await config();const documents=publishedPolicies(c.policy,clock());await throttle('provision-ip:'+context.ip,20,3600000);
    const {key,record}=await grant(input.registrationGrant);await assertInvitation(record.emailKey);
+   if(record.profile.policyAcceptance.termsVersion!==c.policy.termsVersion||record.profile.policyAcceptance.privacyVersion!==c.policy.privacyVersion||record.profile.policyAcceptance.termsSha256!==documents.terms.sha256||record.profile.policyAcceptance.privacySha256!==documents.privacy.sha256)fail(403,'policy-pending');
    if(record.existingAccount)fail(403,'existing-sign-in-required');
    if(typeof input.password!=='string'||input.password.length<15||input.password.length>128)fail(400,'password-policy');
    const lease=secret();const now=clock();
@@ -85,12 +114,12 @@ export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,sec
    }catch(error){if(process.env.FUNCTIONS_EMULATOR==='true')console.warn('controlled-provision-failure-code',error.code||error.name);await ref('registrationGrants/'+key).transaction(current=>!current?null:current?.lease===lease?{...current,state:'prepared',lease:null,leaseUntil:null}:undefined,undefined,false);if(error instanceof AccountError)throw error;fail(409,'registration-not-completed');}
   },
   async complete(input,token){
-   const c=await config();const {key,record}=await grant(input.registrationGrant);
+   const c=await config();const documents=publishedPolicies(c.policy,clock());const {key,record}=await grant(input.registrationGrant);
    if(record.authUid!==token.uid||normalizeEmail(token.email)!==record.profile.email)fail(403,'not-authorized');
    if(record.state!=='completed'){
     try{await assertInvitation(record.emailKey);}catch(error){const prior=await read('profiles/'+token.uid);if(prior?.registrationGrantHash!==key)throw error;}
     if(!record.existingAccount&&record.state!=='provisioned')fail(403,'not-authorized');
-    if(record.profile.policyAcceptance.termsVersion!==c.policy?.termsVersion||record.profile.policyAcceptance.privacyVersion!==c.policy?.privacyVersion||c.policy?.approved!==true)fail(403,'policy-pending');
+    if(record.profile.policyAcceptance.termsVersion!==c.policy?.termsVersion||record.profile.policyAcceptance.privacyVersion!==c.policy?.privacyVersion||record.profile.policyAcceptance.termsSha256!==documents.terms.sha256||record.profile.policyAcceptance.privacySha256!==documents.privacy.sha256||c.policy?.approved!==true)fail(403,'policy-pending');
    }
    const canonical=await identity(token.uid);
    const now=clock();const proposed={registrationGrantHash:key,firebaseUid:token.uid,lovelySirenId:canonical.lovelySirenId,displayName:record.profile.displayName,...(record.profile.phone?{phone:record.profile.phone}:{}),ageCategory:'adult',policyAcceptance:record.profile.policyAcceptance,state:token.email_verified?'active':'pendingVerification',createdAt:now,updatedAt:now};

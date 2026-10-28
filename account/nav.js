@@ -17,6 +17,7 @@ if(menu && summary){
   summary.setAttribute('aria-label','Account options');menu.replaceChildren();
   addLink('Manage Account','index.html');
   if(state.status==='authenticated')addLink('Account Settings','settings.html');
+  else if(state.status==='policy-required')addLink('Review Updated Policies','settings.html');
   else if(state.status==='verification-pending')addLink('Verify Email','verify-email.html');
   else{const note=document.createElement('p');note.textContent='Account setup is not complete.';menu.append(note);}
   const signout=document.createElement('button');signout.type='button';signout.className='account-menu-signout';signout.textContent='Sign Out';

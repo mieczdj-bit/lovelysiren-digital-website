@@ -8,7 +8,7 @@ export function fixture(options={}){
  const service=createAccountService(config,{origin:'http://localhost',loadSdk:async()=>{calls.push(['load-sdk']);return sdk;},now:()=>clock,fetch:async(url,init)=>{
   const path=new URL(url).pathname.slice(1);calls.push(['backend',path,JSON.parse(init.body),init.headers]);
   if(options.backendError?.[path])return{ok:false,status:options.backendError[path]};
-  let result={};if(path==='profile/read')result={profile:options.profile||{firebaseUid:auth.currentUser.uid,lovelySirenId:'server-assigned-existing-id',displayName:'Captain',phone:null,accountStatus:'active'}};
+  let result={};if(path==='policies/status')result={terms:{version:'reviewed-terms',url:'https://lovelysirendigital.com/terms.html'},privacy:{version:'reviewed-privacy',url:'https://lovelysirendigital.com/privacy.html'}};if(path==='profile/read')result={profile:options.profile||{firebaseUid:auth.currentUser.uid,lovelySirenId:'server-assigned-existing-id',displayName:'Captain',phone:null,accountStatus:'active'}};
   if(path==='registration/prepare')result={registrationGrant:'server-grant',flow:'controlled-provisioning'};
   if(path==='registration/provision'){provisioned=true;result={provisioned:true};}
   if(path==='providers/google/prepare')result={linkGrant:'server-link-grant'};

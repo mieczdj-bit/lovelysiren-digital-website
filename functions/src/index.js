@@ -10,8 +10,8 @@ if(!local&&(process.env.FIREBASE_AUTH_EMULATOR_HOST||process.env.FIREBASE_DATABA
 if(projectId!=='road-trip-arcade'&&!(local&&projectId==='demo-road-trip-arcade'))throw new Error('Unexpected Firebase project');
 const app=getApps()[0]||initializeApp({projectId,databaseURL:`https://${projectId}-default-rtdb.firebaseio.com`});
 const auth=getAuth(app);const db=getDatabase(app);const backend=createAccountBackend({db,auth});
-const anonymous=new Map([['registration/prepare','prepare'],['registration/provision','provision']]);
-const protectedRoutes=new Map([['registration/complete','complete'],['profile/read','readProfile'],['profile/update','updateProfile'],['verification/authorize','verification'],['providers/google/prepare','prepareLink'],['providers/google/complete','completeLink']]);
+const anonymous=new Map([['registration/eligibility','eligibility'],['registration/prepare','prepare'],['registration/provision','provision']]);
+const protectedRoutes=new Map([['policies/status','policyStatus'],['policies/accept','acceptPolicies'],['registration/complete','complete'],['profile/read','readProfile'],['profile/update','updateProfile'],['verification/authorize','verification'],['providers/google/prepare','prepareLink'],['providers/google/complete','completeLink']]);
 export const lovelysirenAccountsApi=onRequest({region:'us-central1',maxInstances:2,timeoutSeconds:30,memory:'256MiB'},async(req,res)=>{
  res.set('Cache-Control','no-store');res.set('X-Content-Type-Options','nosniff');
  try{

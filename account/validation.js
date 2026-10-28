@@ -9,9 +9,9 @@ export function displayNameError(value) {
 export function validBirthDate(value, today = new Date()) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const [year, month, day] = value.split('-').map(Number);
-  const date = new Date(Date.UTC(year, month - 1, day));
+  const date = new Date(0);date.setUTCFullYear(year,month-1,day);date.setUTCHours(0,0,0,0);
   const maximum = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-  return year >= 1900 && date.getUTCFullYear() === year && date.getUTCMonth()+1 === month && date.getUTCDate() === day && value <= maximum;
+  return year >= 1 && date.getUTCFullYear() === year && date.getUTCMonth()+1 === month && date.getUTCDate() === day && value <= maximum;
 }
 export function normalizePhone(value) { return value.trim().replace(/[\s().-]/g, ''); }
 export function validPhone(value) { return !value.trim() || /^\+[1-9]\d{6,14}$/.test(normalizePhone(value)); }
@@ -33,7 +33,8 @@ export function friendlyError(error, action = 'signin') {
   if (code === 'service/registration-retry') return 'We could not complete this test registration. Try again with the same invitation, or sign in using your existing account.';
   if (code === 'service/registration-denied') return 'This test registration is not authorized. Check your invitation and eligibility information, or contact support.';
   if (code === 'service/invitation-required') return 'Enter the test invitation code issued for your account.';
-  if (code === 'service/policy-pending') return 'Registration is closed while eligibility rules and account policies are being finalized.';
+  if(code==='service/policy-required')return 'Please review the updated Website Terms and Privacy Policy in Account Settings.';
+  if (code === 'service/policy-pending') return 'Registration is closed until the published policies and controlled account service are ready.';
   if (code === 'service/setup-required') return 'Your sign-in is recognized, but account setup is not complete. Full account access is unavailable.';
   if (code === 'service/verify-required') return 'Please verify your email before opening your account.';
   if (code === 'service/resend-limited') return 'Please wait before requesting another verification email.';

@@ -10,7 +10,7 @@ export const accountConfig = Object.freeze({
   allowedOrigins: [],
   emailContinueUrl: 'https://lovelysirendigital.com/account/verify-email.html',
   emailContinueOrigins: ['https://lovelysirendigital.com'],
-  policies: { termsUrl: null, termsVersion: null, privacyUrl: '../privacy.html', privacyVersion: null, approved: false },
-  eligibilityApproved: false,
+  policies: { termsUrl: '../terms.html', termsVersion: null, privacyUrl: '../privacy.html', privacyVersion: null, approved: false },
+  eligibilityApproved: true,
   resendCooldownSeconds: 60
 });

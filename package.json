@@ -9,7 +9,9 @@
     "test:states": "node tests/browser-states.cjs",
     "emulators": "node scripts/run-emulators.cjs",
     "preview:emulator": "node scripts/account-emulator-preview.cjs",
-    "test:emulators": "node scripts/run-emulator-tests.cjs"
+    "test:emulators": "node scripts/run-emulator-tests.cjs",
+    "build:legal": "node scripts/build-legal-pages.cjs",
+    "test:legal": "node tests/browser-legal.cjs"
   },
   "dependencies": {
     "firebase": "12.19.0"
