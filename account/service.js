@@ -11,11 +11,16 @@ export function createAccountService(config, dependencies = {}) {
   const listeners = new Set();
   function emit(next) { state = next; listeners.forEach(listener => listener(state)); }
   function configured() {
-    return config.enabled && config.firebase?.projectId === 'road-trip-arcade' && config.firebase.apiKey && config.firebase.appId &&
-      config.allowedOrigins.includes(origin) && /^https:\/\//.test(config.backendBaseUrl || '');
+    const transportSafe=origin?.startsWith('https://')||/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin||'');
+    if(!transportSafe)return false;
+    const local = config.emulators?.enabled && ['http://127.0.0.1:18766','http://localhost:18766'].includes(origin) &&
+      config.firebase?.projectId === 'demo-road-trip-arcade' && config.backendBaseUrl?.startsWith('http://127.0.0.1:19501/demo-road-trip-arcade/');
+    if(config.emulators?.enabled&&!local)return false;
+    return config.enabled && (config.firebase?.projectId === 'road-trip-arcade' || local) && config.firebase.apiKey && config.firebase.appId &&
+      config.allowedOrigins.includes(origin) && (/^https:\/\//.test(config.backendBaseUrl || '') || local);
   }
   function registrationReady() {
-    return configured() && config.registrationEnabled && config.eligibilityApproved && config.policies.approved &&
+    return configured() && config.registrationEnabled && config.registrationMode === 'controlled-test' && config.eligibilityApproved && config.policies.approved &&
       config.policies.termsUrl && config.policies.termsVersion && config.policies.privacyVersion;
   }
   async function backend(path, body = {}, authenticated = true) {
@@ -30,8 +35,9 @@ export function createAccountService(config, dependencies = {}) {
     });
     if (!response.ok) {
       if (response.status === 401) { await sdk.signOut(auth); throw problem('auth/requires-recent-login'); }
-      if (response.status === 403) throw problem('service/setup-required');
+      if (response.status === 403) throw problem(path.startsWith('registration/')?'service/registration-denied':'service/setup-required');
       if (response.status === 429) throw problem('auth/too-many-requests');
+      if (response.status === 409 && path.startsWith('registration/')) throw problem('service/registration-retry');
       throw problem('service/not-ready');
     }
     return response.json();
@@ -70,6 +76,10 @@ export function createAccountService(config, dependencies = {}) {
       sdk = await loadSdk();
       const app = sdk.getApps().find(app=>app.name==='lovelysiren-website') || sdk.initializeApp(config.firebase,'lovelysiren-website');
       auth = sdk.getAuth(app);
+      if(config.emulators?.enabled){
+        if(config.firebase.projectId!=='demo-road-trip-arcade'||!config.backendBaseUrl.startsWith('http://127.0.0.1:19501/'))throw problem('service/not-ready');
+        sdk.connectAuthEmulator(auth,'http://127.0.0.1:19099',{disableWarnings:true});
+      }
       await sdk.setPersistence(auth,sdk.browserLocalPersistence);
       await new Promise((resolve,reject)=>{
         let first=true;
@@ -84,7 +94,8 @@ export function createAccountService(config, dependencies = {}) {
   async function requireAuth() { await init(); if(!auth)throw problem('service/not-ready'); }
   function actionSettings() {
     const url = new URL(config.emailContinueUrl);
-    if (url.origin !== 'https://lovelysirendigital.com') throw problem('service/not-ready');
+    const approvedOrigin=url.protocol==='https:'&&(config.emailContinueOrigins||['https://lovelysirendigital.com']).includes(url.origin);
+    if (!approvedOrigin && !(config.emulators?.enabled && url.origin === origin)) throw problem('service/not-ready');
     return {url:url.href,handleCodeInApp:false};
   }
   async function verifyAllowed() {
@@ -99,21 +110,22 @@ export function createAccountService(config, dependencies = {}) {
     const errors=registrationErrors(values);
     if(method==='google'){delete errors.password;delete errors.confirmPassword;}
     if(Object.keys(errors).length)throw problem('service/invalid-input');
+    if(typeof values.invitationCode!=='string'||values.invitationCode.length<20)throw problem('service/invitation-required');
     // The backend must revalidate birth date/eligibility and policy versions. No client age category is trusted.
     return backend('registration/prepare',{
       method,displayName:values.displayName.trim(),birthDate:values.birthDate,email:normalizeEmail(values.email),
       ...(values.phone.trim()?{phone:normalizePhone(values.phone)}:{}),
-      accepted:true,termsVersion:config.policies.termsVersion,privacyVersion:config.policies.privacyVersion
+      accepted:true,invitationCode:values.invitationCode.trim(),termsVersion:config.policies.termsVersion,privacyVersion:config.policies.privacyVersion
     },false);
   }
   const service = {
-    init, getState:()=>state, available:()=>Boolean(configured()), registrationAvailable:()=>Boolean(registrationReady()),
+    init, getState:()=>state, available:()=>Boolean(configured()), registrationAvailable:()=>Boolean(registrationReady()), googleAvailable:()=>Boolean(configured() && config.googleEnabled && registrationReady()),
     subscribe(listener){listeners.add(listener);listener(state);return()=>listeners.delete(listener);},
     async signIn(email,password){await requireAuth();await sdk.signInWithEmailAndPassword(auth,normalizeEmail(email),password);await reconcile(auth.currentUser);return state;},
     async googleSignIn(){
       await requireAuth();
       // A first Google sign-in creates a Firebase credential record. Keep this off until onboarding is approved.
-      if(!registrationReady())throw problem('service/policy-pending');
+      if(!registrationReady()||!config.googleEnabled)throw problem('service/policy-pending');
       const provider=new sdk.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});
       await sdk.signInWithPopup(auth,provider);await reconcile(auth.currentUser);return state;
     },
@@ -121,15 +133,16 @@ export function createAccountService(config, dependencies = {}) {
       await requireAuth();
       const grant=await prepareRegistration(values,method);
       if(typeof grant.registrationGrant!=='string'||!grant.registrationGrant)throw problem('service/not-ready');
-      let result;
-      if(method==='google'){
-        const provider=new sdk.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});
-        result=await sdk.signInWithPopup(auth,provider);
-      } else {
-        const policy=await sdk.validatePassword(auth,values.password);
-        if(!policy.isValid)throw problem('auth/password-does-not-meet-requirements');
-        result=await sdk.createUserWithEmailAndPassword(auth,normalizeEmail(values.email),values.password);
-      }
+      if(method!=='password')throw problem('service/not-ready');
+      // Auth Emulator does not implement getPasswordPolicy. The server still enforces the proposed 15–128 rule.
+      const policy=config.emulators?.enabled?{isValid:values.password.length>=15&&values.password.length<=128}:await sdk.validatePassword(auth,values.password);
+      if(!policy.isValid)throw problem('auth/password-does-not-meet-requirements');
+      if(grant.flow==='controlled-provisioning'){
+        // Transient credentials go only to the approved HTTPS provisioning endpoint (or loopback emulator).
+        // The trusted server allowlists test invitations before Firebase Admin creates a credential.
+        await backend('registration/provision',{registrationGrant:grant.registrationGrant,password:values.password},false);
+      }else if(grant.flow!=='sign-in-existing')throw problem('service/not-ready');
+      const result=await sdk.signInWithEmailAndPassword(auth,normalizeEmail(values.email),values.password);
       // No browser-created IDs or profile writes. Server binds grant to the verified Firebase token identity.
       await backend('registration/complete',{registrationGrant:grant.registrationGrant});
       let verificationSent=false;
@@ -138,13 +151,13 @@ export function createAccountService(config, dependencies = {}) {
     },
     async resetPassword(email){
       await requireAuth();
-      try{await sdk.sendPasswordResetEmail(auth,normalizeEmail(email),actionSettings());}
+      try{await sdk.sendPasswordResetEmail(auth,normalizeEmail(email),{...actionSettings(),url:new URL('sign-in.html',config.emailContinueUrl).href});}
       catch(error){if(error.code!=='auth/user-not-found')throw error;}
     },
     async resendVerification(){
       await requireAuth();if(!auth.currentUser)throw problem('auth/requires-recent-login');
       await sdk.reload(auth.currentUser);
-      if(auth.currentUser.emailVerified){await reconcile(auth.currentUser);return false;}
+      if(auth.currentUser.emailVerified){await sdk.getIdTokenResult(auth.currentUser,true);await reconcile(auth.currentUser);return false;}
       const cooldown=Math.max(60,config.resendCooldownSeconds || 60)*1000;
       if(now()-lastSend<cooldown)throw problem('service/resend-limited');
       // Server throttling is mandatory as well as this local cooldown; Firebase enforces its own quotas.
@@ -156,14 +169,15 @@ export function createAccountService(config, dependencies = {}) {
     async signOut(){await requireAuth();revision++;await sdk.signOut(auth);emit({status:'signed-out',user:null,profile:null});},
     async updateProfile(values){
       await verifyAllowed();
-      if(state.status!=='authenticated')throw problem('service/setup-required');
+      // Authorization is checked by the verified backend, not a transient UI state during token refresh.
       const errors=registrationErrors({...values,birthDate:'2000-01-01',email:'validation@example.com',password:'validation only',confirmPassword:'validation only',accepted:true});
       if(errors.displayName||errors.phone)throw problem('service/invalid-input');
       await backend('profile/update',{displayName:values.displayName.trim(),phone:normalizePhone(values.phone || '')||null});
       await reconcile(auth.currentUser);return state;
     },
     async connectGoogle(password){
-      await verifyAllowed();if(state.status!=='authenticated')throw problem('service/setup-required');
+      if(!config.googleEnabled)throw problem('service/not-ready');
+      await verifyAllowed();
       const user=auth.currentUser;const uid=user.uid;
       if(user.providerData.some(p=>p.providerId==='google.com'))return state;
       if(!user.providerData.some(p=>p.providerId==='password')||!password)throw problem('auth/requires-recent-login');

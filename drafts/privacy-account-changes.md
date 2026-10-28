@@ -1,0 +1,32 @@
+# Proposed account Privacy Policy changes
+
+**Review draft — not approved or effective.** Preserve the published October 5, 2026 Privacy Policy until a final revision is approved. Proposed account version: `privacy-account-test-2026-10-26-draft`.
+
+## Add or clarify the following processing
+
+- **Display name:** a chosen player-facing name, separate from legal identity and account ownership. The website profile is private; product-specific display rules require separate review.
+- **Email:** Firebase Authentication registration, verification, recovery and account communication. Email is not the permanent ownership key. Passwords are handled by Firebase Auth. In the proposed controlled test workflow the password is transmitted transiently to the trusted provisioning endpoint over HTTPS before Firebase Admin creates the credential; it must not be logged, stored in account records, analytics or policy history.
+- **Optional phone:** private account field supplied voluntarily, unverified unless a later verified-phone flow is approved. It does not enroll users in SMS, marketing, or account recovery by phone. Consent preferences, if introduced, must be stored separately and never inferred from providing a number.
+- **Age eligibility:** proposed account registration is invitation-only and 18+. DOB is processed transiently by the trusted eligibility endpoint, not retained in the account/grant profile. Retain only an adult eligibility result and necessary policy/check metadata. No registration by minors is authorized by this pass. This is not a change to game guest eligibility, advertising age handling or parental-consent obligations.
+- **Authentication providers and verification:** Firebase UID, provider associations, email-verification state and security/reauthentication metadata support access control. Google information is processed only when an approved provider flow is enabled. Linking does not merge unrelated accounts or purchases merely because emails match.
+- **Account identifiers:** permanent opaque LovelySiren ID, mapping to Firebase UID, and existing RTA friendly Player ID serve distinct purposes. Existing game ownership records are preserved. No new purchase or unlock follows merely from an ID claim.
+- **Policy acceptance:** approved Terms/Privacy version IDs and server-generated acceptance time are retained as compliance/security evidence. Full DOB, passwords, invitation codes and bearer tokens must not be retained in this history.
+- **Invitations and abuse controls:** controlled-test email allowlisting, hashed invitation/grant values, short-lived provisioning state, server timestamps, throttling counters and derived network keys prevent unauthorized enrollment and abuse. Hosting/service providers may process network/security logs under their policies. No analytics or marketing use is introduced by this pass.
+
+## Purposes, services and disclosure
+
+Describe account operation, eligibility, verification, recovery, security, policy recordkeeping and support as purposes; identify Firebase/Google and hosting providers as applicable service providers. Confirm the legal entity/controller, locations, transfer mechanisms and applicable legal bases for each intended market before publication. Do not imply the Privacy Policy itself substitutes for any required separate consent.
+
+## Retention and deletion — decisions needed
+
+Registration grants expire after 15 minutes and linking grants after five minutes; throttle records have bounded windows. Expiration is a capability limit, not proof that physical records have been deleted. The proposed maintenance routine removes expired grants/counters; its deployment and frequency must be approved. Establish retention periods for abandoned Firebase test credentials, invitations, eligibility results, acceptance history, audit metadata and account profiles. Canonical identity mappings and legitimate transaction records must not be silently removed by a general cleanup job. Account deletion and game-data removal remain separate, verified support workflows; define required retention exceptions and request timelines before launch.
+
+## Children and families
+
+An 18+ website-account proposal does not settle the game's child-directed/mixed-audience obligations or permit changing RTA ad-age handling. Review collection and third-party SDK behavior for actual audiences and markets independently. Guest gameplay remains governed by the game's approved policies. Public account registration remains closed.
+
+## Rights, contact and publication
+
+Explain how people can request access, correction or deletion and contact support while signed out. Preserve the existing public account-deletion URL. Confirm any applicable regional rights, deadlines, appeal processes, international transfers and contact disclosures. Do not publish the proposal or overwrite the current policy without approval.
+
+Review references: [Firebase Admin user management](https://firebase.google.com/docs/auth/admin/manage-users), [FTC COPPA compliance guidance](https://www.ftc.gov/business-guidance/resources/childrens-online-privacy-protection-rule-six-step-compliance-plan-your-business), and [FTC COPPA FAQ](https://www.ftc.gov/business-guidance/resources/complying-coppa-frequently-asked-questions). These sources inform the review; they do not certify this project or approve the proposed policies.

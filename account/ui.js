@@ -35,14 +35,14 @@ const createForm=document.getElementById('create-form');
 if(createForm){
  const ready=service.registrationAvailable();
  document.getElementById('accepted').disabled=!ready;createForm.querySelector('button[type="submit"]').disabled=!ready;
- if(ready){const label=document.getElementById('terms-label');const link=document.createElement('a');link.textContent='Terms of Service';link.href=accountConfig.policies.termsUrl;label.replaceWith(link);document.getElementById('policy-status').textContent='Please read and accept both policies before creating an account.';}
- createForm.addEventListener('submit',event=>{event.preventDefault();clearErrors();const data=values(createForm);data.accepted=document.getElementById('accepted').checked;const errors=registrationErrors(data);if(Object.keys(errors).length){showErrors(errors);return;}void run('register',async()=>{const result=await service.register(data);createForm.reset();if(result.verificationSent)sessionStorage.setItem('lovelysiren-verification-sent','1');routeAfterSignIn(result.state);});});
+ if(ready){const label=document.getElementById('terms-label');const link=document.createElement('a');link.textContent='Terms of Service';link.href=accountConfig.policies.termsUrl;label.replaceWith(link);document.querySelector('.account-acceptance a[href="../privacy.html"]').href=accountConfig.policies.privacyUrl;document.getElementById('policy-status').textContent='Please read and accept both policies before creating an account.';}
+ createForm.addEventListener('submit',event=>{event.preventDefault();clearErrors();const data=values(createForm);data.accepted=document.getElementById('accepted').checked;const errors=registrationErrors(data);if(!data.invitationCode||data.invitationCode.trim().length<20)errors.invitationCode='Enter your authorized test invitation code.';if(Object.keys(errors).length){showErrors(errors);return;}void run('register',async()=>{const result=await service.register(data);createForm.reset();if(result.verificationSent)sessionStorage.setItem('lovelysiren-verification-sent','1');routeAfterSignIn(result.state);});});
 }
 const signinForm=document.getElementById('signin-form');
 signinForm?.addEventListener('submit',event=>{event.preventDefault();clearErrors();const data=values(signinForm);const errors={};if(!validEmail(normalizeEmail(data.email)))errors.email='Enter a valid email address.';if(!data.password)errors.password='Enter your password.';if(Object.keys(errors).length){showErrors(errors);return;}void run('signin',async()=>routeAfterSignIn(await service.signIn(data.email,data.password)));});
 document.getElementById('forgot-form')?.addEventListener('submit',event=>{event.preventDefault();clearErrors();const data=values(event.currentTarget);if(!validEmail(normalizeEmail(data.email))){showErrors({email:'Enter a valid email address.'});return;}void run('reset',async()=>{await service.resetPassword(data.email);announce("If an account is associated with that email address, you'll receive password-reset instructions.",true);});});
 document.querySelectorAll('[data-google]').forEach(button=>{
- button.disabled=!service.registrationAvailable();
+ button.disabled=!(service.googleAvailable?.() ?? false);
  button.addEventListener('click',()=>{
   clearErrors();
   if(page==='create'){
@@ -72,7 +72,7 @@ document.querySelectorAll('[data-signout]').forEach(button=>button.addEventListe
 document.getElementById('profile-form')?.addEventListener('submit',event=>{event.preventDefault();clearErrors();const data=values(event.currentTarget);const errors={};const nameError=displayNameError(data.displayName);if(nameError)errors.displayName=nameError;if(!validPhone(data.phone))errors.phone='Use international format with + and country code, or leave it blank.';if(Object.keys(errors).length){showErrors(errors);return;}void run('profile',async()=>{await service.updateProfile(data);announce('Profile updated.',true);});});
 document.getElementById('connect-google-form')?.addEventListener('submit',event=>{event.preventDefault();clearErrors();const password=values(event.currentTarget).reauthPassword;if(!password){showErrors({reauthPassword:'Enter your current password to confirm this change.'});return;}void run('link',async()=>{await service.connectGoogle(password);announce('Google is connected to your existing account.',true);});});
 service.subscribe(state=>{
- document.querySelectorAll('.account-notice').forEach(notice=>notice.hidden=service.available());
+ document.querySelectorAll('.account-notice').forEach(notice=>{notice.hidden=service.available()&&!accountConfig.emulators?.enabled;if(accountConfig.emulators?.enabled)notice.textContent='Local Firebase emulator test only. No real customer accounts or verification emails are created. Draft policies here are not approved for production.';});
  const dashboard=state.status==='authenticated';
  if(page==='signin')document.getElementById('signin-pending').hidden=state.status!=='verification-pending';
  if(page==='dashboard'){
@@ -83,7 +83,7 @@ service.subscribe(state=>{
  }
  if(page==='settings'){
   document.getElementById('settings-gate').hidden=dashboard;document.getElementById('settings-content').hidden=!dashboard;
-  if(dashboard){document.getElementById('displayName').value=state.profile.displayName||'';document.getElementById('phone').value=state.profile.phone||'';document.getElementById('password-provider').textContent=state.user.providers.includes('password')?'Connected':'Not connected';const google=state.user.providers.includes('google.com');document.getElementById('google-provider').textContent=google?'Connected':'Not connected';document.getElementById('connect-google-form').hidden=google;}
+  if(dashboard){document.getElementById('displayName').value=state.profile.displayName||'';document.getElementById('phone').value=state.profile.phone||'';document.getElementById('password-provider').textContent=state.user.providers.includes('password')?'Connected':'Not connected';const google=state.user.providers.includes('google.com');document.getElementById('google-provider').textContent=google?'Connected':'Not connected';document.getElementById('connect-google-form').hidden=google;document.querySelector('#connect-google-form button').disabled=!(service.googleAvailable?.() ?? false);}
  }
  if(page==='verify'){updateResendButton();document.getElementById('recheck-verification').disabled=!service.available();}
 });

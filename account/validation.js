@@ -30,6 +30,9 @@ export function registrationErrors(values, today = new Date()) {
 export function friendlyError(error, action = 'signin') {
   const code = String(error?.code || '');
   if (code === 'service/not-ready') return 'Account services are not available yet. Please try again after launch.';
+  if (code === 'service/registration-retry') return 'We could not complete this test registration. Try again with the same invitation, or sign in using your existing account.';
+  if (code === 'service/registration-denied') return 'This test registration is not authorized. Check your invitation and eligibility information, or contact support.';
+  if (code === 'service/invitation-required') return 'Enter the test invitation code issued for your account.';
   if (code === 'service/policy-pending') return 'Registration is closed while eligibility rules and account policies are being finalized.';
   if (code === 'service/setup-required') return 'Your sign-in is recognized, but account setup is not complete. Full account access is unavailable.';
   if (code === 'service/verify-required') return 'Please verify your email before opening your account.';

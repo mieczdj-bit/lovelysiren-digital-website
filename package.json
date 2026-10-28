@@ -6,15 +6,19 @@
     "build:auth": "node scripts/build-auth.cjs",
     "test": "node --test tests/*.test.js",
     "test:browser": "node tests/browser-account.cjs",
-    "test:states": "node tests/browser-states.cjs"
+    "test:states": "node tests/browser-states.cjs",
+    "emulators": "node scripts/run-emulators.cjs",
+    "preview:emulator": "node scripts/account-emulator-preview.cjs",
+    "test:emulators": "node scripts/run-emulator-tests.cjs"
   },
   "dependencies": {
     "firebase": "12.19.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
     "esbuild": "0.25.12",
-    "playwright": "1.62.1",
-    "@axe-core/playwright": "4.14.0"
+    "firebase-tools": "15.34.1",
+    "playwright": "1.62.1"
   },
   "packageManager": "pnpm@11.25.0"
 }

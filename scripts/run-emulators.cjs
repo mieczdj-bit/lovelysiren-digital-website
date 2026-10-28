@@ -1,0 +1,4 @@
+const {spawnSync,spawn}=require('child_process');const fs=require('fs');const path=require('path');const root=path.resolve(__dirname,'..');
+const prep=spawnSync(process.execPath,['scripts/prepare-emulators.cjs'],{cwd:root,stdio:'inherit'});if(prep.status)process.exit(prep.status);
+const env={...process.env};const portable=path.resolve(root,'../tools/jre21');if(!env.JAVA_HOME&&fs.existsSync(portable)){const folder=fs.readdirSync(portable).find(name=>fs.existsSync(path.join(portable,name,'bin','java.exe')));if(folder){env.JAVA_HOME=path.join(portable,folder);env.PATH=path.join(env.JAVA_HOME,'bin')+path.delimiter+env.PATH;}}
+const child=spawn(process.execPath,['node_modules/firebase-tools/lib/bin/firebase.js','emulators:start','--only','auth,database,functions','--project','demo-road-trip-arcade','--config','work/firebase.emulators.json'],{cwd:root,env,stdio:'inherit'});child.on('exit',code=>process.exit(code||0));

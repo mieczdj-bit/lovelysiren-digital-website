@@ -1,3 +1,5 @@
+> Integration 002 note: actual server implementation now exists under `functions/`. See `../ACCOUNT-INTEGRATION-002.md` for the controlled-provisioning protocol and deployment/approval boundary. The original Framework 001 proposal below is retained as historical design context; no live deployment is implied.
+
 # Account backend contract — NOT DEPLOYED
 
 This is a proposed website service boundary, not a new account database or a claim that these endpoints exist. The RTA repository remains untouched. The existing `road-trip-arcade` Firebase project is mandatory. No Firestore client, direct Realtime Database writer, or Admin SDK is used in the public website.

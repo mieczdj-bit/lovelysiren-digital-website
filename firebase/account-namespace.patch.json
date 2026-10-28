@@ -1,0 +1,26 @@
+{
+  "lovelySirenAccountsV1": {
+    ".read": false,
+    ".write": false,
+    "registrationGrants": {
+      ".indexOn": [
+        "expiresAt"
+      ]
+    },
+    "linkGrants": {
+      ".indexOn": [
+        "expiresAt"
+      ]
+    },
+    "throttles": {
+      ".indexOn": [
+        "expiresAt"
+      ]
+    },
+    "testInvitations": {
+      ".indexOn": [
+        "expiresAt"
+      ]
+    }
+  }
+}
