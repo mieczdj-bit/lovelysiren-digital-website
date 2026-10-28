@@ -1,7 +1,7 @@
 # LovelySiren Digital
 # Website Terms of Service
 
-**Effective Date:** [To be assigned upon publication]  
+**Effective Date:** 2026-10-28  
 **Version:** 1.0  
 **Website:** https://lovelysirendigital.com/
 
