@@ -1,0 +1,349 @@
+{
+  "projectId": "road-trip-arcade",
+  "databaseUrl": "https://road-trip-arcade-default-rtdb.firebaseio.com",
+  "capturedAt": "2026-10-30T13:02:02.912Z",
+  "backupSha256": "21eb68a441f784821421e232afd5141fd9c20a6f1cfc3f38536f0128c9c6b9f6",
+  "backupBytes": 352226,
+  "privateBackupDirectory": "work/firebase-review-004/backups/2026-10-30T13-02-02-912Z",
+  "proposedRuleChange": {
+    ".read": false,
+    ".write": false,
+    "registrationGrants": {
+      ".indexOn": [
+        "expiresAt"
+      ]
+    },
+    "linkGrants": {
+      ".indexOn": [
+        "expiresAt"
+      ]
+    },
+    "throttles": {
+      ".indexOn": [
+        "expiresAt"
+      ]
+    },
+    "testInvitations": {
+      ".indexOn": [
+        "expiresAt"
+      ]
+    }
+  },
+  "unrelatedRulesUnchanged": true,
+  "rootRead": false,
+  "rootWrite": false,
+  "newNamespaceAbsentInLive": true,
+  "localRtaRulesMatchLive": false,
+  "liveTopLevelPaths": [
+    ".read",
+    ".write",
+    "playerIdClaims",
+    "playerIds",
+    "users",
+    "suggestions",
+    "finishedGames",
+    "playerLookup",
+    "friendEdges",
+    "gameSessions",
+    "invites",
+    "presence",
+    "sessionPlay"
+  ],
+  "localRtaSemanticDifferences": [
+    {
+      "path": "/rules/gameSessions/$sid/state/.write",
+      "liveType": "string",
+      "localType": "string",
+      "liveSha256": "55efccd8ed01ca5777536c7713e9115d39268016e4f1ec16d4e9d9540b0e24b5",
+      "localSha256": "a1a11e26b94671894cd9c88d3eac9cd6051320b9b3f613a0a922bac971a97ce5"
+    },
+    {
+      "path": "/rules/gameSessions/$sid/participants/$slot/reconciled/.write",
+      "liveType": "string",
+      "localType": "string",
+      "liveSha256": "f09057fdfb07def4cd45cb3e9719c6afc4292cde81a580e71f64f73ffe26210c",
+      "localSha256": "41ae5ec86382b972107e0358e8f00bf9c414985475dccdb72d1efbd0023ec88c"
+    },
+    {
+      "path": "/rules/gameSessions/$sid/online/wordRef/.validate",
+      "liveType": "string",
+      "localType": "string",
+      "liveSha256": "b55f7c388b231d175c5b92b510c3b4cbec1189f9fff8f54c2efef193ad6d9eda",
+      "localSha256": "e964693abc58a9e4dd67d2c835da1c25536445a60936af65e5b505dc6c77fb5c"
+    },
+    {
+      "path": "/rules/gameSessions/$sid/online/minimum/.validate",
+      "liveType": "string",
+      "localType": "string",
+      "liveSha256": "a234e9df5b53a39598fe8a239eaa1cc75fa0edc08ba345dbd9f1791c96457a49",
+      "localSha256": "07c9f2ea1ec3399d374951882348aa4c80fea700cc02e8d1b59d8a03d76c4e9d"
+    },
+    {
+      "path": "/rules/gameSessions/$sid/online/target/.validate",
+      "liveType": "string",
+      "localType": "string",
+      "liveSha256": "29eef332718bda4697c8d4eb85691491ed6ec3099833a33d251b126e56ccd0eb",
+      "localSha256": "e13ff53f39be81519447f67dd19afc50f46b940ecbd6f5dec0fbf31a9ae3cf8c"
+    },
+    {
+      "path": "/rules/gameSessions/$sid/online/wordLength/.validate",
+      "liveType": "string",
+      "localType": "string",
+      "liveSha256": "90c88c1f3f05744acc6be4e2d7768003c72c97fb434bcd33130a5d8fb8b203c1",
+      "localSha256": "09e2513ca96856bbe4b09ddf6804bc5a5b49c59b5155891a026ed22a6e5dc6ab"
+    },
+    {
+      "path": "/rules/gameSessions/$sid/online/.validate",
+      "liveType": "string",
+      "localType": "string",
+      "liveSha256": "6c559817efd39cd4be89597566a17a9f15422d5b75f95ab83c2e1b5224d5e8c3",
+      "localSha256": "421c12c522d97366e7257aa0063c2fcc251e565241d0e8e97f0889717f571c1d"
+    },
+    {
+      "path": "/rules/gameSessions/$sid/online/maximum",
+      "liveType": "undefined",
+      "localType": "object",
+      "liveSha256": null,
+      "localSha256": "d0c747c98ef5ae2b657f439a5c043eec2e5ef1f530830e26271408a83760aac5"
+    },
+    {
+      "path": "/rules/gameSessions/$sid/online/catalogVersion",
+      "liveType": "undefined",
+      "localType": "object",
+      "liveSha256": null,
+      "localSha256": "ce1a1873f1dc7fd1f8f64bdbceacc7d90a56d2fbb6c2c229247f0a3e560e8be0"
+    },
+    {
+      "path": "/rules/gameSessions/$sid/online/membership",
+      "liveType": "undefined",
+      "localType": "object",
+      "liveSha256": null,
+      "localSha256": "98895490336d56349b10115390ef8d8a5e615df8b96a9152cd43449d3e29525b"
+    },
+    {
+      "path": "/rules/gameSessions/$sid/resolution",
+      "liveType": "undefined",
+      "localType": "object",
+      "liveSha256": null,
+      "localSha256": "df71e78d2b340b53cbd0f5da6e29bf26f6c76aea50425f0740f837a45ef11f63"
+    },
+    {
+      "path": "/rules/gameSessions/$sid/terminalAt",
+      "liveType": "undefined",
+      "localType": "object",
+      "liveSha256": null,
+      "localSha256": "ab317e5d557458b02ec0dfc5b4df67aed147f3e5893b1a856f818ff6b97a6ae4"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/progress/$uid/.write",
+      "liveType": "string",
+      "localType": "string",
+      "liveSha256": "af53394c030813286373e944b5682a8cc0b73fd33a0e9337b71cbec00722b66c",
+      "localSha256": "757fa497a0a82ddf59dcbee98769527c7c28276fe11c47822a8c359e036defcf"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/finishes/$uid/.write",
+      "liveType": "string",
+      "localType": "string",
+      "liveSha256": "79b173f7c05e32b19ff4aab355042a675c4a4a161669ea9f9bd861049c2c7992",
+      "localSha256": "3cc2e601f8174b42d3cab12174cd6194fecff8888de730281bf4be8be84792bf"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/finishes/$uid/.validate",
+      "liveType": "string",
+      "localType": "string",
+      "liveSha256": "e8e49b68c601a6e32857474c1fdb437e73f46934286424c73c516205e75fb4b6",
+      "localSha256": "d46286d48aff80be4612fec931169266b56545d5030f443093bbd5406470b312"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/events/$uid/.write",
+      "liveType": "string",
+      "localType": "boolean",
+      "liveSha256": "28e43798aa605a2ce53b72a44ba4de283829eb01743823b91d849c4e5cfb9f15",
+      "localSha256": "fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/events/$uid/$event/roadblock/misses/.read",
+      "liveType": "undefined",
+      "localType": "string",
+      "liveSha256": null,
+      "localSha256": "943acdf95a1545a29f085e9cbf651ed8b025f06025f3e8eac8678b6c3ea171e8"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/events/$uid/$event/roadblock/blocked/.read",
+      "liveType": "undefined",
+      "localType": "string",
+      "liveSha256": null,
+      "localSha256": "943acdf95a1545a29f085e9cbf651ed8b025f06025f3e8eac8678b6c3ea171e8"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/events/$uid/$event/roadblock/rescueUsed/.read",
+      "liveType": "undefined",
+      "localType": "string",
+      "liveSha256": null,
+      "localSha256": "943acdf95a1545a29f085e9cbf651ed8b025f06025f3e8eac8678b6c3ea171e8"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/events/$uid/$event/roadblock/previous/.read",
+      "liveType": "undefined",
+      "localType": "string",
+      "liveSha256": null,
+      "localSha256": "943acdf95a1545a29f085e9cbf651ed8b025f06025f3e8eac8678b6c3ea171e8"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/events/$uid/$event/roadblock/solved/.read",
+      "liveType": "undefined",
+      "localType": "string",
+      "liveSha256": null,
+      "localSha256": "943acdf95a1545a29f085e9cbf651ed8b025f06025f3e8eac8678b6c3ea171e8"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/events/$uid/$event/data/bingo/.read",
+      "liveType": "undefined",
+      "localType": "string",
+      "liveSha256": null,
+      "localSha256": "943acdf95a1545a29f085e9cbf651ed8b025f06025f3e8eac8678b6c3ea171e8"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/events/$uid/$event/data/blackout/.read",
+      "liveType": "undefined",
+      "localType": "string",
+      "liveSha256": null,
+      "localSha256": "943acdf95a1545a29f085e9cbf651ed8b025f06025f3e8eac8678b6c3ea171e8"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/events/$uid/$event/data/found/.read",
+      "liveType": "undefined",
+      "localType": "string",
+      "liveSha256": null,
+      "localSha256": "943acdf95a1545a29f085e9cbf651ed8b025f06025f3e8eac8678b6c3ea171e8"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/events/$uid/$event/data/target/.read",
+      "liveType": "undefined",
+      "localType": "string",
+      "liveSha256": null,
+      "localSha256": "943acdf95a1545a29f085e9cbf651ed8b025f06025f3e8eac8678b6c3ea171e8"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/events/$uid/$event/calibratedAt/.read",
+      "liveType": "undefined",
+      "localType": "string",
+      "liveSha256": null,
+      "localSha256": "943acdf95a1545a29f085e9cbf651ed8b025f06025f3e8eac8678b6c3ea171e8"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/events/$uid/$event/gameInstanceId/.read",
+      "liveType": "undefined",
+      "localType": "string",
+      "liveSha256": null,
+      "localSha256": "943acdf95a1545a29f085e9cbf651ed8b025f06025f3e8eac8678b6c3ea171e8"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/events/$uid/$event/trip/previous/.read",
+      "liveType": "undefined",
+      "localType": "string",
+      "liveSha256": null,
+      "localSha256": "943acdf95a1545a29f085e9cbf651ed8b025f06025f3e8eac8678b6c3ea171e8"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/events/$uid/$event/contentRef/.read",
+      "liveType": "undefined",
+      "localType": "string",
+      "liveSha256": null,
+      "localSha256": "943acdf95a1545a29f085e9cbf651ed8b025f06025f3e8eac8678b6c3ea171e8"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/events/$uid/$event/timestamp/.read",
+      "liveType": "undefined",
+      "localType": "string",
+      "liveSha256": null,
+      "localSha256": "943acdf95a1545a29f085e9cbf651ed8b025f06025f3e8eac8678b6c3ea171e8"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/events/$uid/$event/sequence/.read",
+      "liveType": "undefined",
+      "localType": "string",
+      "liveSha256": null,
+      "localSha256": "943acdf95a1545a29f085e9cbf651ed8b025f06025f3e8eac8678b6c3ea171e8"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/events/$uid/$event/.write",
+      "liveType": "string",
+      "localType": "string",
+      "liveSha256": "1d2e9a70fb1d6ca1832132b29f5f762da782506d4cd2b8302f4979700700debd",
+      "localSha256": "a456ffa76461721cf3eaa44c4efaee74427079783120f6846a99a02ad257565c"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/events/$uid/$event/offsetMs/.read",
+      "liveType": "undefined",
+      "localType": "string",
+      "liveSha256": null,
+      "localSha256": "943acdf95a1545a29f085e9cbf651ed8b025f06025f3e8eac8678b6c3ea171e8"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/events/$uid/$event/.validate",
+      "liveType": "string",
+      "localType": "string",
+      "liveSha256": "80098343a4cc99c70bc870e06f3ee07a8ed4045fd4895fcef74f635b9e163b44",
+      "localSha256": "07f09c149af8af99feed2b88a479d211018ae906f6187b0ae11f97538ee0c934"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/setups/$uid/.write",
+      "liveType": "string",
+      "localType": "string",
+      "liveSha256": "2254aee6016ad3c316d5d888419c56b9ec8318e36667845427af357459b87719",
+      "localSha256": "07287e381275639fd27836094ac76273f11f28d71a9c82d99cdc80fdb258b045"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/ending/host/.write",
+      "liveType": "string",
+      "localType": "string",
+      "liveSha256": "f002cdd3da04e151f797c1ea17a07e75a9fca5114a0d5dfe07b298c235147d86",
+      "localSha256": "41e089dcc619c9e6c59e73ee77de8b3b69dcb36caa9e79df350452c9a688c6c9"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/ending/targets/$uid/.write",
+      "liveType": "string",
+      "localType": "string",
+      "liveSha256": "9899cc9de74d49d986d6db4b5cbc93a2d93a8b3d1781aa17786ecef0091dfea2",
+      "localSha256": "d6eb113572cf110356c50d8fe5e50b0ed19990e41184631f30abfe081ea00ee7"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/ending/seals/$uid/.write",
+      "liveType": "string",
+      "localType": "string",
+      "liveSha256": "bc5ec0ccb7915ece72c5f81763fe2f95604166a26a1a31530baa84bbc0674b18",
+      "localSha256": "1098937451e5a1877645b2245e8c7644498f77edd57022896a3714afdea48df5"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/ending/losses/$uid/.write",
+      "liveType": "string",
+      "localType": "string",
+      "liveSha256": "d6c947eda867b9a58fc942dbf7be427bcf0466f9d5b709c29f5e6f00be24fe86",
+      "localSha256": "4b3d3c01081736da00e7061e034ccb14669db4e8344231e48fbb3ba9cade2e31"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/frozen",
+      "liveType": "undefined",
+      "localType": "object",
+      "liveSha256": null,
+      "localSha256": "8cd7a0cc55223d72049c6b304a80bb5ed09b4569990841c7022dbda9227802c1"
+    },
+    {
+      "path": "/rules/sessionPlay/$sid/.write",
+      "liveType": "undefined",
+      "localType": "string",
+      "liveSha256": null,
+      "localSha256": "ef622a44b7e2c8b553aa110daad7b234df1b23f8e4cb61ac9a5d56eefeac4ffa"
+    }
+  ],
+  "localRtaSemanticDifferenceCount": 41,
+  "emulatorRulesExactlyMatchProposed": true,
+  "validation": {
+    "unitTestsPassed": 47,
+    "emulatorTestsPassed": 25,
+    "browserEmulatorFlow": "passed",
+    "liveWrites": false
+  }
+}

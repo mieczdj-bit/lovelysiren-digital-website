@@ -1,7 +1,412 @@
 {
   "projectId": "road-trip-arcade",
-  "observedAt": "2026-10-30T12:01:30.376Z",
+  "observedAt": "2026-10-30T13:01:36.728Z",
   "mode": "read-only",
-  "checks": {},
-  "authentication": "interactive-cli-login-required"
+  "checks": {
+    "rules": {
+      "status": "VERIFIED AGAINST LIVE CONFIGURATION",
+      "summary": {
+        "topLevelPaths": [
+          ".read",
+          ".write",
+          "playerIdClaims",
+          "playerIds",
+          "users",
+          "suggestions",
+          "finishedGames",
+          "playerLookup",
+          "friendEdges",
+          "gameSessions",
+          "invites",
+          "presence",
+          "sessionPlay"
+        ],
+        "rootRead": false,
+        "rootWrite": false,
+        "accountNamespacePresent": false
+      }
+    },
+    "project": {
+      "status": "VERIFIED AGAINST LIVE CONFIGURATION",
+      "summary": {
+        "projectId": "road-trip-arcade",
+        "displayName": "Road Trip Arcade",
+        "state": "ACTIVE"
+      }
+    },
+    "auth": {
+      "status": "VERIFIED AGAINST LIVE CONFIGURATION",
+      "summary": {
+        "authorizedDomains": [
+          "localhost",
+          "road-trip-arcade.firebaseapp.com",
+          "road-trip-arcade.web.app"
+        ],
+        "signIn": {
+          "email": null,
+          "anonymous": null
+        },
+        "emailPrivacyConfig": {
+          "enableImprovedEmailPrivacy": true
+        },
+        "blockingFunctionsConfigured": false,
+        "notification": {
+          "method": "DEFAULT",
+          "verifyEmailTemplateConfigured": true,
+          "resetPasswordTemplateConfigured": true
+        }
+      }
+    },
+    "google": {
+      "status": "VERIFIED AGAINST LIVE CONFIGURATION",
+      "summary": {
+        "enabled": true,
+        "clientIdConfigured": true
+      }
+    },
+    "functionsV2": {
+      "status": "BLOCKED",
+      "httpStatus": 403,
+      "reason": "request-failed-or-permission-denied"
+    },
+    "functionsV1": {
+      "status": "BLOCKED",
+      "httpStatus": 403,
+      "reason": "request-failed-or-permission-denied"
+    },
+    "databases": {
+      "status": "VERIFIED AGAINST LIVE CONFIGURATION",
+      "summary": {
+        "instances": [
+          {
+            "name": "projects/64562967612/locations/us-central1/instances/road-trip-arcade-default-rtdb",
+            "databaseUrl": "https://road-trip-arcade-default-rtdb.firebaseio.com",
+            "type": "DEFAULT_DATABASE",
+            "state": "ACTIVE"
+          }
+        ]
+      }
+    },
+    "hosting": {
+      "status": "VERIFIED AGAINST LIVE CONFIGURATION",
+      "summary": {
+        "sites": [
+          {
+            "name": "projects/road-trip-arcade/sites/road-trip-arcade",
+            "defaultUrl": "https://road-trip-arcade.web.app"
+          }
+        ],
+        "nextPageTokenPresent": false
+      }
+    },
+    "billing": {
+      "status": "VERIFIED AGAINST LIVE CONFIGURATION",
+      "summary": {
+        "billingEnabled": false
+      }
+    },
+    "iam": {
+      "status": "VERIFIED AGAINST LIVE CONFIGURATION",
+      "summary": {
+        "roles": [
+          {
+            "role": "roles/firebase.managementServiceAgent",
+            "memberCount": 1
+          },
+          {
+            "role": "roles/firebase.sdkAdminServiceAgent",
+            "memberCount": 1
+          },
+          {
+            "role": "roles/firebaseauth.admin",
+            "memberCount": 1
+          },
+          {
+            "role": "roles/firebasedatabase.admin",
+            "memberCount": 1
+          },
+          {
+            "role": "roles/iam.serviceAccountTokenCreator",
+            "memberCount": 1
+          },
+          {
+            "role": "roles/owner",
+            "memberCount": 2
+          }
+        ],
+        "conditionalBindings": 0
+      }
+    },
+    "accountControls": {
+      "status": "VERIFIED AGAINST LIVE CONFIGURATION",
+      "summary": {
+        "present": false
+      }
+    }
+  },
+  "authentication": "existing-cli-session",
+  "followup": {
+    "observedAt": "2026-10-30T13:06:14.575Z",
+    "checks": {
+      "functionsV1": {
+        "httpStatus": 403,
+        "status": "BLOCKED",
+        "errorStatus": "PERMISSION_DENIED",
+        "details": [
+          {
+            "reason": "SERVICE_DISABLED",
+            "domain": "googleapis.com",
+            "service": "cloudfunctions.googleapis.com"
+          }
+        ]
+      },
+      "functionsV2": {
+        "httpStatus": 403,
+        "status": "BLOCKED",
+        "errorStatus": "PERMISSION_DENIED",
+        "details": [
+          {
+            "reason": "SERVICE_DISABLED",
+            "domain": "googleapis.com",
+            "service": "cloudfunctions.googleapis.com"
+          }
+        ]
+      },
+      "proposedRuntimeIdentity": {
+        "httpStatus": 404,
+        "status": "BLOCKED",
+        "errorStatus": "NOT_FOUND",
+        "details": []
+      },
+      "authDetails": {
+        "httpStatus": 200,
+        "status": "VERIFIED",
+        "data": {
+          "signIn": {},
+          "notification": {
+            "sendEmail": {
+              "method": "DEFAULT",
+              "resetPasswordTemplate": {
+                "senderLocalPart": "noreply",
+                "subject": "Reset your password for %APP_NAME%",
+                "replyTo": "noreply"
+              },
+              "verifyEmailTemplate": {
+                "senderLocalPart": "noreply",
+                "subject": "Verify your email for %APP_NAME%",
+                "replyTo": "noreply"
+              },
+              "callbackUri": "https://road-trip-arcade.firebaseapp.com/__/auth/action"
+            },
+            "defaultLocale": "en"
+          },
+          "authorizedDomains": [
+            "localhost",
+            "road-trip-arcade.firebaseapp.com",
+            "road-trip-arcade.web.app"
+          ],
+          "blockingFunctions": {},
+          "emailPrivacyConfig": {
+            "enableImprovedEmailPrivacy": true
+          }
+        }
+      },
+      "webApps": {
+        "httpStatus": 200,
+        "status": "VERIFIED",
+        "data": {
+          "apps": [
+            {
+              "name": "projects/road-trip-arcade/webApps/1:64562967612:web:b4cb8249d29d6155997f39",
+              "appId": "1:64562967612:web:b4cb8249d29d6155997f39",
+              "displayName": "Road Trip Arcade Web",
+              "state": "ACTIVE"
+            }
+          ]
+        }
+      },
+      "hostingChannels": {
+        "httpStatus": 200,
+        "status": "VERIFIED",
+        "data": {
+          "channels": [
+            {
+              "name": "sites/road-trip-arcade/channels/live",
+              "url": "https://road-trip-arcade.web.app"
+            }
+          ]
+        }
+      },
+      "api:artifactregistry.googleapis.com": {
+        "httpStatus": 200,
+        "status": "VERIFIED",
+        "data": {
+          "name": "projects/64562967612/services/artifactregistry.googleapis.com",
+          "state": "DISABLED"
+        }
+      },
+      "api:run.googleapis.com": {
+        "httpStatus": 200,
+        "status": "VERIFIED",
+        "data": {
+          "name": "projects/64562967612/services/run.googleapis.com",
+          "state": "DISABLED"
+        }
+      },
+      "api:cloudfunctions.googleapis.com": {
+        "httpStatus": 200,
+        "status": "VERIFIED",
+        "data": {
+          "name": "projects/64562967612/services/cloudfunctions.googleapis.com",
+          "state": "DISABLED"
+        }
+      },
+      "api:cloudbuild.googleapis.com": {
+        "httpStatus": 200,
+        "status": "VERIFIED",
+        "data": {
+          "name": "projects/64562967612/services/cloudbuild.googleapis.com",
+          "state": "DISABLED"
+        }
+      },
+      "api:eventarc.googleapis.com": {
+        "httpStatus": 200,
+        "status": "VERIFIED",
+        "data": {
+          "name": "projects/64562967612/services/eventarc.googleapis.com",
+          "state": "DISABLED"
+        }
+      },
+      "api:cloudasset.googleapis.com": {
+        "httpStatus": 200,
+        "status": "VERIFIED",
+        "data": {
+          "name": "projects/64562967612/services/cloudasset.googleapis.com",
+          "state": "DISABLED"
+        }
+      },
+      "api:iam.googleapis.com": {
+        "httpStatus": 200,
+        "status": "VERIFIED",
+        "data": {
+          "name": "projects/64562967612/services/iam.googleapis.com",
+          "state": "DISABLED"
+        }
+      },
+      "api:pubsub.googleapis.com": {
+        "httpStatus": 200,
+        "status": "VERIFIED",
+        "data": {
+          "name": "projects/64562967612/services/pubsub.googleapis.com",
+          "state": "ENABLED"
+        }
+      },
+      "api:identitytoolkit.googleapis.com": {
+        "httpStatus": 200,
+        "status": "VERIFIED",
+        "data": {
+          "name": "projects/64562967612/services/identitytoolkit.googleapis.com",
+          "state": "ENABLED"
+        }
+      },
+      "api:firebasehosting.googleapis.com": {
+        "httpStatus": 200,
+        "status": "VERIFIED",
+        "data": {
+          "name": "projects/64562967612/services/firebasehosting.googleapis.com",
+          "state": "ENABLED"
+        }
+      },
+      "effectiveProjectPermissions": {
+        "httpStatus": 400,
+        "status": "BLOCKED",
+        "errorStatus": "INVALID_ARGUMENT",
+        "details": []
+      }
+    }
+  },
+  "effectivePermissions": {
+    "currentPrincipalProjectRoles": [
+      "roles/owner"
+    ],
+    "resourcemanager.projects.get": {
+      "status": 200,
+      "granted": [
+        "resourcemanager.projects.get"
+      ]
+    },
+    "cloudfunctions.functions.create": {
+      "status": 200,
+      "granted": [
+        "cloudfunctions.functions.create",
+        "cloudfunctions.functions.get",
+        "cloudfunctions.functions.list",
+        "cloudfunctions.functions.update"
+      ]
+    },
+    "serviceusage.services.get": {
+      "status": 200,
+      "granted": [
+        "resourcemanager.projects.setIamPolicy",
+        "serviceusage.services.enable",
+        "serviceusage.services.get"
+      ]
+    }
+  },
+  "deploymentPrerequisites": {
+    "storage.googleapis.com": {
+      "name": "projects/64562967612/services/storage.googleapis.com",
+      "state": "ENABLED"
+    },
+    "serviceusage.googleapis.com": {
+      "name": "projects/64562967612/services/serviceusage.googleapis.com",
+      "state": "ENABLED"
+    },
+    "additionalEffectivePermissions": [
+      "firebaseauth.configs.update",
+      "firebaseauth.users.create",
+      "firebaseauth.users.get",
+      "iam.serviceAccounts.actAs",
+      "iam.serviceAccounts.create"
+    ],
+    "firebaseauth.admin": {
+      "name": "roles/firebaseauth.admin",
+      "includedPermissions": [
+        "firebase.clients.get",
+        "firebase.clients.list",
+        "firebase.projects.get",
+        "firebaseauth.configs.create",
+        "firebaseauth.configs.get",
+        "firebaseauth.configs.getHashConfig",
+        "firebaseauth.configs.getSecret",
+        "firebaseauth.configs.update",
+        "firebaseauth.users.create",
+        "firebaseauth.users.createSession",
+        "firebaseauth.users.delete",
+        "firebaseauth.users.get",
+        "firebaseauth.users.sendEmail",
+        "firebaseauth.users.update",
+        "resourcemanager.projects.get",
+        "resourcemanager.projects.list"
+      ]
+    },
+    "firebasedatabase.admin": {
+      "name": "roles/firebasedatabase.admin",
+      "includedPermissions": [
+        "firebase.clients.get",
+        "firebase.clients.list",
+        "firebase.projects.get",
+        "firebasedatabase.instances.create",
+        "firebasedatabase.instances.delete",
+        "firebasedatabase.instances.disable",
+        "firebasedatabase.instances.get",
+        "firebasedatabase.instances.list",
+        "firebasedatabase.instances.reenable",
+        "firebasedatabase.instances.undelete",
+        "firebasedatabase.instances.update",
+        "resourcemanager.projects.get",
+        "resourcemanager.projects.list"
+      ]
+    }
+  }
 }

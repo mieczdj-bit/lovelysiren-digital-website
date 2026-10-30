@@ -1,0 +1,121 @@
+{
+  "status": "REVIEW ONLY — NOT EXECUTED",
+  "projectId": "road-trip-arcade",
+  "cloudWritesAuthorized": false,
+  "registrationActivationAuthorized": false,
+  "prerequisites": {
+    "billing": {
+      "observedEnabled": false,
+      "requestedChange": "Executive Producer attaches approved billing account and enables Blaze; no payment details in source/chat"
+    },
+    "enableApis": [
+      "cloudfunctions.googleapis.com",
+      "cloudbuild.googleapis.com",
+      "artifactregistry.googleapis.com",
+      "run.googleapis.com",
+      "eventarc.googleapis.com",
+      "iam.googleapis.com"
+    ],
+    "alreadyEnabledApisNoChange": [
+      "identitytoolkit.googleapis.com",
+      "firebasehosting.googleapis.com",
+      "pubsub.googleapis.com",
+      "storage.googleapis.com",
+      "serviceusage.googleapis.com"
+    ],
+    "beforeDeployment": "Re-list Functions v1/v2 after API enablement; stop for any existing function/name conflict"
+  },
+  "authentication": {
+    "observedGoogleEnabled": true,
+    "preserveGoogleProvider": true,
+    "observedEmailSignInConfig": {},
+    "requestedEmailSettings": {
+      "enabled": true,
+      "passwordRequired": true
+    },
+    "preserveImprovedEmailPrivacy": true,
+    "passwordPolicyProposal": {
+      "enforcement": "ENFORCE",
+      "minimumLength": 15,
+      "maximumLength": 128,
+      "requireUppercase": false,
+      "requireLowercase": false,
+      "requireNumeric": false,
+      "requireNonAlphanumeric": false,
+      "forceUpgradeOnSignin": false
+    },
+    "authorizedDomains": {
+      "preserve": [
+        "localhost",
+        "road-trip-arcade.firebaseapp.com",
+        "road-trip-arcade.web.app"
+      ],
+      "addOnly": "Exact returned HTTPS staging hostname, after it is known and approved; no wildcard or production domain needed"
+    },
+    "emailTemplates": {
+      "preserveCurrent": true,
+      "observedCallbackUri": "https://road-trip-arcade.firebaseapp.com/__/auth/action",
+      "deliveryVerified": false
+    }
+  },
+  "runtime": {
+    "functionName": "lovelysirenAccountsApi",
+    "codebase": "lovelysiren-accounts",
+    "region": "us-central1",
+    "node": "22",
+    "memory": "256MiB",
+    "timeoutSeconds": 30,
+    "maxInstances": 2,
+    "minInstances": 0,
+    "proposedServiceAccount": "lovelysiren-accounts-test@road-trip-arcade.iam.gserviceaccount.com",
+    "proposedCustomRole": "projects/road-trip-arcade/roles/lovelysirenAccountTestRuntime",
+    "candidateRuntimePermissions": [
+      "firebaseauth.users.create",
+      "firebaseauth.users.get",
+      "firebasedatabase.instances.get",
+      "firebasedatabase.instances.update"
+    ],
+    "permissionValidation": "Review role support and validate real runtime access during approved staging; stop on denied permissions, never auto-widen to Owner/Editor",
+    "apiEnvironmentGate": "ACCOUNT_TEST_API_ENABLED remains unset/false until explicitly approved activation",
+    "noServiceAccountKey": true
+  },
+  "database": {
+    "backupSha256": "21eb68a441f784821421e232afd5141fd9c20a6f1cfc3f38536f0128c9c6b9f6",
+    "databaseUrl": "https://road-trip-arcade-default-rtdb.firebaseio.com",
+    "newNamespace": "lovelySirenAccountsV1",
+    "patchFile": "firebase/account-namespace.patch.json",
+    "allExistingRtaRulesUnchanged": true,
+    "concurrencyGuard": "Re-read/hash live rules immediately before any future write and require exact approved backup match"
+  },
+  "staging": {
+    "existingSite": "road-trip-arcade",
+    "newPreviewChannel": "lovelysiren-account-test",
+    "requestedChannelExpiry": "7 days",
+    "liveChannelUnchanged": true,
+    "actualHostname": null,
+    "clientApplication": "Existing ACTIVE Road Trip Arcade Web app in the same project; no new Firebase project or Auth identity system",
+    "noAnalyticsInitialization": true,
+    "bundle": "Public static allowlist only; exclude work, backups, source control, functions, tests, scripts, node_modules, audit and review-only drafts",
+    "clientAndApiOrigins": "Pin exact returned channel origin; no URL/Origin flag is authorization"
+  },
+  "policyAndInvitation": {
+    "termsVersion": "website-terms-v1.0",
+    "privacyVersion": null,
+    "privacyPublicationRequired": true,
+    "existingRtaPrivacyDisclosuresMustRemainAccessible": true,
+    "privateTestEmail": null,
+    "invitationExpiryProposal": "24 hours",
+    "googleWebsiteLinkingEnabled": false,
+    "publicRegistrationEnabled": false,
+    "controlsRemainOffUntilApproved": true
+  },
+  "excluded": [
+    "main/GitHub Pages deployment except separately approved Privacy publication",
+    "RTA identities/gameplay/purchases migration",
+    "public registration",
+    "Google website linking activation",
+    "scheduled cleanup",
+    "automated account deletion",
+    "global forced password reset"
+  ]
+}

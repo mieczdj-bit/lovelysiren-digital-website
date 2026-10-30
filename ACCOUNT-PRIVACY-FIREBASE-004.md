@@ -4,6 +4,8 @@
 
 Development branch: `lsd-account-privacy-firebase-004`, starting from Account 003 `dc59bb6`. Production remains `a407de16f8885900d4f73907a496e51bac48b30f`. This handoff supplements the earlier 003/publication reports; historical draft statements in those reports are not current deployment claims.
 
+> **Authenticated follow-up, October 30, 2026:** Firebase CLI access now works. Actual project/Auth/IAM/Hosting/API/billing metadata and the live rules backup have been inspected. The earlier login blocker is resolved. See [the authenticated inspection](audit/account-004/authenticated-inspection.md) for current findings, the namespace-only comparison and exact proposed changes. Live changes remain unauthorized; real registration is blocked by Privacy approval and billing/API/provider/IAM/staging prerequisites.
+
 ## A. Privacy audit
 
 The Producer's finding is confirmed: the live and main-branch `/privacy.html` still contain the October 5, 2026 combined app/services policy. The full website/account policy was prepared on Account Legal 003 under `drafts/website-privacy-approval.md` and `drafts/website-privacy-review.html`; it was NOT published under another tested URL, deployed separately or incorporated into main. All remote branch privacy-file listings, live HTTP statuses and source comparisons are recorded in `audit/account-004/production-verification.json`.
@@ -56,21 +58,15 @@ Server checks independently enforce current approved website-kind versions/hashe
 
 The registration-only kill switch now covers prepare, provision AND completion, including outstanding grants. Existing verified profile reads need not be interrupted by closing registration; the broader service/API gates can disable the whole new service. Unknown Firebase credentials do not get a company profile/ID merely by signing in.
 
-## D. Firebase review
+## D. Firebase review — authenticated follow-up
 
-**BLOCKED: no active Firebase CLI default session.** The project-list attempt did not authenticate, a bounded retry timed out, and the credential-aware read-only helper independently reported `interactive-cli-login-required` without displaying credentials. The Executive Producer was asked to authenticate privately. No real project/user/provider settings were changed or customer records enumerated.
+Authentication is now VERIFIED. Project road-trip-arcade and its ACTIVE us-central1 database were inspected using the existing CLI session. Google is enabled; authorized domains are localhost and the two default Firebase domains. Email sign-in config is empty, custom password policy is not returned, enumeration protection is enabled and default verification/reset templates point to the existing Firebase action handler. Billing is disabled.
 
-Actual live providers, authorized domains, mail templates/sender/delivery, password policy, enumeration protection, deployed Functions/runtime, rules, IAM, billing/quota prerequisites, log/backup settings, Hosting sites and trusted controls remain UNVERIFIED. The Firebase project/database identity is established in local RTA/website source, not claimed authenticated from cloud. A cached local rules file is NOT a live backup.
+Actual rules were backed up at 2026-10-30T13:02:02.912Z. SHA-256: 21eb68a441f784821421e232afd5141fd9c20a6f1cfc3f38536f0128c9c6b9f6. The account namespace and controls are absent. An offline candidate adds only its private denials and four indexes, with every RTA rule unchanged. The local game rule file differs at 41 semantic paths and must not replace deployed rules. Tests were rerun against the actual-live-snapshot-based candidate: 47 unit tests, 25 emulator tests and browser emulator flow passed. Live rules remained unchanged afterward; no customer records were read.
 
-Prepared tools:
+Both Functions inventory APIs are still BLOCKED, specifically by SERVICE_DISABLED, because Cloud Functions API is disabled. Cloud Run, Cloud Build, Artifact Registry, Eventarc and IAM APIs are also disabled. The authenticated operator already has Owner and verified relevant deployment/config permissions; no new Owner grant is proposed. A runtime identity, actual function inventory, supported Node22 runtime, published account Privacy and approved HTTPS staging settings are still deployment gates.
 
-- `scripts/firebase-readonly-review.cjs`: reads allowlisted metadata endpoints using the existing CLI-managed session; first backs up actual deployed rules with project/database/time/hash if authorized; sanitized summaries only. Raw provider secrets, IAM principal lists and tokens are not printed. Private results/backups stay under ignored `work/firebase-review-004/`.
-- `scripts/prepare-account-rules-review.cjs`: requires the genuine live-backup manifest/hash; rejects inherited root grants/conflicting namespace/unexpected patch; prepares only an offline namespace delta and expiry indexes while preserving unrelated paths. It does not deploy.
-- Existing named-function configuration and inactive `staging/*.review.json` pin safe gates and actual Terms metadata; unverified Privacy/app/origin/endpoint values remain unset.
-
-Because no deployed-rules backup exists yet, no actual live rules candidate has been generated or proposed as ready to deploy. The existing namespace fragment is a design/local test artifact only. The helper's safety guards were tested with fixtures. No provider/IAM/billing changes are guessed or applied.
-
-Local compatibility tests combine the READ-ONLY existing RTA rules with the private namespace and preserve RTA identity/purchase sentinels. Shared-project admin/IAM/Auth/quota risk remains: invitation checks protect company ID/profile authorization but do not independently stop all direct provider Auth credential creation if the existing provider allows it. Do not globally change RTA sign-in as a shortcut.
+The definitive sanitized inventory, backup/comparison, proposed staged approvals and remaining limitations are in audit/account-004/authenticated-inspection.md and its companion JSON evidence. Raw rules remain in private ignored work/. No API, billing, provider, rules, IAM or production hosting write was made. Earlier no-login/no-backup statements in the original 004 handoff are superseded by this follow-up.
 
 ## E. Actual tests and limitations
 
@@ -87,10 +83,10 @@ No newly generated image or gameplay change occurred. Common styles, hero, masco
 ## F. First real account — explicit answers
 
 1. **Ready? No.** Local code/tests are ready for review, not a live first registration.
-2. **Exact blockers:** Website & Account Privacy approval/publication and operational retention/deletion handling; interactive Firebase authentication and live inventory/rules backup; actual reviewed namespace/IAM/provider/mail/domain/billing/staging configuration; explicit controlled deployment approval and verification.
-3. **What Firebase settings must change?** Deploy the named new API/private namespace/config only after live comparison. Exact provider/domain/password/email/IAM/billing deltas cannot be responsibly specified as factual changes until inspection; preserve existing RTA settings. Start all new gates off. Pin actual published policy IDs/date/hashes, exact staging origin and returned function URL. Create only the approved invitation inside the agreed window.
+2. **Exact blockers:** Website & Account Privacy approval/publication and operational retention/deletion handling; approved billing/API prerequisites followed by Functions inventory; approved namespace/IAM/provider/mail/domain/staging configuration; explicit controlled deployment approval and verification.
+3. **What Firebase settings must change?** Deploy the named new API/private namespace/config only after live comparison. Inspection now establishes disabled billing/APIs, no enabled email/password config, default-only domains and absent account controls. The authenticated follow-up specifies the proposed changes and shared-project risks; preserve RTA Google and existing records. Start all new gates off. Pin actual published policy IDs/date/hashes, exact staging origin and returned function URL. Create only the approved invitation inside the agreed window.
 4. **What needs approval?** The scoped function/rules/config/HTTPS staging deployment; any provider/domain/IAM/billing changes demonstrated necessary; policy publication; operational retention/cleanup and real test invitation/account. Public registration, RTA migrations/entitlements, Google linking and scheduler/deletion deployment are excluded.
-5. **What must the Executive Producer supply?** Private local CLI login, final policy/operating decisions, selected test email through an approved private channel, exact-scope deployment approval and private browser-entered credentials. Never provide passwords/tokens/keys in chat or committed files.
+5. **What must the Executive Producer supply?** Final policy/operating decisions, billing/API and scoped deployment approval, selected test email through an approved private channel, exact-scope deployment approval and private browser-entered credentials. Never provide passwords/tokens/keys in chat or committed files.
 6. **Test URL?** No real HTTPS staging URL exists/has been assigned in this pass. It must be chosen from inspected/approved Hosting options and recorded before approval. http://127.0.0.1:18766/account/create.html is emulator-only. http://127.0.0.1:18765/ remains the normal closed development preview.
 7. **Steps?** After approvals: open exact approved HTTPS staging page; pass DOB screen; enter name/email/optional phone/private password/invitation; affirm published website policies; submit; privately confirm actual Auth UID and company ID; receive/follow REAL verification email; verify protected access; edit profile; reload; sign out/in; verify unchanged ID; complete REAL reset email; run authorized second-account separation and revoked/disabled checks. Google tests wait for separate approval. No account/email success is claimed before these live steps.
 
@@ -111,7 +107,7 @@ Status summary:
 | Data inventory, policy drafts, retention/controlled-deployment/deletion handoff, safe code corrections | IMPLEMENTED |
 | Account/identity/privacy/cleanup/revocation tests | TESTED IN EMULATOR |
 | Published Terms and old Privacy verification | Verified on main and public HTTPS website |
-| Firebase cloud configuration/rules backup | BLOCKED — interactive CLI login required |
+| Firebase cloud configuration/rules backup | VERIFIED AGAINST LIVE CONFIGURATION for the captured metadata/rules; Functions inventory remains blocked by its disabled API |
 | Controlled account staging | NOT DEPLOYED TO STAGING |
 | Published Terms from earlier authorized pass | LIVE IN PRODUCTION, unchanged |
 | Revised Privacy policies / account API / public registration | NOT LIVE IN PRODUCTION; registration disabled |

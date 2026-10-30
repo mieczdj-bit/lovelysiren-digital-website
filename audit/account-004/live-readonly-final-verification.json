@@ -1,0 +1,17 @@
+{
+  "observedAt": "2026-10-30T13:18:31.506Z",
+  "rulesUnchangedSinceBackup": true,
+  "rulesSha256": "21eb68a441f784821421e232afd5141fd9c20a6f1cfc3f38536f0128c9c6b9f6",
+  "accountDataNamespacePresent": false,
+  "existingRtaBucketsPresent": [
+    "users",
+    "playerIds",
+    "playerIdClaims",
+    "finishedGames",
+    "playerLookup",
+    "gameSessions",
+    "presence"
+  ],
+  "customerRecordsRead": false,
+  "liveWrites": false
+}

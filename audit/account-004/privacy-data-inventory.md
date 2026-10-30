@@ -2,6 +2,8 @@
 
 Audit date: October 30, 2026. Website development base `dc59bb6`; production `a407de16f8885900d4f73907a496e51bac48b30f`. RTA source inspected read-only at local commit `93a58797de4385af2a5d994468ef057592709a11` on `main`. A local game checkout is not proof of the installed/store release or live cloud configuration.
 
+> Authenticated follow-up: see [authenticated-inspection.md](authenticated-inspection.md) for verified Auth/domains/IAM/billing/API/Hosting settings and the real rules backup. Company account processing remains undeployed; provider logs, delivery and retention are not established by that metadata inventory.
+
 ## Production finding
 
 The Producer's observation is correct. `origin/main:privacy.html` and the public `/privacy.html` both contain the October 5, 2026 combined apps/services policy and match after newline normalization. The revised full website/account proposal exists at `drafts/website-privacy-approval.md` and `drafts/website-privacy-review.html` on Account Legal 003. Earlier Integration 002 proposals are also under `drafts/`. None of those drafts is on main or publicly served under the tested URLs; the public draft URLs return 404. This is prepared-but-not-deployed work, not a missing production merge of an already published new policy. All remote branch privacy filenames and tested HTTP statuses/hashes are recorded in `production-verification.json`.
