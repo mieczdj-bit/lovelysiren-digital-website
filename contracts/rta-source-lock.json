@@ -1,0 +1,107 @@
+{
+  "repository": "mieczdj-bit/RoadTripArcade",
+  "commit": "048c0138f7c99a2bc8c59a317ff87ca74afbd7c2",
+  "foundationCommit": "dfb51f2f67925ea08b8eb385569c19fa7577103f",
+  "files": [
+    {
+      "file": "AGENTS.md",
+      "sha256": "09f7b09f35660596cc4c22612a7893b0dea41e28c187168076b9c59302d0f610"
+    },
+    {
+      "file": "RT038B_LOVELYSIREN_ACCOUNT_AND_MAILBOX_FOUNDATION_REPORT.md",
+      "sha256": "8588927ca400b1b57a7c36277593944ce59d52f2e9efee82db02cfae759629ce"
+    },
+    {
+      "file": "docs/RT038B_WEBSITE_ADMIN_MAIL_CONTRACT.md",
+      "sha256": "724217aa7f00ff1bc8d1aa463d7dde9c5291b7487f1a10c6d1b57bfe779ae80c"
+    },
+    {
+      "file": "server/lib/lovelysiren-account.ts",
+      "sha256": "985d6f83bad5654f490b696d5adae9d3ff158a426ccfc580c9f30ee75c91724c"
+    },
+    {
+      "file": "server/lib/admin-mailbox.ts",
+      "sha256": "e4d61a7c2b37878b4346817ae50dd1b7b7e955396b1231996914542738dc9edc"
+    },
+    {
+      "file": "server/lib/play-purchase-verification.ts",
+      "sha256": "e3379cfeb1ceb5e2364a8f9ca47f1c82db2dd7d05554cefb8ce3cd34af34b4eb"
+    },
+    {
+      "file": "server/lib/play-purchase-verification.test.ts",
+      "sha256": "1b2fd360bf8b194381dee9db62f1299e63df946a6dceedd840a295e08975a2f9"
+    },
+    {
+      "file": "src/lib/lovelysiren-account-client.ts",
+      "sha256": "6316be6af83833a26a18ddd012faa965ae35da2488e26dff8d61441a4f2ff4dc"
+    },
+    {
+      "file": "src/lib/lovelysiren-email-auth.ts",
+      "sha256": "23f420553a82a76032aa09314165b4d1e5c75784fcf29adbea6f91f30e876f1e"
+    },
+    {
+      "file": "src/lib/firebase/account.ts",
+      "sha256": "e1bab7aa405ebde83edf28467acd5691b9744a59b912b820b512ce3e728dd55a"
+    },
+    {
+      "file": "src/lib/entitlements.ts",
+      "sha256": "462bfcdc05a0f1826429dd22650ce94908c68ab63a384947dd20667c6793b6bf"
+    },
+    {
+      "file": "src/lib/entitlement-cache.ts",
+      "sha256": "1e1dd3b037236dfc991de2a0e56c9c0661153e9dea41f2dd8252cd790cdd6331"
+    },
+    {
+      "file": "src/routes/lovelysiren/account/activate.ts",
+      "sha256": "939f075d8ac032c5e08ed4aa98ecbc222a0765cdc78a20861d6a80a07d2025ff"
+    },
+    {
+      "file": "src/routes/lovelysiren/account/entitlements.ts",
+      "sha256": "6c49f0ce13e984caeea1f094785573a1ed996dce9aef4901c40ff832b29639dc"
+    },
+    {
+      "file": "src/routes/lovelysiren/account/lease.ts",
+      "sha256": "fb5a49ef8f057c4715dfd7fd74ae9e2cfea969ea2573f792f3830a7d07726d42"
+    },
+    {
+      "file": "src/routes/verifyGooglePlayPurchase.ts",
+      "sha256": "2a6648839de0005db77210cc320d8fb9b298c7a28754167cee55dc692429c1e1"
+    },
+    {
+      "file": "src/routes/lovelysiren/mailbox.ts",
+      "sha256": "06efab6e0fae78be4751c2681e215aeae5dd41b2fc24afd1010eeccaeda0c74c"
+    },
+    {
+      "file": "src/lib/db.ts",
+      "sha256": "8decf7689ff4833ad2f6f263eff9041dd2a68ce923824fa1d55ad620dea72e49"
+    },
+    {
+      "file": "migrations/0001_internal_play_purchases.sql",
+      "sha256": "aad23a68eb235bc08bc34e2a878cf26aede8fe3346e9f590c0ee382422f8eddf"
+    },
+    {
+      "file": "migrations/0002_internal_promo_codes.sql",
+      "sha256": "83abcbc4d0e1b55fafc68f7112212ce31d98f97887256b10292929f8b7f5b2b0"
+    },
+    {
+      "file": "migrations/0003_lovelysiren_accounts_mailbox.sql",
+      "sha256": "47419991626ea4e99c18aac222091010a7d7b66635edce6858292b30b0b01377"
+    },
+    {
+      "file": "scripts/lovelysiren-foundation.test.mjs",
+      "sha256": "9842a67fd287cde0f95e14e128684bfffb64a697562ca3457b036b907cbb257c"
+    },
+    {
+      "file": "scripts/test-typescript-loader.mjs",
+      "sha256": "4a2f14a3044b9ab16f4ba165d7f6e8eafcefc6551a157f079d685a2a666a7e3d"
+    },
+    {
+      "file": "package.json",
+      "sha256": "52c3f859fb14254c766920d380e600357a554475efacd62e57dd14fde1fbd6ca"
+    },
+    {
+      "file": "firebase/database.rules.json",
+      "sha256": "9064aca9977c072b04f407ac1c6d649fdaadd4a3c65b2ef7bcf3fd3162f3428f"
+    }
+  ]
+}
