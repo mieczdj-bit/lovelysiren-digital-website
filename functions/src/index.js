@@ -3,6 +3,8 @@ import {getAuth} from 'firebase-admin/auth';
 import {getDatabase} from 'firebase-admin/database';
 import {onRequest} from 'firebase-functions/v2/https';
 import {createAccountBackend,AccountError} from './accounts.js';
+import {createIdentityResolver,createIdentityHandler} from './identity.js';
+import {createServiceAuthorizer} from './identity-service-auth.js';
 const projectId=process.env.GCLOUD_PROJECT||process.env.GOOGLE_CLOUD_PROJECT||'road-trip-arcade';
 const local=process.env.FUNCTIONS_EMULATOR==='true';
 if(local&&projectId!=='demo-road-trip-arcade')throw new Error('Local tests must use the isolated demo namespace');
@@ -10,6 +12,12 @@ if(!local&&(process.env.FIREBASE_AUTH_EMULATOR_HOST||process.env.FIREBASE_DATABA
 if(projectId!=='road-trip-arcade'&&!(local&&projectId==='demo-road-trip-arcade'))throw new Error('Unexpected Firebase project');
 const app=getApps()[0]||initializeApp({projectId,databaseURL:`https://${projectId}-default-rtdb.firebaseio.com`});
 const auth=getAuth(app);const db=getDatabase(app);const backend=createAccountBackend({db,auth});
+let identityCallers;try{identityCallers=JSON.parse(process.env.IDENTITY_SERVICE_CALLERS||'[]');}catch{identityCallers=[];}
+export const lovelysirenIdentityApi=onRequest({region:'us-central1',invoker:'private',maxInstances:2,timeoutSeconds:30,memory:'256MiB'},createIdentityHandler({
+ resolve:createIdentityResolver({db,auth,projectId}),
+ authorizeService:createServiceAuthorizer({audience:process.env.IDENTITY_SERVICE_AUDIENCE,callers:identityCallers}),
+ enabled:()=>process.env.IDENTITY_RESOLVER_ENABLED==='true'
+}));
 const anonymous=new Map([['registration/eligibility','eligibility'],['registration/prepare','prepare'],['registration/provision','provision']]);
 const protectedRoutes=new Map([['policies/status','policyStatus'],['policies/accept','acceptPolicies'],['registration/complete','complete'],['profile/read','readProfile'],['profile/update','updateProfile'],['verification/authorize','verification'],['providers/google/prepare','prepareLink'],['providers/google/complete','completeLink']]);
 export const lovelysirenAccountsApi=onRequest({region:'us-central1',maxInstances:2,timeoutSeconds:30,memory:'256MiB'},async(req,res)=>{
