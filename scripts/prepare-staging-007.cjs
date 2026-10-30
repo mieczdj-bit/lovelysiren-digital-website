@@ -15,7 +15,7 @@ function build(){const spec=JSON.parse(fs.readFileSync(path.join(root,'staging/a
  if(!entry.includes(options))throw Error('Function options changed; review runtime binding');
  entry=entry.replace(options,"onRequest({region:'us-central1',serviceAccount:'lovelysiren-accounts-test@road-trip-arcade.iam.gserviceaccount.com',minInstances:0,maxInstances:2");
  const backend=path.join(dest,'functions-account');fs.mkdirSync(path.join(backend,'src'),{recursive:true});fs.writeFileSync(path.join(backend,'src/index.js'),entry);
- for(const file of ['src/accounts.js','src/maintenance.js','package.json','package-lock.json'])fs.copyFileSync(path.join(root,'functions',file),path.join(backend,file));
+ for(const file of ['src/accounts.js','src/lifecycle.js','src/maintenance.js','package.json','package-lock.json'])fs.copyFileSync(path.join(root,'functions',file),path.join(backend,file));
  fs.writeFileSync(path.join(dest,'manifest.json'),JSON.stringify({status:'LOCAL REVIEW ONLY — NOT DEPLOYED',publicFiles:manifest,backendExports:['lovelysirenAccountsApi'],identityExportAbsent:true,activation:false},null,2)+'\n');
  console.log(JSON.stringify({artifact:dest,publicFiles:manifest.length,backendExports:['lovelysirenAccountsApi'],activation:false}));return dest;
 }

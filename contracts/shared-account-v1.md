@@ -30,6 +30,8 @@ Producer decisions remain: which website actions consume a slot, how apps share 
 
 ## Deletion orchestration
 
+Pass008 development update: the company coordinator and lifecycle guards now exist as emulator-only, unexported source. See [account-lifecycle-deletion-008.md](account-lifecycle-deletion-008.md) for the company-only scope extension, trusted inventory/fence prerequisite and current limitations. The historical proposal below is not a deployed-service claim; RTA's trusted inventory/deletion adapter remains absent.
+
 Proposed `deletion.request.v1`: recent verified authentication, operationId, canonical subject, scope `company` or `rta-only`. Company coordinator records durable operation and increments lifecycle revision before work; closes new identity/lease/purchase writes and revokes leases. Trusted RTA worker receives `{version:1, operationId, scope, lovelySirenId, rtaLocalUserId, lifecycleRevision}`; it verifies caller and binding, applies approved retention policy, then returns a durable idempotent receipt `{operationId, product:"rta", status:"completed"|"blocked"|"retryable", completedAt?, retentionReferences:[]}`. Repeated IDs with different owners/scopes fail. Retry is safe; partial failure remains pending and must not be called completed.
 
 For company scope, finalize company Auth/profile deletion only after every required product receipt and approved legal-retention handling. RTA-only removes approved RTA data/product links; it never deletes company Auth, permanent identity or other products. Release only that product's lease participation where appropriate. A disabled row, sign-out or mailbox deletion is not completed account deletion. Preserve minimal non-PII operation tombstones only under an approved retention policy.

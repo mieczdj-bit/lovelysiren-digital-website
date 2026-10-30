@@ -26,7 +26,7 @@ export function createIdentityResolver({db,auth,projectId,clock=Date.now}){
   if(!profile||!mapping||!idPattern.test(mapping.lovelySirenId||'')||profile.firebaseUid!==token.uid||profile.lovelySirenId!==mapping.lovelySirenId)fail(503,'identity-conflict');
   const owner=await read('uidByIdentity/'+mapping.lovelySirenId);
   if(owner!==token.uid)fail(503,'identity-conflict');
-  if(profile.state!=='active')fail(403,'account-unavailable',['pendingVerification','disabled','closing','deleted'].includes(profile.state)?profile.state:'unavailable');
+  if(profile.state!=='active')fail(403,'account-unavailable',['pendingVerification','disabled','closing','deletionBlocked','deleted'].includes(profile.state)?profile.state:'unavailable');
   if(profile.ageCategory!=='adult')fail(403,'eligibility-required','eligibility-required');
   let docs;try{docs=publishedPolicies(config.policy,now);}catch{fail(503,'policy-pending','unknown',true);}
   const acceptance=profile.policyAcceptance;

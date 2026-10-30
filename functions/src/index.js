@@ -3,6 +3,7 @@ import {getAuth} from 'firebase-admin/auth';
 import {getDatabase} from 'firebase-admin/database';
 import {onRequest} from 'firebase-functions/v2/https';
 import {createAccountBackend,AccountError} from './accounts.js';
+import {LifecycleError} from './lifecycle.js';
 import {createIdentityResolver,createIdentityHandler} from './identity.js';
 import {createServiceAuthorizer} from './identity-service-auth.js';
 const projectId=process.env.GCLOUD_PROJECT||process.env.GOOGLE_CLOUD_PROJECT||'road-trip-arcade';
@@ -42,6 +43,6 @@ export const lovelysirenAccountsApi=onRequest({region:'us-central1',maxInstances
   res.status(200).json(result);
  }catch(error){
   // Do not log raw request bodies, passwords, DOB, tokens or Firebase errors containing account information.
-  res.status(error instanceof AccountError?error.status:503).json({error:error instanceof AccountError?error.code:'temporarily-unavailable'});
+  const known=error instanceof AccountError||error instanceof LifecycleError;res.status(known?error.status:503).json({error:known?error.code:'temporarily-unavailable'});
  }
 });

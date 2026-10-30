@@ -1,4 +1,5 @@
 import {createHash,randomBytes,randomUUID,timingSafeEqual} from 'node:crypto';
+import {assertOpen,changedState,companyTransaction,guardedProfileUpdate} from './lifecycle.js';
 export const NAMESPACE='lovelySirenAccountsV1';
 export const hash=value=>createHash('sha256').update(String(value)).digest('hex');
 export const normalizeEmail=value=>String(value||'').trim().toLowerCase();
@@ -60,6 +61,7 @@ export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,sec
  async function ownedProfile(token,verified=true,enforcePolicy=true){
   const c=await config();if(verified&&token.email_verified!==true)fail(403,'verify-required');
   const p=await read('profiles/'+token.uid);if(!p||p.firebaseUid!==token.uid||!['pendingVerification','active'].includes(p.state))fail(403,'setup-required');
+  assertOpen(p);
   const canonical=await read('identityByUid/'+token.uid);const owner=canonical&&await read('uidByIdentity/'+canonical.lovelySirenId);
   if(!canonical||canonical.lovelySirenId!==p.lovelySirenId||owner!==token.uid)fail(403,'setup-required');
   if(enforcePolicy&&c.policy?.requiresReacceptance){publishedPolicies(c.policy,clock());if(p.policyAcceptance?.termsVersion!==c.policy.termsVersion||p.policyAcceptance?.privacyVersion!==c.policy.privacyVersion)fail(428,'policy-required');}
@@ -72,12 +74,11 @@ export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,sec
   async policyStatus(input,token){if(Object.keys(input).length)fail(400,'invalid-input');await ownedProfile(token,true,false);return publishedPolicies((await config()).policy,clock());},
   async acceptPolicies(input,token){
    if(Object.keys(input).some(k=>!['accepted','termsVersion','privacyVersion'].includes(k)))fail(400,'invalid-input');
-   await ownedProfile(token,true,false);const c=await config();const documents=publishedPolicies(c.policy,clock());
+   const p=await ownedProfile(token,true,false);const c=await config();const documents=publishedPolicies(c.policy,clock());
    if(input.accepted!==true||input.termsVersion!==c.policy.termsVersion||input.privacyVersion!==c.policy.privacyVersion)fail(403,'not-authorized');
    const acceptance={termsVersion:c.policy.termsVersion,privacyVersion:c.policy.privacyVersion,termsSha256:documents.terms.sha256,privacySha256:documents.privacy.sha256,acceptedAt:clock()};
    const key=hash(acceptance.termsVersion+'|'+acceptance.privacyVersion);
-   await ref('policyHistory/'+token.uid+'/'+key).transaction(current=>current||acceptance,undefined,false);
-   await ref('profiles/'+token.uid).update({policyAcceptance:acceptance,updatedAt:clock()});return{accepted:true};
+   await companyTransaction(db,root=>{const current=root.profiles?.[token.uid];assertOpen(current,p);if(JSON.stringify(root.controls?.config)!==JSON.stringify(c))fail(409,'policy-changed');root.policyHistory??={};root.policyHistory[token.uid]??={};root.policyHistory[token.uid][key]??=acceptance;root.profiles[token.uid]={...current,policyAcceptance:acceptance,updatedAt:clock()};return root;});return{accepted:true};
   },
   async prepare(input,context){
    const c=await config();if(!c.registrationEnabled)fail(403,'not-authorized');
@@ -85,9 +86,9 @@ export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,sec
    const emailKey=hash(normalizeEmail(input.email));await throttle('registration-email:'+emailKey,10,3600000);
    const invite=await assertInvitation(emailKey);if(invite.existingUid&&!/^[A-Za-z0-9_-]{1,128}$/.test(invite.existingUid))fail(503,'not-ready');if(!checkCode(input.invitationCode,invite.codeHash))fail(403,'not-authorized');
    const profile=validatePreparation(input,c.policy,clock());if(input.method!=='password')fail(403,'provider-disabled');
-   const reservation=(await ref('registrationReservations/'+emailKey).transaction(current=>current||{authUid:invite.existingUid||'webtest_'+uuid(),createdAt:clock(),existingAccount:Boolean(invite.existingUid)},undefined,false)).snapshot.val();
-   if(reservation.completed)fail(403,'not-authorized');
-   const token=secret();await ref('registrationGrants/'+hash(token)).set({state:'prepared',emailKey,authUid:reservation.authUid,existingAccount:reservation.existingAccount,profile,createdAt:clock(),expiresAt:clock()+15*60000});
+   const token=secret(),proposedUid=invite.existingUid||'webtest_'+uuid();
+   const root=await companyTransaction(db,root=>{if(JSON.stringify(root.controls?.config)!==JSON.stringify(c))fail(409,'policy-changed');const invitation=root.testInvitations?.[emailKey];if(!invitation?.enabled||invitation.expiresAt<=clock()||!checkCode(input.invitationCode,invitation.codeHash))fail(403,'not-authorized');const reservation=root.registrationReservations?.[emailKey]||{authUid:proposedUid,createdAt:clock(),existingAccount:Boolean(invite.existingUid)};if(reservation.completed)fail(403,'not-authorized');if(root.profiles?.[reservation.authUid])assertOpen(root.profiles[reservation.authUid]);root.registrationReservations??={};root.registrationReservations[emailKey]=reservation;root.registrationGrants??={};root.registrationGrants[hash(token)]={state:'prepared',emailKey,authUid:reservation.authUid,existingAccount:reservation.existingAccount,profile,createdAt:clock(),expiresAt:clock()+15*60000};return root;});
+   const reservation=root.registrationReservations[emailKey];
    return{registrationGrant:token,flow:reservation.existingAccount?'sign-in-existing':'controlled-provisioning'};
   },
   async provision(input,context){
@@ -97,13 +98,7 @@ export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,sec
    if(record.existingAccount)fail(403,'existing-sign-in-required');
    if(typeof input.password!=='string'||input.password.length<15||input.password.length>128)fail(400,'password-policy');
    const lease=secret();const now=clock();
-   const leaseResult=await ref('registrationGrants/'+key).transaction(current=>{
-    if(!current)return null;
-    if(current.expiresAt<=now||current.state==='completed')return;
-    if(current.state==='provisioning'&&current.leaseUntil>now)return;
-    return{...current,state:'provisioning',lease,leaseUntil:now+60000};
-   },undefined,false);
-   if(!leaseResult.committed||leaseResult.snapshot.val()?.lease!==lease)fail(409,'retry-later');
+   await companyTransaction(db,root=>{if(JSON.stringify(root.controls?.config)!==JSON.stringify(c))fail(409,'policy-changed');const current=root.registrationGrants?.[key];if(!current||current.expiresAt<=now||current.state==='completed'||current.state==='provisioning'&&current.leaseUntil>now)fail(409,'retry-later');if(root.profiles?.[record.authUid])assertOpen(root.profiles[record.authUid]);root.registrationGrants[key]={...current,state:'provisioning',lease,leaseUntil:now+60000};return root;});
    try{
     let account;
     try{account=await auth.createUser({uid:record.authUid,email:record.profile.email,password:input.password,displayName:record.profile.displayName,emailVerified:false});}
@@ -121,23 +116,19 @@ export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,sec
     if(!record.existingAccount&&record.state!=='provisioned')fail(403,'not-authorized');
     if(record.profile.policyAcceptance.termsVersion!==c.policy?.termsVersion||record.profile.policyAcceptance.privacyVersion!==c.policy?.privacyVersion||record.profile.policyAcceptance.termsSha256!==documents.terms.sha256||record.profile.policyAcceptance.privacySha256!==documents.privacy.sha256||c.policy?.approved!==true)fail(403,'policy-pending');
    }
+   const prior=await read('profiles/'+token.uid);if(prior)assertOpen(prior);
    const canonical=await identity(token.uid);
-   const now=clock();const proposed={registrationGrantHash:key,firebaseUid:token.uid,lovelySirenId:canonical.lovelySirenId,displayName:record.profile.displayName,...(record.profile.phone?{phone:record.profile.phone}:{}),ageCategory:'adult',policyAcceptance:record.profile.policyAcceptance,state:token.email_verified?'active':'pendingVerification',createdAt:now,updatedAt:now};
-   const result=(await ref('profiles/'+token.uid).transaction(current=>current||proposed,undefined,false)).snapshot.val();
-   if(result.firebaseUid!==token.uid||result.lovelySirenId!==canonical.lovelySirenId)fail(503,'identity-conflict');
+   const now=clock();const proposed={registrationGrantHash:key,firebaseUid:token.uid,lovelySirenId:canonical.lovelySirenId,displayName:record.profile.displayName,...(record.profile.phone?{phone:record.profile.phone}:{}),ageCategory:'adult',policyAcceptance:record.profile.policyAcceptance,state:token.email_verified?'active':'pendingVerification',lifecycleRevision:0,createdAt:now,updatedAt:now};
    const acceptanceKey=hash(record.profile.policyAcceptance.termsVersion+'|'+record.profile.policyAcceptance.privacyVersion);
-   await ref('policyHistory/'+token.uid+'/'+acceptanceKey).transaction(current=>current||record.profile.policyAcceptance,undefined,false);
-   await ref('registrationGrants/'+key).update({state:'completed',completedAt:record.completedAt||now});
-   await ref('registrationReservations/'+record.emailKey).update({completed:true});
-   await ref('testInvitations/'+record.emailKey).update({enabled:false});
+   await companyTransaction(db,root=>{if(!root.controls?.config?.registrationEnabled||!root.controls.config.serviceEnabled)fail(403,'not-authorized');if(JSON.stringify(root.controls.config)!==JSON.stringify(c))fail(409,'policy-changed');const current=root.profiles?.[token.uid];if(current)assertOpen(current,prior||undefined);if(current&&(current.firebaseUid!==token.uid||current.lovelySirenId!==canonical.lovelySirenId))fail(503,'identity-conflict');const g=root.registrationGrants?.[key];if(!g||g.authUid!==token.uid||g.expiresAt<=clock())fail(403,'not-authorized');root.profiles??={};root.profiles[token.uid]=current||proposed;root.policyHistory??={};root.policyHistory[token.uid]??={};root.policyHistory[token.uid][acceptanceKey]??=record.profile.policyAcceptance;root.registrationGrants[key]={...g,state:'completed',completedAt:g.completedAt||now};if(root.registrationReservations?.[record.emailKey])root.registrationReservations[record.emailKey].completed=true;if(root.testInvitations?.[record.emailKey])root.testInvitations[record.emailKey].enabled=false;return root;});
    return{completed:true,verificationRequired:token.email_verified!==true};
   },
   async readProfile(input,token){
-   if(Object.keys(input).length)fail(400,'invalid-input');const p=await ownedProfile(token);if(p.state!=='active')await ref('profiles/'+token.uid).update({state:'active',verifiedAt:clock()});return{profile:view(p)};
+   if(Object.keys(input).length)fail(400,'invalid-input');const p=await ownedProfile(token);const current=await guardedProfileUpdate(db,token.uid,p,current=>current.state==='active'?current:{...changedState(current,'active',clock()),verifiedAt:clock()});return{profile:view(current)};
   },
   async updateProfile(input,token){
-   await ownedProfile(token);if(clock()/1000-token.auth_time>300)fail(401,'recent-login-required');
-   const values=validateProfile(input);await ref('profiles/'+token.uid).update({...values,updatedAt:clock()});
+   const p=await ownedProfile(token);if(clock()/1000-token.auth_time>300)fail(401,'recent-login-required');
+   const values=validateProfile(input);await guardedProfileUpdate(db,token.uid,p,current=>({...current,...values,updatedAt:clock()}));
    // Do not mutate RTA users/{uid} or its display-name token invariant in this pass.
    return{updated:true};
   },
@@ -149,7 +140,7 @@ export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,sec
    const c=await config();if(!c.googleLinkingEnabled)fail(403,'provider-disabled');await ownedProfile(token);
    if(clock()/1000-token.auth_time>300)fail(401,'recent-login-required');
    const account=await auth.getUser(token.uid);if(account.providerData.some(p=>p.providerId==='google.com'))return{connected:true};
-   const linkGrant=secret();const p=await ownedProfile(token);await ref('linkGrants/'+hash(linkGrant)).set({uid:token.uid,lovelySirenId:p.lovelySirenId,expiresAt:clock()+5*60000});return{linkGrant};
+   const linkGrant=secret();const p=await ownedProfile(token);await companyTransaction(db,root=>{assertOpen(root.profiles?.[token.uid],p);root.linkGrants??={};root.linkGrants[hash(linkGrant)]={uid:token.uid,lovelySirenId:p.lovelySirenId,expiresAt:clock()+5*60000};return root;});return{linkGrant};
   },
   async completeLink(input,token){
    const c=await config();if(!c.googleLinkingEnabled)fail(403,'provider-disabled');const p=await ownedProfile(token);
@@ -157,7 +148,7 @@ export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,sec
    if(!g||g.uid!==token.uid||g.lovelySirenId!==p.lovelySirenId||!Number.isFinite(g.expiresAt)||g.expiresAt<=clock()||clock()/1000-token.auth_time>300)fail(403,'not-authorized');
    const account=await auth.getUser(token.uid);if(!account.providerData.some(provider=>provider.providerId==='google.com'))fail(403,'not-linked');
    // Actual Firebase linking enforces provider uniqueness; no email lookup, reassignment or entitlement mutation.
-   await ref('linkGrants/'+key).transaction(current=>!current?null:!current.completedAt?{...current,completedAt:clock()}:undefined,undefined,false);return{connected:true};
+   await companyTransaction(db,root=>{assertOpen(root.profiles?.[token.uid],p);const current=root.linkGrants?.[key];if(!current||current.uid!==token.uid||current.expiresAt<=clock())fail(403,'not-authorized');current.completedAt??=clock();return root;});return{connected:true};
   }
  };
 }
