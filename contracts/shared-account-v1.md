@@ -34,7 +34,13 @@ Proposed `deletion.request.v1`: recent verified authentication, operationId, can
 
 For company scope, finalize company Auth/profile deletion only after every required product receipt and approved legal-retention handling. RTA-only removes approved RTA data/product links; it never deletes company Auth, permanent identity or other products. Release only that product's lease participation where appropriate. A disabled row, sign-out or mailbox deletion is not completed account deletion. Preserve minimal non-PII operation tombstones only under an approved retention policy.
 
-No trusted RTA game-data deletion worker was found in the pinned source. This is an explicit unimplemented boundary; mailbox deletion cannot substitute for it. Company backend also lacks a coordinator and approved deletion IAM. Worker tests must remain stubs until a real source implementation is supplied.
+**RTA trusted deletion API: PLANNED / NOT IMPLEMENTED / NOT DEPLOYED / RELEASE BLOCKER.**
+
+The producer explicitly confirmed this status on October 30, 2026. There is no completed handler in RT-038B or another production-ready source to locate. RT-017 ended BLOCKED without a partial deletion implementation. The producer reports that client rules prevented complete deletion of `users/$uid` (required `newData.exists()`), effectively create-only `suggestions` and `finishedGames`, and `sessions` (deletion not permitted). This historical explanation is producer-supplied, not an additional independent audit of RT-017.
+
+RT-038B account hooks, Manage Account/Delete Account website links and account-aware mailbox functionality do not implement account/game-data deletion. Mailbox deletion cannot substitute for it. Company backend also lacks a coordinator and approved deletion IAM. Worker tests must remain stubs until a real source implementation is supplied.
+
+Before this release blocker can close, the RTA service needs authenticated trusted authority; an explicit inventory of affected data paths and ownership selectors; server-side privileges capable of deleting eligible records blocked by client rules; idempotent retries; partial-failure reporting; approved retention exceptions; and completion verification across every affected record class. Do not loosen client rules as an assumed workaround. `Delete RTA Data` invokes that product service and preserves the company account. `Delete LovelySiren Account` invokes the company coordinator, which calls the RTA service as one required product-specific step. Neither flow may claim success after partial deletion. This clarification authorizes documentation only, not service implementation or deployment.
 
 ## Compatibility gate
 

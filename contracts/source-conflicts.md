@@ -16,3 +16,7 @@ Pinned revisions and hashes: see shared-account-v1.md and rta-source-lock.json. 
 | Deletion | Inspected routes include mailbox deletion, but no trusted game-data deletion worker/coordinator | Specify and implement worker under later approval; don't infer deletion from status enum |
 
 No production blockers have been patched. Test fixtures must not be imported by production entry points. Production Firebase, SQL and Google Play must never be contacted by this reconciliation suite.
+
+## Producer-confirmed deletion blocker — October 30, 2026
+
+**RTA trusted deletion API: PLANNED / NOT IMPLEMENTED / NOT DEPLOYED / RELEASE BLOCKER.** No further handler search is required. Producer confirms RT-017 ended BLOCKED, with no partial implementation: client rules blocked deletion of `users/$uid`, `suggestions`, `finishedGames` and `sessions`. These are historical producer findings, not an exhaustive deletion inventory or a new independent rules audit. RT-038B links/hooks/mailbox functions do not close the gap. See the deletion contract for required authority, path inventory, retention, retry, partial-failure and completion-verification gates.
