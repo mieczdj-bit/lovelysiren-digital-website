@@ -30,9 +30,9 @@
     "version": "1.0",
     "status": "review",
     "effectiveDate": null,
-    "source": "drafts/website-privacy-approval.md",
+    "source": "drafts/website-account-privacy-v1.0.md",
     "publicationApproved": false,
-    "contentSha256": "a81ca9f3b73af819d519e320b4def941fb6ef57936ac77e4ac157b4c872b6c5c"
+    "contentSha256": "0f22280392acf4f115aa3aa3ce7ce5bdc126709a9d9c0fb369dcf547852988e9"
   },
   "rtaPrivacy": {
     "documentId": "rta-privacy-v1.0",

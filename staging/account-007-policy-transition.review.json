@@ -1,0 +1,27 @@
+{
+  "status": "review-only-not-executable",
+  "publicationAuthorized": false,
+  "activationAuthorized": false,
+  "publishedTerms": {
+    "kind": "website-terms", "status": "published", "version": "website-terms-v1.0", "effectiveDate": "2026-10-28",
+    "sha256": "963bac3c70804f34e9aa184149b46c714d720e37ba6181529744d7d465ef44de", "url": "https://lovelysirendigital.com/terms.html"
+  },
+  "privacyAfterApprovedPublication": {
+    "kind": "website-privacy", "status": null, "version": "website-privacy-v1.0", "effectiveDate": null,
+    "sha256": null, "url": "https://lovelysirendigital.com/privacy.html"
+  },
+  "currentControls": {
+    "serviceEnabled": false, "registrationEnabled": false, "identityResolutionEnabled": false, "googleLinkingEnabled": false,
+    "policy": { "approved": false, "privacyVersion": null, "documents": { "privacy": null } }
+  },
+  "currentEnvironments": { "ACCOUNT_TEST_API_ENABLED": "false", "IDENTITY_RESOLVER_ENABLED": "false", "IDENTITY_SERVICE_CALLERS": "[]" },
+  "afterPublicationPointers": [
+    "legal/policy-versions.json: websitePrivacy source/status/effectiveDate/publicationApproved/contentSha256 and publishedVersions archive entry",
+    "trusted controls: policy.documents.privacy actual published metadata, policy.privacyVersion website-privacy-v1.0",
+    "staging client: policies.privacyVersion website-privacy-v1.0 and canonical privacyUrl"
+  ],
+  "separateApprovalRequiredFor": ["policy.approved", "client.policies.approved", "client.enabled", "client.registrationEnabled", "serviceEnabled", "registrationEnabled", "ACCOUNT_TEST_API_ENABLED", "real test invitation"],
+  "remainDisabledDuringFirstRegistrationTest": ["identityResolutionEnabled", "IDENTITY_RESOLVER_ENABLED", "googleLinkingEnabled", "client.googleEnabled", "public registration"],
+  "publishedPrivacyHashMustBeDerivedAfterPublication": true,
+  "draftHashMustNotAuthorizeConsent": true
+}

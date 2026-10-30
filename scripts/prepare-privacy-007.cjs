@@ -1,0 +1,14 @@
+// Local review rendering only. Cannot publish a policy or enable account controls.
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');const root=path.resolve(__dirname,'..');
+const registryPath=path.join(root,'legal/policy-versions.json'),registry=JSON.parse(fs.readFileSync(registryPath)),record=registry.websitePrivacy;
+if(record.publicationApproved||record.status==='published'||record.effectiveDate)throw Error('This tool only prepares unapproved Privacy');
+const source='drafts/website-account-privacy-v1.0.md',text=fs.readFileSync(path.join(root,source),'utf8').replace(/\r\n/g,'\n');
+const escape=s=>s.replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const inline=s=>escape(s).replace(/\n/g,'<br>').replace(/https:\/\/[^\s<]+/g,url=>{const clean=url.replace(/[.,]$/,'');return `<a href="${clean}">${clean}</a>`+url.slice(clean.length);});
+let html='',paragraph=[],list=false;function flush(){if(paragraph.length){html+='<p>'+inline(paragraph.join(' '))+'</p>';paragraph=[];}if(list){html+='</ul>';list=false;}}
+for(const line of text.split('\n')){if(!line.trim()){flush();continue;}if(line.startsWith('# '))continue;if(line.startsWith('## ')){flush();html+='<h2>'+inline(line.slice(3))+'</h2>';continue;}if(line.startsWith('- ')){if(paragraph.length)flush();if(!list){html+='<ul>';list=true;}html+='<li>'+inline(line.slice(2))+'</li>';continue;}if(list)flush();paragraph.push(line.trim()+(/ {2}$/.test(line)?'\n':''));}flush();
+const preview='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Website Privacy — Approval Review | LovelySiren Digital</title><link rel="stylesheet" href="../styles.css"><link rel="stylesheet" href="../legal.css"></head><body><main class="wrap legal-shell"><aside class="legal-notice" aria-label="Approval status"><strong>Executive Producer review — NOT PUBLISHED OR EFFECTIVE.</strong><p>Proposed identifier: website-privacy-v1.0. Effective date: not assigned. Existing public disclosures remain unchanged. Reviewing this page records no acceptance.</p><p><a href="website-account-privacy-v1.0.md">Download policy source</a> · <a href="../privacy.html">Current combined public-policy copy</a></p></aside><h1>Website &amp; Account Privacy Policy</h1><article class="legal-reading">'+html+'</article></main></body></html>';
+fs.writeFileSync(path.join(root,'drafts/website-privacy-review.html'),preview);
+Object.assign(record,{source,contentSha256:crypto.createHash('sha256').update(text).digest('hex')});
+fs.writeFileSync(registryPath,JSON.stringify(registry,null,2)+'\n');
+console.log('Prepared unapproved local Privacy preview; registry hash identifies a draft only.');
