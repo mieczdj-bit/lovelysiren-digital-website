@@ -13,9 +13,9 @@ Individual games, including Road Trip Arcade, have their own data practices and 
 
 LovelySiren Digital is a Virginia sole proprietorship operating under a registered trade name.
 
-LovelySiren Digital  
-5600 Whitmell School Rd  
-Dry Fork, VA 24549  
+LovelySiren Digital\
+5600 Whitmell School Rd\
+Dry Fork, VA 24549\
 United States
 
 Email: lovelysirenstudios@gmail.com
