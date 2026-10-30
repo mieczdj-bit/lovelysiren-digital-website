@@ -4,6 +4,7 @@
 **Status:** Executive Producer approval required. Not published or effective.
 **Effective Date:** To be assigned when approved and published.
 **Proposed document identifier:** website-privacy-v1.0
+**Draft version:** 1.0
 
 ## 1. Scope and current availability
 
@@ -38,6 +39,8 @@ When authorized account registration is available, we process:
 
 We do not request a child's profile or a parent-managed company account in this account release. The company-account age restriction does not determine whether a child can use a game's eligible guest features.
 
+Incomplete or interrupted registration can leave an unverified Firebase credential, a UID reservation or temporary grant state even when a full company profile has not been completed. We reconcile those records under an authorized support/security procedure; this is not automatic deletion or a successful-account guarantee.
+
 ## 4. Identifiers and private account records
 
 Firebase Authentication assigns an authentication user identifier. The trusted account backend associates that identifier with a permanent LovelySiren ID and a private profile. These identifiers are distinct from your email address and from a game's friendly Player ID.
@@ -59,6 +62,8 @@ No phone-based sign-in, promotional SMS, Apple authentication or public player c
 ## 6. Technical information and local storage
 
 Hosting and service providers receive technical request information necessary to deliver and secure the website, such as IP address, browser and device information, request timing and network information. The account API uses hashed IP-derived and email-derived keys and expiring counters to limit abuse. Application code avoids logging raw request bodies, passwords, birth dates and authentication tokens. Hosting and Firebase infrastructure may maintain their own operational and security logs under their applicable settings.
+
+The website does not maintain a custom successful-login or login-attempt history. Firebase receives sign-in, failed sign-in, verification and recovery requests and related technical information under its actual service settings; provider log retention and access must be verified.
 
 When account services are enabled, Firebase's browser persistence stores authentication session information locally so a session can be restored after a refresh. Signing out ends the application's current authenticated session. Local presentation and cooldown state may also be stored in browser session storage. These features are not advertising consent and do not authorize access by themselves.
 

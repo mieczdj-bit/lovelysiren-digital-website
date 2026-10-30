@@ -1,0 +1,25 @@
+{
+  "reviewOnly": true,
+  "enabled": false,
+  "registrationEnabled": false,
+  "registrationMode": "closed",
+  "googleEnabled": false,
+  "firebase": {
+    "projectId": "road-trip-arcade",
+    "authDomain": "road-trip-arcade.firebaseapp.com",
+    "apiKey": null,
+    "appId": null
+  },
+  "backendBaseUrl": null,
+  "allowedOrigins": [],
+  "emailContinueUrl": null,
+  "emailContinueOrigins": [],
+  "policies": {
+    "termsUrl": "https://lovelysirendigital.com/terms.html",
+    "termsVersion": "website-terms-v1.0",
+    "privacyUrl": "https://lovelysirendigital.com/privacy.html",
+    "privacyVersion": null,
+    "approved": false
+  },
+  "eligibilityApproved": true
+}

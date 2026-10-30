@@ -1,0 +1,60 @@
+{
+  "repositoryPath": "C:/Users/miecz/Documents/GitHub/RoadTripArcade",
+  "commit": "93a58797de4385af2a5d994468ef057592709a11",
+  "branch": "main",
+  "trackedChanges": "",
+  "files": [
+    {
+      "file": "src/lib/firebase/client.ts",
+      "sha256": "113eff8389c16839d1621e12bed50d44fffc779a522becd480f7d7a90b76e24f"
+    },
+    {
+      "file": "src/lib/firebase/account.ts",
+      "sha256": "f06b89b0a6bd48d1015f7438aa846cb3502e93339f2a66ed1292d7c84099907a"
+    },
+    {
+      "file": "src/lib/firebase/profile.ts",
+      "sha256": "f75a34e6d39a4c9e629f3737eda94b642cc747cbad50ba3bf19b98d145872928"
+    },
+    {
+      "file": "src/lib/firebase/history.ts",
+      "sha256": "69ebb74ec33280bc39159c1b44d463e0a2d3e230e281a3608d00b72674a53a37"
+    },
+    {
+      "file": "src/lib/firebase/suggestions.ts",
+      "sha256": "091f75d5cbc5ec8f1e2f09693f7c7fb4c24cbaa34d805900ba8c5b3e5bf320e3"
+    },
+    {
+      "file": "src/lib/external-links.ts",
+      "sha256": "855bf5294aff8d47d9a6481e517b2bc8a90f56a92dcf43a42a45c8eb3291851f"
+    },
+    {
+      "file": "src/lib/rewarded-ads.ts",
+      "sha256": "a5844bbfa113982c486bf34f92a93501dbae3774379106d5a7258f1621b14962"
+    },
+    {
+      "file": "src/lib/entitlements.ts",
+      "sha256": "4c6bf317c47939c18253a3b86d87da2a13b2ce1d1a04495dd35a465c993fa5ca"
+    },
+    {
+      "file": "src/components/game/ad-banner.tsx",
+      "sha256": "6cbd8494ce235a4f1f6b5a139c833d83fb6fc24294f1f79ba0b3d6b983d2fa46"
+    },
+    {
+      "file": "src/lib/multiplayer/service.ts",
+      "sha256": "9739c75bef2ed47222c2f7d9ccc7a47d1a5229d201bc9b74b0e32562918f90e3"
+    },
+    {
+      "file": "src/lib/multiplayer/resolution.ts",
+      "sha256": "164b6ed4d3e1b661e62fbcbc07bea54eead346ef7da05b85218b5690e88da986"
+    },
+    {
+      "file": "firebase/database.rules.json",
+      "sha256": "88f751a833766eca84799027aa865ab2cb83becaf5333868850baada781c12a1"
+    },
+    {
+      "file": "android/app/src/main/AndroidManifest.xml",
+      "sha256": "1b5439e8e32419d7e71723f2af15f2f91e08eb9fea174a3024604aff98d9ab8c"
+    }
+  ]
+}

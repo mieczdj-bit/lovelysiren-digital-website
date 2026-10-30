@@ -117,6 +117,57 @@ await test('real Firebase emulators: controlled registration, ownership, verific
   const history=(await db.ref(NAMESPACE+'/policyHistory/'+uid).get()).val();assert.equal(Object.keys(history).length,2);assert.ok(Object.values(history).every(a=>typeof a.acceptedAt==='number'&&!a.rtaTermsVersion));
   await db.ref(NAMESPACE+'/controls/config/policy').set(config.policy);
  });
+
+ await t.test('registration-only kill switch rejects outstanding grants before credential creation and completion',async()=>{
+  await invite('kill004@example.test');const prepared=await api('registration/prepare',body('kill004@example.test'));assert.equal(prepared.status,200);
+  await db.ref(NAMESPACE+'/controls/config/registrationEnabled').set(false);
+  assert.equal((await api('registration/provision',{registrationGrant:prepared.body.registrationGrant,password})).status,403);
+  assert.equal((await api('registration/complete',{registrationGrant:grant},token)).status,403);
+  await assert.rejects(adminAuth.getUserByEmail('kill004@example.test'),e=>e.code==='auth/user-not-found');
+  assert.equal((await api('profile/read',{},token)).status,200,'existing verified account remains usable');
+  await db.ref(NAMESPACE+'/controls/config/registrationEnabled').set(true);
+ });
+ await t.test('expired registration/link/invitation capabilities deny use before physical cleanup',async()=>{
+  await invite('expiry004@example.test');const prepared=await api('registration/prepare',body('expiry004@example.test'));assert.equal(prepared.status,200);
+  const futureBackend=createAccountBackend({db,auth:adminAuth,clock:()=>Date.now()+16*60000});
+  await assert.rejects(futureBackend.provision({registrationGrant:prepared.body.registrationGrant,password},{ip:'expiry004'}),e=>e.code==='not-authorized');
+  assert.ok((await db.ref(NAMESPACE+'/registrationGrants/'+hash(prepared.body.registrationGrant)).get()).exists());
+  await assert.rejects(adminAuth.getUserByEmail('expiry004@example.test'),e=>e.code==='auth/user-not-found');
+  const checkedBackend=createAccountBackend({db,auth:adminAuth});for(const expiresAt of [null,String(Date.now()+3600000)]){await db.ref(NAMESPACE+'/registrationGrants/'+hash(prepared.body.registrationGrant)).update({expiresAt});await assert.rejects(checkedBackend.provision({registrationGrant:prepared.body.registrationGrant,password},{ip:'malformed-expiry004'}),e=>e.code==='not-authorized');}
+  await invite('invalid-expiry004@example.test');await db.ref(NAMESPACE+'/testInvitations/'+hash('invalid-expiry004@example.test')+'/expiresAt').remove();await assert.rejects(checkedBackend.prepare(body('invalid-expiry004@example.test'),{ip:'malformed-expiry004'}),e=>e.code==='not-authorized');
+  const link='expired-link-grant-004-long-enough-for-validation';await db.ref(NAMESPACE+'/linkGrants/'+hash(link)).set({uid,lovelySirenId:id,expiresAt:Date.now()-1000});
+  assert.equal((await api('providers/google/complete',{linkGrant:link},token)).status,403);assert.ok((await db.ref(NAMESPACE+'/linkGrants/'+hash(link)).get()).exists());await db.ref(NAMESPACE+'/linkGrants/'+hash(link)+'/expiresAt').remove();assert.equal((await api('providers/google/complete',{linkGrant:link},token)).status,403);
+  await invite('expired-invite004@example.test',{expiresAt:Date.now()-1000});assert.equal((await api('registration/prepare',body('expired-invite004@example.test'))).status,403);
+ });
+ await t.test('cleanup is bounded, dry-run safe and preserves permanent, policy, control and purchase records',async()=>{
+  await pruneExpiredCapabilities(db,{dryRun:false});const now=Date.now();const permanent={identityByUid:(await db.ref(NAMESPACE+'/identityByUid').get()).val(),profiles:(await db.ref(NAMESPACE+'/profiles').get()).val(),policyHistory:(await db.ref(NAMESPACE+'/policyHistory').get()).val(),registrationReservations:(await db.ref(NAMESPACE+'/registrationReservations').get()).val(),controls:(await db.ref(NAMESPACE+'/controls').get()).val()};
+  await db.ref('purchases/account004sentinel').set({owner:'synthetic-owner',baseOwned:true});await db.ref(NAMESPACE+'/throttles/a004_missing_expiry').set({count:1});await db.ref(NAMESPACE+'/throttles/a004_invalid_expiry').set({expiresAt:'invalid',count:1});
+  for(const group of ['registrationGrants','linkGrants','throttles','testInvitations'])for(let n=0;n<3;n++)await db.ref(NAMESPACE+'/'+group+'/a004_bound_'+n).set({expiresAt:1,value:'synthetic'});
+  const before=(await db.ref(NAMESPACE).get()).val();const dry=await pruneExpiredCapabilities(db,{now,limit:1});assert.deepEqual((await db.ref(NAMESPACE).get()).val(),before);assert.ok(Object.values(dry.counts).every(n=>n===1));
+  const applied=await pruneExpiredCapabilities(db,{now,limit:1,dryRun:false});assert.ok(Object.values(applied.removed).every(n=>n===1));
+  for(const group of Object.keys(applied.removed)){const left=await db.ref(NAMESPACE+'/'+group).get();let count=0;left.forEach(c=>{if(c.key.startsWith('a004_bound_'))count++;});assert.equal(count,2);}
+  await pruneExpiredCapabilities(db,{now,dryRun:false});const repeated=await pruneExpiredCapabilities(db,{now,dryRun:false});assert.equal(Object.values(repeated.removed).reduce((a,b)=>a+b,0),0);assert.deepEqual((await db.ref(NAMESPACE+'/throttles/a004_missing_expiry').get()).val(),{count:1});assert.deepEqual((await db.ref(NAMESPACE+'/throttles/a004_invalid_expiry').get()).val(),{expiresAt:'invalid',count:1});
+  for(const [path,value]of Object.entries(permanent))assert.deepEqual((await db.ref(NAMESPACE+'/'+path).get()).val(),value);
+  assert.deepEqual((await db.ref('purchases/account004sentinel').get()).val(),{owner:'synthetic-owner',baseOwned:true});assert.deepEqual((await db.ref('users/existing_rta_test_uid').get()).val(),sentinel);
+ });
+ await t.test('cleanup partial failure is retriable without deleting a renewed invitation',async()=>{
+  const now=Date.now();for(let n=0;n<3;n++)await db.ref(NAMESPACE+'/registrationGrants/a004_retry_'+n).set({expiresAt:1});
+  let failOnce=true;const flaky={ref:path=>{const r=db.ref(path);if(path===NAMESPACE+'/registrationGrants/a004_retry_1')return new Proxy(r,{get(target,key){if(key==='transaction')return async(...args)=>{if(failOnce){failOnce=false;throw Error('Injected cleanup interruption');}return target.transaction(...args);};const v=target[key];return typeof v==='function'?v.bind(target):v;}});return r;}};
+  await assert.rejects(pruneExpiredCapabilities(flaky,{now,dryRun:false}),/Injected cleanup/);
+  assert.equal((await db.ref(NAMESPACE+'/registrationGrants/a004_retry_0').get()).exists(),false);assert.equal((await db.ref(NAMESPACE+'/registrationGrants/a004_retry_1').get()).exists(),true);
+  await pruneExpiredCapabilities(flaky,{now,dryRun:false});for(let n=0;n<3;n++)assert.equal((await db.ref(NAMESPACE+'/registrationGrants/a004_retry_'+n).get()).exists(),false);
+  await db.ref(NAMESPACE+'/testInvitations/a004_renewed').set({enabled:true,expiresAt:1});let injected=false;
+  const wrap=query=>new Proxy(query,{get(target,key){if(key==='get')return async()=>{const snapshot=await target.get();if(!injected){injected=true;await db.ref(NAMESPACE+'/testInvitations/a004_renewed').update({expiresAt:now+3600000});}return snapshot;};const v=target[key];if(['orderByChild','startAt','endAt','limitToFirst'].includes(key))return(...args)=>wrap(v.apply(target,args));return typeof v==='function'?v.bind(target):v;}});
+  const concurrent={ref:path=>path===NAMESPACE+'/testInvitations'?wrap(db.ref(path)):db.ref(path)};
+  const result=await pruneExpiredCapabilities(concurrent,{now,dryRun:false});assert.equal(result.skipped.testInvitations,1);assert.equal((await db.ref(NAMESPACE+'/testInvitations/a004_renewed').get()).val().expiresAt,now+3600000);
+ });
+ await t.test('revoked and disabled credentials cannot read protected profiles',async()=>{
+  await adminAuth.createUser({uid:'security004uid',email:'security004@example.test',password,emailVerified:true});await invite('security004@example.test',{existingUid:'security004uid'});
+  const c=client('security004-'+Date.now());await signInWithEmailAndPassword(c.auth,'security004@example.test',password);let ct=await c.auth.currentUser.getIdToken();const g=await api('registration/prepare',body('security004@example.test'));assert.equal((await api('registration/complete',{registrationGrant:g.body.registrationGrant},ct)).status,200);const identity=(await api('profile/read',{},ct)).body.profile.lovelySirenId;
+  await new Promise(resolve=>setTimeout(resolve,1100));await adminAuth.revokeRefreshTokens('security004uid');assert.equal((await api('profile/read',{},ct)).status,401);
+  await signOut(c.auth);await signInWithEmailAndPassword(c.auth,'security004@example.test',password);ct=await c.auth.currentUser.getIdToken();assert.equal((await api('profile/read',{},ct)).body.profile.lovelySirenId,identity);
+  await adminAuth.updateUser('security004uid',{disabled:true});assert.equal((await api('profile/read',{},ct)).status,401);await adminAuth.updateUser('security004uid',{disabled:false});await signOut(c.auth);await deleteApp(c.app);
+ });
  await signOut(a.auth);await deleteApp(a.app);
 });
 await db.goOffline();

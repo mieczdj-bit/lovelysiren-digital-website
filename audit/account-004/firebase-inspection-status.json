@@ -1,0 +1,7 @@
+{
+  "projectId": "road-trip-arcade",
+  "observedAt": "2026-10-30T12:01:30.376Z",
+  "mode": "read-only",
+  "checks": {},
+  "authentication": "interactive-cli-login-required"
+}

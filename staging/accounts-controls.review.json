@@ -1,0 +1,26 @@
+{
+  "serviceEnabled": false,
+  "registrationEnabled": false,
+  "googleLinkingEnabled": false,
+  "mode": "controlled-test",
+  "allowedOrigins": [],
+  "policy": {
+    "approved": false,
+    "minimumAge": 18,
+    "termsVersion": "website-terms-v1.0",
+    "privacyVersion": null,
+    "requiresReacceptance": false,
+    "documents": {
+      "terms": {
+        "kind": "website-terms",
+        "status": "published",
+        "version": "website-terms-v1.0",
+        "displayVersion": "1.0",
+        "effectiveDate": "2026-10-28",
+        "sha256": "963bac3c70804f34e9aa184149b46c714d720e37ba6181529744d7d465ef44de",
+        "url": "https://lovelysirendigital.com/terms.html"
+      },
+      "privacy": null
+    }
+  }
+}

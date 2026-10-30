@@ -24,5 +24,23 @@
       "url": "/legal/website-terms/v1.0/index.html",
       "sha256": "963bac3c70804f34e9aa184149b46c714d720e37ba6181529744d7d465ef44de"
     }
-  ]
+  ],
+  "websitePrivacy": {
+    "documentId": "website-privacy-v1.0",
+    "version": "1.0",
+    "status": "review",
+    "effectiveDate": null,
+    "source": "drafts/website-privacy-approval.md",
+    "publicationApproved": false,
+    "contentSha256": "a81ca9f3b73af819d519e320b4def941fb6ef57936ac77e4ac157b4c872b6c5c"
+  },
+  "rtaPrivacy": {
+    "documentId": "rta-privacy-v1.0",
+    "version": "1.0",
+    "status": "release-review",
+    "effectiveDate": null,
+    "source": "drafts/road-trip-arcade-privacy-approval.md",
+    "publicationApproved": false,
+    "contentSha256": "5ce64c03e9773570e607a3d23bc9e53910f53d9c84332c3bf014257384367bce"
+  }
 }

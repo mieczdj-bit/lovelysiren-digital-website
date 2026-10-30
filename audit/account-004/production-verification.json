@@ -1,0 +1,154 @@
+{
+  "inspectionDate": "2026-10-30",
+  "observedAt": "2026-10-30T11:41:35.884Z",
+  "productionSha": "a407de16f8885900d4f73907a496e51bac48b30f",
+  "developmentBaseSha": "dc59bb6c96ec2f70358121c6186f2b699a435d63",
+  "branches": [
+    {
+      "branch": "origin",
+      "sha": "a407de16f8885900d4f73907a496e51bac48b30f",
+      "privacyFiles": [
+        "privacy.html"
+      ]
+    },
+    {
+      "branch": "origin/homepage-redesign-v3",
+      "sha": "325aa6a4036d55711000c8ae2d6104e4ebfa5c49",
+      "privacyFiles": [
+        "privacy.html"
+      ]
+    },
+    {
+      "branch": "origin/lovelysiren-site-icons",
+      "sha": "66496f5c0ee3dedacd3bbed9542d8c0c23b847fa",
+      "privacyFiles": [
+        "privacy.html"
+      ]
+    },
+    {
+      "branch": "origin/lsd-account-framework-001",
+      "sha": "58ad49e63bd13d19e2c17c854d7d085b45f9564b",
+      "privacyFiles": [
+        "privacy.html"
+      ]
+    },
+    {
+      "branch": "origin/lsd-account-integration-002",
+      "sha": "0a4a7b54522b434899a9ff0964053bab1549d7a4",
+      "privacyFiles": [
+        "drafts/privacy-account-changes.md",
+        "drafts/privacy-review.html",
+        "privacy.html"
+      ]
+    },
+    {
+      "branch": "origin/lsd-account-legal-003",
+      "sha": "dc59bb6c96ec2f70358121c6186f2b699a435d63",
+      "privacyFiles": [
+        "drafts/privacy-account-changes.md",
+        "drafts/privacy-review.html",
+        "drafts/website-privacy-approval.md",
+        "drafts/website-privacy-review.html",
+        "privacy.html"
+      ]
+    },
+    {
+      "branch": "origin/main",
+      "sha": "a407de16f8885900d4f73907a496e51bac48b30f",
+      "privacyFiles": [
+        "privacy.html"
+      ]
+    },
+    {
+      "branch": "origin/rta-base-copy",
+      "sha": "1d94cfca7818cfcbee3e28897c2c3a480dafaff5",
+      "privacyFiles": [
+        "privacy.html"
+      ]
+    },
+    {
+      "branch": "origin/rta-base-theme-packs",
+      "sha": "ad2bda78c564dbceebea9b0f35b72ecb97749043",
+      "privacyFiles": [
+        "privacy.html"
+      ]
+    },
+    {
+      "branch": "origin/rta-product-page",
+      "sha": "27c4e3a43dda5aa10c019dbd7ff9e5d99ffcab41",
+      "privacyFiles": [
+        "privacy.html"
+      ]
+    },
+    {
+      "branch": "origin/rta-scattered-gallery",
+      "sha": "78a94f9e7eb9a1ffb28e2e2f439c6f16a9a3b023",
+      "privacyFiles": [
+        "privacy.html"
+      ]
+    },
+    {
+      "branch": "origin/rta-specific-game-limits",
+      "sha": "2c918288385f012105960373bbcb3159e0b1bd7e",
+      "privacyFiles": [
+        "privacy.html"
+      ]
+    }
+  ],
+  "publicPages": [
+    {
+      "path": "privacy.html",
+      "status": 200,
+      "sourceHash": "8ccd92ee285f18db937fdee74d64b5b33624dfd7e87a45d2a052f14946c94b4b",
+      "matchesMain": true,
+      "containsOctober5": true,
+      "containsWebsiteTermsId": false,
+      "containsOctober28": false
+    },
+    {
+      "path": "terms.html",
+      "status": 200,
+      "sourceHash": "eb697a1c91f76bb4f73bbd6f775b9d672c49888c4a1943fdf511aa6024fb17b8",
+      "matchesMain": true,
+      "containsOctober5": false,
+      "containsWebsiteTermsId": true,
+      "containsOctober28": true
+    },
+    {
+      "path": "legal/policy-versions.json",
+      "status": 200,
+      "sourceHash": "cc714c09b839ed967244b81c22b882820e365d88280b2efeb5454d59281bcdcd",
+      "matchesMain": true,
+      "containsOctober5": false,
+      "containsWebsiteTermsId": true,
+      "containsOctober28": true
+    },
+    {
+      "path": "games/road-trip-arcade-privacy.html",
+      "status": 404,
+      "sourceHash": null,
+      "matchesMain": false,
+      "containsOctober5": false,
+      "containsWebsiteTermsId": false,
+      "containsOctober28": false
+    },
+    {
+      "path": "drafts/website-privacy-review.html",
+      "status": 404,
+      "sourceHash": null,
+      "matchesMain": false,
+      "containsOctober5": false,
+      "containsWebsiteTermsId": false,
+      "containsOctober28": false
+    },
+    {
+      "path": "drafts/website-privacy-approval.md",
+      "status": 404,
+      "sourceHash": null,
+      "matchesMain": false,
+      "containsOctober5": false,
+      "containsWebsiteTermsId": false,
+      "containsOctober28": false
+    }
+  ]
+}

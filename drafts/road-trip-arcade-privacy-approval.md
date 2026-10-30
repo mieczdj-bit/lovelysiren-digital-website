@@ -1,0 +1,122 @@
+# Road Trip Arcade
+# Privacy Policy — Release Review Draft
+
+**Status:** Not published, not effective and not approved as the game's operative policy.
+**Draft version:** 1.0
+**Document identifier:** rta-privacy-v1.0
+**Effective Date:** To be assigned only after final release review and publication.
+**Publisher:** LovelySiren Digital
+
+## 1. Scope and current status
+
+This draft explains privacy practices for Road Trip Arcade separately from the LovelySiren Digital website and company account system. It is based on the reviewed development code and must be checked against the actual release build, third-party SDKs and store configuration before publication. Existing disclosures at https://lovelysirendigital.com/privacy.html remain available; this draft does not silently replace them.
+
+Website visits and company-level account registration are covered by the applicable Website & Account Privacy Policy. Game-specific processing and any separately required game agreement or consent remain distinct. Accepting Website Terms is not acceptance of an RTA policy.
+
+## 2. Publisher and contact
+
+LovelySiren Digital operates as a Virginia sole proprietorship under a registered trade name.
+
+LovelySiren Digital  
+5600 Whitmell School Rd  
+Dry Fork, VA 24549  
+United States
+
+Email: lovelysirenstudios@gmail.com
+Support: https://lovelysirendigital.com/support.html
+
+## 3. Guest play and information stored on your device
+
+Eligible local games can be played without signing into a game account. Game selections, settings, sound preferences, seeds, boards, progress, saved or finished games, daily allowances and related state can be stored on the device so play can resume. The reviewed code also includes local session references and an entitlement-cache framework. Local caches do not by themselves prove a verified purchase or create a company account.
+
+Local information can remain until the game's applicable controls, device/browser storage controls or app-data removal remove it. Uninstalling, clearing storage or losing a device may affect local saves; platform backup/restore behavior must be verified for the release. Removing local data does not necessarily delete a remote account or cloud records.
+
+Guest play does not mean the device sends no technical data. App delivery, online features and included service providers may process requests and device/network information as explained below. Do not enter personal information in a game suggestion or other field unless it is needed for that purpose.
+
+## 4. Game accounts, Google and player identity
+
+The reviewed game uses Google sign-in with Firebase Authentication when a player chooses account features. On native Android, the Google credential is passed to Firebase through the native authentication plugin and Firebase SDK. On supported web builds, a Google sign-in popup can be used. We do not receive your Google password.
+
+Firebase processes authentication identifiers and the relevant Google account information, such as a display name and email address. The game's own profile stores a display name, friendly Player ID and creation time associated with the Firebase UID. Player-ID claim and lookup records support unique names and friend discovery. Other signed-in players can look up a game identity by Player ID; this can expose the associated display name and game account identifier needed for that feature. The reviewed lookup record does not include a telephone number or email address. These game identifiers are separate from the permanent company-wide LovelySiren ID architecture being prepared for the website.
+
+The current game code does not migrate website accounts or purchases into the game merely because email addresses match. Company-account registration remains separate and is restricted to adults aged 18 or older. That company rule does not itself restrict all eligible local guest gameplay to adults.
+
+## 5. Cloud records, history and suggestions
+
+Account-enabled features use Firebase Realtime Database to store the records necessary for those features. The reviewed implementation includes player profiles and ID claims, friend relationships and invitations, presence and private-session state, game setups/progress/results and signed-in finished-game history. Which data is synchronized depends on the feature and account state.
+
+Suggestions submitted while signed in can include the suggestion contents, relevant game/category information, Firebase UID, Player ID and server time. Suggestion drafts may remain locally when offline or when submission fails. Do not include passwords, sensitive personal information or information about another person in a suggestion.
+
+## 6. Private multiplayer and information shared with other players
+
+Supported private sessions use account identifiers, Player IDs, display names, invitations, membership/presence and gameplay state so invited participants can play together. A participant can see the information and game contributions needed for that session or friendship. The reviewed product does not advertise public matchmaking or public player chat.
+
+Using the same Trip Seed can produce matching starting game content on separate phones; entering a matching seed is not by itself account linking or proof of a cloud synchronization session.
+
+Firebase processes the network requests needed to coordinate supported online play. An unused WebRTC helper exists in the source tree, but this draft does not claim peer-to-peer networking is active in the reviewed product flow. Verify the shipped multiplayer transports and any additional providers before release.
+
+## 7. Advertising and rewarded videos
+
+The Android development code includes the AdMob plugin and an optional rewarded-video flow. The reviewed web banner component is a visual placeholder, not an active banner-ad delivery integration. The final release must be checked before claims about live banner advertising are published.
+
+The reviewed rewarded-video code requests child-directed treatment, under-age-of-consent treatment, a general-audience content rating and nonpersonalized ads. It checks the provider's consent/ad-request eligibility in its non-debug path before requesting a rewarded ad. Those settings do not mean the advertising SDK collects no data, and are not a substitute for a complete audience, age-screening and consent review.
+
+Google's Mobile Ads disclosures describe technical information such as IP/network information, device or account identifiers, ad/product interactions and diagnostics used for advertising delivery, measurement, security and fraud prevention. The exact SDK version and settings shipped in Road Trip Arcade determine the applicable practices. A personalized-ad opt-out or nonpersonalized setting does not necessarily stop all technical processing. We do not promise no network transmission before a user watches an ad; provider initialization and the final app build must be examined.
+
+Rewarded-ad completion information is used to decide whether the applicable extra gameplay allowance or supported rescue should be granted. A cancelled or failed ad must not be represented as a completed reward. Base unlock and advertising benefits must match the actual approved release configuration and store offer.
+
+Provider information: https://developers.google.com/admob/android/privacy/play-data-disclosure
+
+## 8. Age screening and children
+
+Road Trip Arcade is being prepared for family use, with separate safety and child-privacy obligations. A complete game-specific audience/age-screening flow was not verified in the reviewed source. This draft must not be used as evidence that parental consent, age screening or all Google Play Families requirements are complete.
+
+Before release, verify eligible guest access, the game's target-audience declaration, advertising providers/configuration, consent mechanisms, any account restrictions and the handling of a request concerning a child's information. The website's 18+ independent account rule does not replace this review. Contact lovelysirenstudios@gmail.com if you believe personal information was supplied improperly by a child. No parent-managed company-account system is introduced by this draft.
+
+## 9. Purchases, verification and Google Play
+
+Road Trip Arcade's approved product design includes an optional Base Content Unlock and separately purchased future Theme Packs. The reviewed game source contains an entitlement/cache framework but no live verified-billing adapter; content entitlement enforcement is explicitly disabled in that reviewed code. This draft does not claim a real purchase, restoration or receipt-verification system has been tested or released.
+
+Before release, document the actual Google Play Billing and purchase-verification flow, transaction/product identifiers or purchase tokens processed by the app/backend, how ownership is associated with an authenticated account, restoration and refunds, and retention needed for transactions or fraud prevention. Payment details handled by Google Play are subject to its applicable terms and privacy disclosures. Do not include card numbers in support requests.
+
+No subscription or unapproved Theme Pack is introduced by this policy. Purchase benefits and privacy statements must match the shipped implementation; a local cache must not silently become a source of entitlement ownership.
+
+## 10. Device information, diagnostics and service providers
+
+The reviewed Android manifest requests Internet access. The app uses Capacitor, Firebase Authentication/Realtime Database, Google sign-in and the AdMob rewarded-ad dependency for their respective functions. The presence of a Firebase measurement identifier does not by itself initialize Firebase Analytics; no Analytics or Crashlytics initialization was found in the reviewed gameplay code.
+
+Network and SDK providers can process device/browser/app version, IP address, request timing, service identifiers and diagnostic information needed for their services according to the actual configuration. The release SDK dependency tree, merged native manifest, permissions, technical logs and Google Play Data Safety declarations must be verified. This draft does not invent precise location access, contacts access, a custom analytics service or an absolute “no tracking” guarantee.
+
+Provider information: https://firebase.google.com/support/privacy
+
+## 11. Why information is used and who can access it
+
+We use the information applicable to the features you use to operate local and account-enabled gameplay, save/synchronize supported state, maintain player identities, coordinate private invitations and sessions, handle suggestions/support, authorize configured ad rewards and approved purchase ownership, prevent abuse and meet applicable legal obligations.
+
+The user and device can access local information; invited players can access appropriate shared session/friend data; Firebase/Google and other verified release providers process the data needed for their services; authorized support/security operators can handle necessary records. Access to cloud data must be restricted by the actual deployed rules and privileged permissions. These rules and permissions are a separate security verification, not a privacy-policy promise established by source alone.
+
+We may disclose information as reasonably necessary to provide those services, carry out an authorized request, protect rights and security, comply with valid legal obligations or conduct a lawful business transfer subject to applicable safeguards. We do not describe account and support information as unrestricted public content.
+
+## 12. Retention, local removal and security
+
+Local saves and caches can persist until removed through applicable controls or device/app-data removal. Account profiles, identity records, cloud history, suggestions, friendships and transaction-related records may have different necessary retention periods. A final retention schedule must be approved against the shipped code, operational needs and applicable law; no universal deletion period is promised here.
+
+The reviewed multiplayer code marks terminal sessions and can remove eligible sessionPlay records after a 30-day eligibility threshold through a bounded client-assisted cleanup when an eligible participant reconnects. That code is not a guarantee all session metadata, history, backups or provider logs are deleted after 30 days, and the actual deployed rules and operation remain to be verified.
+
+We use reasonable protective measures, but cannot guarantee absolute security, uninterrupted service or recovery of every lost local save. Providers may process information in the United States or other locations where they operate; no unverified single-region storage promise is made.
+
+## 13. Game-data and company-account deletion
+
+Deletion information and contact support remain accessible without signing in at https://lovelysirendigital.com/delete-account.html. Request scope matters: removing a local save, deleting RTA-specific cloud data and deleting a company-wide LovelySiren Account are different actions.
+
+Automatic company-account deletion and the full cross-product deletion integration are still under development. Do not treat a successful sign-out, disabled login, account suspension or deletion request submission as confirmation that all associated data has been deleted. Support must reasonably verify identity and scope before sensitive changes.
+
+Before game release, complete and test handling of Firebase Auth users, game Player IDs and lookup/claim mappings, company IDs, profiles, friends/invitations, sessions, game history, suggestions, local references, purchase/restoration records, provider logs and backups as applicable. Some records may need lawful retention for transaction, security, dispute or legal reasons. Explain actual limitations and effects on access while respecting applicable consumer rights; deleting an account must not silently orphan player data or invent purchase forfeiture.
+
+This unresolved deletion workflow is a release dependency. The draft does not claim it is already operating.
+
+## 14. Requests, changes and final release review
+
+Contact lovelysirenstudios@gmail.com about access, correction, deletion or other applicable privacy rights. We may need reasonable verification, but will not ask for your password in a support request. Applicable rights and response obligations depend on relevant law and the circumstances; no unsupported statutory-coverage or response-time guarantee is made.
+
+At final approval, assign an actual effective date and preserve this document's independent version history. Publish the approved standalone policy at a publicly accessible URL, update the in-game and Google Play listing links, and reconcile the existing combined disclosures so none disappear without appropriate replacement. The suggested final location is https://lovelysirendigital.com/games/road-trip-arcade-privacy.html. That URL is not activated by this draft.

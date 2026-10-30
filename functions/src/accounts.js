@@ -17,7 +17,7 @@ export function publishedPolicies(policy,now,{emulator=process.env.FUNCTIONS_EMU
  for(const [key,kind,version]of [['terms','website-terms',policy.termsVersion],['privacy','website-privacy',policy.privacyVersion]]){
   const doc=policy.documents?.[key];
   const fixture=emulator&&doc?.status==='test-fixture';
-  if(!doc||(!fixture&&doc.status!=='published')||doc.kind!==kind||doc.version!==version||!/^\d{4}-\d{2}-\d{2}$/.test(doc.effectiveDate||'')||!Number.isFinite(Date.parse(doc.effectiveDate))||Date.parse(doc.effectiveDate)>now||!/^([a-f0-9]{64})$/.test(doc.sha256||''))fail(503,'policy-pending');
+  if(!doc||(!fixture&&doc.status!=='published')||doc.kind!==kind||doc.version!==version||!/^\d{4}-\d{2}-\d{2}$/.test(doc.effectiveDate||'')||!Number.isFinite(Date.parse(doc.effectiveDate))||new Date(doc.effectiveDate).toISOString().slice(0,10)!==doc.effectiveDate||Date.parse(doc.effectiveDate)>now||!/^([a-f0-9]{64})$/.test(doc.sha256||''))fail(503,'policy-pending');
   let url;try{url=new URL(doc.url);}catch{fail(503,'policy-pending');}
   if(!fixture&&(url.origin!=='https://lovelysirendigital.com'||url.pathname!==(key==='terms'?'/terms.html':'/privacy.html')||url.search||url.hash))fail(503,'policy-pending');
   result[key]={version:doc.version,url:doc.url,sha256:doc.sha256,effectiveDate:doc.effectiveDate};
@@ -44,8 +44,8 @@ export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,sec
  async function config(){const c=await read('controls/config');if(!c?.serviceEnabled||c.mode!=='controlled-test')fail(503,'not-ready');return c;}
  async function throttle(key,limit,period){let allowed=false;const now=clock();const outcome=await ref('throttles/'+hash(key)).transaction(current=>{const value=current&&current.expiresAt>now?current:{count:0,expiresAt:now+period};allowed=value.count<limit;if(!allowed)return;return{count:value.count+1,expiresAt:value.expiresAt};},undefined,false);if(!allowed||!outcome.committed)fail(429,'rate-limited');}
  function checkCode(code,expected){if(typeof code!=='string'||code.length<20||code.length>200||typeof expected!=='string'||!/^[a-f0-9]{64}$/.test(expected))return false;return timingSafeEqual(Buffer.from(hash(code),'hex'),Buffer.from(expected,'hex'));}
- async function grant(token){if(typeof token!=='string'||token.length<30||token.length>200)fail(403,'not-authorized');const key=hash(token);const record=await read('registrationGrants/'+key);if(!record||record.expiresAt<=clock())fail(403,'not-authorized');return{key,record};}
- async function assertInvitation(emailKey){const invite=await read('testInvitations/'+emailKey);if(!invite?.enabled||invite.expiresAt<=clock())fail(403,'not-authorized');return invite;}
+ async function grant(token){if(typeof token!=='string'||token.length<30||token.length>200)fail(403,'not-authorized');const key=hash(token);const record=await read('registrationGrants/'+key);if(!record||!Number.isFinite(record.expiresAt)||record.expiresAt<=clock())fail(403,'not-authorized');return{key,record};}
+ async function assertInvitation(emailKey){const invite=await read('testInvitations/'+emailKey);if(!invite?.enabled||!Number.isFinite(invite.expiresAt)||invite.expiresAt<=clock())fail(403,'not-authorized');return invite;}
  async function identity(uid){
   const existing=await read('identityByUid/'+uid);if(existing){const owner=(await ref('uidByIdentity/'+existing.lovelySirenId).transaction(current=>current||uid,undefined,false)).snapshot.val();if(owner!==uid)fail(503,'identity-conflict');return existing;}
   for(let attempt=0;attempt<5;attempt++){
@@ -91,7 +91,7 @@ export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,sec
    return{registrationGrant:token,flow:reservation.existingAccount?'sign-in-existing':'controlled-provisioning'};
   },
   async provision(input,context){
-   const c=await config();const documents=publishedPolicies(c.policy,clock());await throttle('provision-ip:'+context.ip,20,3600000);
+   const c=await config();if(!c.registrationEnabled)fail(403,'not-authorized');const documents=publishedPolicies(c.policy,clock());await throttle('provision-ip:'+context.ip,20,3600000);
    const {key,record}=await grant(input.registrationGrant);await assertInvitation(record.emailKey);
    if(record.profile.policyAcceptance.termsVersion!==c.policy.termsVersion||record.profile.policyAcceptance.privacyVersion!==c.policy.privacyVersion||record.profile.policyAcceptance.termsSha256!==documents.terms.sha256||record.profile.policyAcceptance.privacySha256!==documents.privacy.sha256)fail(403,'policy-pending');
    if(record.existingAccount)fail(403,'existing-sign-in-required');
@@ -114,7 +114,7 @@ export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,sec
    }catch(error){if(process.env.FUNCTIONS_EMULATOR==='true')console.warn('controlled-provision-failure-code',error.code||error.name);await ref('registrationGrants/'+key).transaction(current=>!current?null:current?.lease===lease?{...current,state:'prepared',lease:null,leaseUntil:null}:undefined,undefined,false);if(error instanceof AccountError)throw error;fail(409,'registration-not-completed');}
   },
   async complete(input,token){
-   const c=await config();const documents=publishedPolicies(c.policy,clock());const {key,record}=await grant(input.registrationGrant);
+   const c=await config();if(!c.registrationEnabled)fail(403,'not-authorized');const documents=publishedPolicies(c.policy,clock());const {key,record}=await grant(input.registrationGrant);
    if(record.authUid!==token.uid||normalizeEmail(token.email)!==record.profile.email)fail(403,'not-authorized');
    if(record.state!=='completed'){
     try{await assertInvitation(record.emailKey);}catch(error){const prior=await read('profiles/'+token.uid);if(prior?.registrationGrantHash!==key)throw error;}
@@ -154,7 +154,7 @@ export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,sec
   async completeLink(input,token){
    const c=await config();if(!c.googleLinkingEnabled)fail(403,'provider-disabled');const p=await ownedProfile(token);
    if(typeof input.linkGrant!=='string'||input.linkGrant.length>200)fail(403,'not-authorized');const key=hash(input.linkGrant);const g=await read('linkGrants/'+key);
-   if(!g||g.uid!==token.uid||g.lovelySirenId!==p.lovelySirenId||g.expiresAt<=clock()||clock()/1000-token.auth_time>300)fail(403,'not-authorized');
+   if(!g||g.uid!==token.uid||g.lovelySirenId!==p.lovelySirenId||!Number.isFinite(g.expiresAt)||g.expiresAt<=clock()||clock()/1000-token.auth_time>300)fail(403,'not-authorized');
    const account=await auth.getUser(token.uid);if(!account.providerData.some(provider=>provider.providerId==='google.com'))fail(403,'not-linked');
    // Actual Firebase linking enforces provider uniqueness; no email lookup, reassignment or entitlement mutation.
    await ref('linkGrants/'+key).transaction(current=>!current?null:!current.completedAt?{...current,completedAt:clock()}:undefined,undefined,false);return{connected:true};
