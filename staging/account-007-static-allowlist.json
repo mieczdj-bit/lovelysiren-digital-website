@@ -1,7 +1,7 @@
 {
   "status": "review-only-inactive",
   "files": [
-    "index.html", "about.html", "support.html", "privacy.html", "terms.html", "delete-account.html",
+    "index.html", "about.html", "support.html", "support/config.js", "support/form.js", "support/contact.css", "privacy.html", "terms.html", "delete-account.html",
     "games/road-trip-arcade.html", "styles.css", "legal.css", "rta.css", "site.js", "rta.js",
     "favicon.ico", "apple-touch-icon.png", "site.webmanifest",
     "account/index.html", "account/create.html", "account/sign-in.html", "account/settings.html", "account/verify-email.html", "account/forgot-password.html",

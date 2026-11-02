@@ -1,150 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Support | LovelySiren Digital</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f5f7fb;
-      color: #1f2937;
-      line-height: 1.6;
-    }
-
-    header {
-      background: #102a43;
-      color: white;
-      padding: 18px 24px;
-    }
-
-    .nav {
-      max-width: 1000px;
-      margin: auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .brand {
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
-
-    nav a {
-      color: white;
-      text-decoration: none;
-      margin-left: 18px;
-    }
-
-    nav a:hover {
-      text-decoration: underline;
-    }
-
-    main {
-      max-width: 800px;
-      margin: 50px auto;
-      padding: 0 24px;
-    }
-
-    .card {
-      background: white;
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      padding: 30px;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.06);
-    }
-
-    h1 {
-      color: #102a43;
-      margin-top: 0;
-    }
-
-    a {
-      color: #245b82;
-    }
-
-    footer {
-      margin-top: 60px;
-      background: #102a43;
-      color: #dbe7f0;
-      text-align: center;
-      padding: 25px;
-    }
-
-    footer a {
-      color: white;
-      margin: 0 8px;
-    }
-  </style>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Contact Us | LovelySiren Digital</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="support/contact.css">
 <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/brand/icon-16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/icon-32.png">
 <link rel="icon" type="image/png" sizes="48x48" href="assets/brand/icon-48.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
-</head>
-
-<body>
-
-<header>
-  <div class="nav">
-    <div class="brand">LovelySiren Digital</div>
-
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="privacy.html">Privacy</a>
-      <a href="support.html">Support</a>
-    </nav>
-  </div>
-</header>
-
-<main>
-
-  <div class="card">
-    <h1>Support</h1>
-
-    <p>
-      Need help with a LovelySiren Digital app or game?
-      We're happy to help.
-    </p>
-
-    <p>
-      Please email:
-      <a href="mailto:lovelysirenstudios@gmail.com">
-        lovelysirenstudios@gmail.com
-      </a>
-    </p>
-
-    <p>
-      When contacting support, please include the name of the app,
-      a brief description of the problem, and the type of device you are using.
-    </p>
-
-    <p>
-      We will respond as soon as reasonably possible.
-    </p>
-  </div>
-
-</main>
-
-<footer>
-  <p>
-    <a href="index.html">Home</a> |
-    <a href="privacy.html">Privacy Policy</a> |
-    <a href="delete-account.html">Account Deletion</a>
-  </p>
-
-  <p>&copy; 2026 LovelySiren Digital. All rights reserved.</p>
-</footer>
-
-</body>
-</html>
+</head><body><a class="skip" href="#main">Skip to content</a><header class="header"><div class="header-top wrap"><a class="brand" href="index.html">LovelySiren <span>Digital</span></a><nav aria-label="Support navigation"><a href="index.html">Home</a> · <a href="privacy.html">Privacy</a> · <a href="account/index.html">Account Management</a></nav></div></header>
+<main id="main" class="wrap contact-shell"><div class="contact-card"><p class="eyebrow dark">We're here to help</p><h1>Contact Us</h1><p>Have a question about LovelySiren Digital or one of our games? Send us a message. No account or email application is required when the form is available.</p>
+<p id="contact-availability" class="contact-notice">The contact form is being prepared and cannot send messages yet. Please use the support email below.</p>
+<form id="contact-form" action="#" method="post"><div class="contact-field"><label for="contact-name">Your Name (required)</label><input id="contact-name" name="name" autocomplete="name" maxlength="100" required></div>
+<div class="contact-field"><label for="contact-email">Email Address (required)</label><input id="contact-email" name="email" type="email" autocomplete="email" maxlength="254" required></div>
+<div class="contact-field"><label for="contact-product">Which product? (required)</label><select id="contact-product" name="product" required><option value="">Choose a product</option><option>LovelySiren Account</option><option>Billing / Purchases</option><option>LovelySiren Website</option><option>Road Trip Arcade (RTA)</option><option>Other</option></select></div>
+<div id="contact-subject-group" class="contact-field" hidden><label id="contact-subject-label" for="contact-subject">Product or subject</label><input id="contact-subject" name="subject" maxlength="160" disabled></div>
+<div class="contact-field"><label for="contact-message">Your Message (required)</label><textarea id="contact-message" name="message" rows="7" maxlength="5000" required aria-describedby="message-help"></textarea><small id="message-help">Up to 5,000 characters. Include useful details such as your device type. Do not send passwords, verification codes, full payment-card numbers or other sensitive information.</small></div>
+<div class="contact-trap" aria-hidden="true"><label for="contact-website">Leave this field empty</label><input id="contact-website" name="website" tabindex="-1" autocomplete="off"></div>
+<p>We use your message and contact details to respond to your request. Sending this form does not sign you up for promotions or verify account or purchase ownership. Sensitive requests need separate verification.</p><p><a href="privacy.html">Read our published Privacy Policy</a></p><button id="contact-submit" class="contact-button" type="submit" disabled>Send Message</button><p id="contact-status" class="contact-status" role="status" aria-live="polite" aria-atomic="true"></p></form>
+<div class="contact-fallback"><h2>Prefer to email us?</h2><p><a href="mailto:lovelysirenstudios@gmail.com">lovelysirenstudios@gmail.com</a></p><p>For account-deletion information, visit our <a href="delete-account.html">Account Deletion page</a>. A message alone does not authorize deletion or changes to your account or purchases.</p></div><noscript><p>Enable JavaScript to use the form when available, or contact us at the email address above.</p></noscript></div></main>
+<footer class="footer"><div class="wrap footer-inner"><span>© 2026 LovelySiren Digital</span><div><a href="index.html">Home</a><a href="privacy.html">Privacy</a><a href="support.html">Support</a><a href="account/index.html">Account Management</a></div></div></footer><script type="module" src="support/form.js"></script></body></html>

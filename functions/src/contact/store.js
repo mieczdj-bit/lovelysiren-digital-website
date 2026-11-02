@@ -1,0 +1,14 @@
+import {ContactError} from './submission.js';
+// Dedicated support namespace; no account, purchase, game or marketing access.
+export function createContactStore(ref,{perIp=10,perEmail=5,globalLimit=200}={}){
+ const ttl=86400000,window=3600000;
+ async function atomic(change){let outcome;const tx=await ref.transaction(value=>{const root=structuredClone(value||{});outcome=change(root);return root;},undefined,false);if(!tx.committed||!outcome)throw new ContactError(503,'temporarily-unavailable');if(outcome.error)throw new ContactError(outcome.status||409,outcome.error);return outcome;}
+ function prune(root,now){for(const group of ['requests','receipts','quotas'])for(const [key,v]of Object.entries(root[group]||{}))if(v.expiresAt<=now){if(group==='receipts'&&!['accepted','retryable'].includes(v.status))continue;delete root[group][key];}}
+ return{
+ async limit({ip,email,now}){return atomic(root=>{prune(root,now);root.quotas??={};const global=root.quotas.global||{count:0,expiresAt:now+window};if(global.count>=globalLimit)return{error:'rate-limited',status:429};global.count++;root.quotas.global=global;const keys=[['ip_'+ip,perIp],['email_'+email,perEmail]];let limited=false;for(const[key,max]of keys){const q=root.quotas[key]||{count:0,expiresAt:now+window};if(q.count>=max)limited=true;else q.count++;root.quotas[key]=q;}return limited?{error:'rate-limited',status:429}:{allowed:true};});},
+ async claim({payload,request,lease,now}){return atomic(root=>{prune(root,now);root.requests??={};root.receipts??={};const prior=root.requests[request];if(prior&&prior.payload!==payload)return{error:'request-id-conflict'};if(!prior&&Object.keys(root.requests).length>=20000)return{error:'temporarily-unavailable',status:503};root.requests[request]={payload,expiresAt:now+ttl};const r=root.receipts[payload];if(r){if(!['accepted','pending','unknown','retryable'].includes(r.status))return{status:'unknown'};if(r.status==='accepted')return{status:'accepted'};if(r.status==='pending'){if(r.leaseUntil<=now){r.status='unknown';delete r.lease;return{status:'unknown'};}return{status:'pending'};}if(r.status==='unknown')return{status:'unknown'};if(r.retryAt>now)return{error:'retry-later',status:429};}
+ if(Object.keys(root.receipts).length>=10000||Object.keys(root.requests).length>=20000)return{error:'temporarily-unavailable',status:503};
+ root.requests[request]={payload,expiresAt:now+ttl};root.receipts[payload]={status:'pending',lease,leaseUntil:now+60000,expiresAt:now+ttl};return{status:'claimed'};});},
+ async finish({payload,lease,status,now}){return atomic(root=>{const r=root.receipts?.[payload];if(!r||r.lease!==lease||r.status!=='pending')return{error:'delivery-unconfirmed'};r.status=status;r.updatedAt=now;r.expiresAt=now+ttl;if(status==='retryable')r.retryAt=now+30000;delete r.lease;delete r.leaseUntil;return{status};});}
+ };
+}

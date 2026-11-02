@@ -1,0 +1,2 @@
+const {spawnSync}=require('node:child_process'),path=require('node:path');if(process.versions.node.split('.')[0]!=='22')throw Error('Use isolated Node22');
+for(const args of [['--test','--test-reporter=spec','tests/contact-011.emulator.mjs'],['tests/browser-contact-011.mjs'],['--test','--test-reporter=spec','--test-name-pattern=allowlist excludes|all internal static','tests/privacy-readiness-007.test.js']]){const r=spawnSync(process.execPath,args,{cwd:path.resolve(__dirname,'..'),stdio:'inherit',timeout:120000});if(r.status!==0||r.error)process.exit(r.status||1);}

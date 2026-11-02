@@ -1,0 +1,4 @@
+// Dedicated, inactive backend review package; never deploy this automatically.
+const fs=require('node:fs'),path=require('node:path');const root=path.resolve(__dirname,'..');
+const dest=fs.mkdtempSync(path.join(root,'work/contact-package-011-'));fs.mkdirSync(path.join(dest,'src'));fs.copyFileSync(path.join(root,'functions/src/contact-entry.js'),path.join(dest,'src/contact-entry.js'));fs.cpSync(path.join(root,'functions/src/contact'),path.join(dest,'src/contact'),{recursive:true});
+const pkg=JSON.parse(fs.readFileSync(path.join(root,'functions/package.json')));pkg.main='src/contact-entry.js';fs.writeFileSync(path.join(dest,'package.json'),JSON.stringify(pkg,null,2)+'\n');fs.copyFileSync(path.join(root,'functions/package-lock.json'),path.join(dest,'package-lock.json'));console.log(JSON.stringify({directory:dest,export:'lovelysirenContactApi',activation:false,deployed:false}));
