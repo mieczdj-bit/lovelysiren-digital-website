@@ -20,7 +20,7 @@ export const lovelysirenIdentityApi=onRequest({region:'us-central1',invoker:'pri
  enabled:()=>process.env.IDENTITY_RESOLVER_ENABLED==='true'
 }));
 const anonymous=new Map([['registration/eligibility','eligibility'],['registration/prepare','prepare'],['registration/provision','provision']]);
-const protectedRoutes=new Map([['policies/status','policyStatus'],['policies/accept','acceptPolicies'],['registration/complete','complete'],['profile/read','readProfile'],['profile/update','updateProfile'],['verification/authorize','verification'],['providers/google/prepare','prepareLink'],['providers/google/complete','completeLink']]);
+const protectedRoutes=new Map([['policies/status','policyStatus'],['policies/accept','acceptPolicies'],['registration/complete','complete'],['profile/read','readProfile'],['profile/update','updateProfile'],['preferences/read','readPreferences'],['preferences/update','updatePreferences'],['verification/authorize','verification'],['providers/google/prepare','prepareLink'],['providers/google/complete','completeLink']]);
 export const lovelysirenAccountsApi=onRequest({region:'us-central1',maxInstances:2,timeoutSeconds:30,memory:'256MiB'},async(req,res)=>{
  res.set('Cache-Control','no-store');res.set('X-Content-Type-Options','nosniff');
  try{

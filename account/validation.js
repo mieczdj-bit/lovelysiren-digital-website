@@ -31,6 +31,8 @@ export function friendlyError(error, action = 'signin') {
   const code = String(error?.code || '');
   if (code === 'service/not-ready') return 'Account services are not available yet. Please try again after launch.';
   if (code === 'service/registration-retry') return 'We could not complete this test registration. Try again with the same invitation, or sign in using your existing account.';
+  if(code==='service/state-changed')return 'These details changed in another request. Reload Account Settings before trying again.';
+  if(code==='service/invalid-input')return 'Check your contact information. Select a verified email, phone number or usable mailing address before choosing its channel.';
   if (code === 'service/registration-denied') return 'This test registration is not authorized. Check your invitation and eligibility information, or contact support.';
   if (code === 'service/invitation-required') return 'Enter the test invitation code issued for your account.';
   if(code==='service/policy-required')return 'Please review the updated Website Terms and Privacy Policy in Account Settings.';
@@ -46,6 +48,7 @@ export function friendlyError(error, action = 'signin') {
   if (code === 'auth/requires-recent-login') return 'Please sign in again before making this change.';
   if (code === 'auth/weak-password' || code === 'auth/password-does-not-meet-requirements') return 'Choose a stronger password that meets the account password policy.';
   if (code === 'auth/operation-not-allowed' || code === 'auth/unauthorized-domain') return 'This sign-in option is temporarily unavailable.';
+  if(action==='preferences'||action==='profile')return 'We could not confirm this save. Reload Account Settings to check the latest values before trying again.';
   if (action === 'register') return 'We could not complete registration. Please try again or return to sign in.';
   return "We couldn't sign you in. Check your email and password, then try again.";
 }

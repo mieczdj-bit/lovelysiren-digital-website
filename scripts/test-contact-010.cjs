@@ -1,0 +1,4 @@
+const {spawnSync}=require('node:child_process'),path=require('node:path');
+if(process.versions.node.split('.')[0]!=='22')throw Error('Pass010 requires isolated Node22');
+const env={...process.env,FUNCTIONS_EMULATOR:'true',FIREBASE_AUTH_EMULATOR_HOST:'127.0.0.1:19099',FIREBASE_DATABASE_EMULATOR_HOST:'127.0.0.1:19000'};
+for(const args of [['--test','--test-reporter=spec','tests/service.test.js','tests/validation.test.js'],['--test','--test-reporter=spec','tests/contact-preferences-010.emulator.mjs'],['scripts/test-preflight-009.cjs'],['--test','--test-reporter=spec','--test-name-pattern=public policy|allowlist excludes','tests/privacy-readiness-007.test.js'],['tests/browser-contact-010.cjs']]){const r=spawnSync(process.execPath,args,{cwd:path.resolve(__dirname,'..'),env,stdio:'inherit',timeout:180000});if(r.error||r.status!==0)process.exit(r.status||1);}

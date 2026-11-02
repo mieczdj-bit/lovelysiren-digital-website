@@ -2,6 +2,7 @@
 // Both feature flags remain OFF until the documented integration/security review.
 export const accountConfig = Object.freeze({
   enabled: false,
+  contactPreferencesEnabled: false,
   registrationEnabled: false,
   registrationMode: 'closed',
   googleEnabled: false,

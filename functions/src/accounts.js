@@ -1,5 +1,6 @@
 import {createHash,randomBytes,randomUUID,timingSafeEqual} from 'node:crypto';
 import {assertOpen,changedState,companyTransaction,guardedProfileUpdate} from './lifecycle.js';
+import {address,localContactGate,recent,checkOwner,withdrawContact,createPreferences} from './contact-preferences.js';
 import {createFreshReader} from './fresh-reader.js';
 export const NAMESPACE='lovelySirenAccountsV1';
 export const hash=value=>createHash('sha256').update(String(value)).digest('hex');
@@ -36,10 +37,10 @@ export function validatePreparation(input,policy,now){
  return{displayName:name,email,...(phone?{phone}:{}),ageCategory:'adult',policyAcceptance:{termsVersion:policy.termsVersion,privacyVersion:policy.privacyVersion,termsSha256:documents.terms.sha256,privacySha256:documents.privacy.sha256,acceptedAt:now}};
 }
 export function validateProfile(input){
- if(Object.keys(input).some(k=>!['displayName','phone'].includes(k)))fail(400,'invalid-input');
+ if(Object.keys(input).some(k=>!['displayName','phone','address','contactRevision'].includes(k)))fail(400,'invalid-input');
  const displayName=String(input.displayName||'').trim();const phone=input.phone==null?null:String(input.phone).trim().replace(/[\s().-]/g,'');
  if([...displayName].length<2||[...displayName].length>40||!/^[\p{L}\p{M}\p{N} ._'’-]+$/u.test(displayName)||phone&&!/^\+[1-9]\d{6,14}$/.test(phone))fail(400,'invalid-input');
- return{displayName,phone:phone||null};
+ return{displayName,phone:phone||null,...('address' in input?{address:address(input.address)}:{})};
 }
 export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,secret=()=>randomBytes(32).toString('base64url'),readValue=createFreshReader(db)}){
  const ref=path=>db.ref(`${NAMESPACE}/${path}`);const read=path=>readValue(`${NAMESPACE}/${path}`);
@@ -68,8 +69,9 @@ export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,sec
   if(enforcePolicy&&c.policy?.requiresReacceptance){publishedPolicies(c.policy,clock());if(p.policyAcceptance?.termsVersion!==c.policy.termsVersion||p.policyAcceptance?.privacyVersion!==c.policy.privacyVersion)fail(428,'policy-required');}
   return p;
  }
- function view(p){return{firebaseUid:p.firebaseUid,lovelySirenId:p.lovelySirenId,displayName:p.displayName,phone:p.phone||null,accountStatus:'active'};}
+ function view(p){return{firebaseUid:p.firebaseUid,lovelySirenId:p.lovelySirenId,displayName:p.displayName,phone:p.phone||null,address:p.address||null,contactRevision:p.contactRevision||0,accountStatus:'active'};}
  return{
+  ...createPreferences({db,auth,clock,read,ownedProfile,config}),
   config,
   async eligibility(input,context){const c=await config();if(!c.registrationEnabled)fail(403,'not-authorized');if(Object.keys(input).some(k=>k!=='birthDate'))fail(400,'invalid-input');await throttle('eligibility-ip:'+context.ip,30,3600000);return{eligible:eligibleAdult(input.birthDate,clock())};},
   async policyStatus(input,token){if(Object.keys(input).length)fail(400,'invalid-input');await ownedProfile(token,true,false);return publishedPolicies((await config()).policy,clock());},
@@ -128,8 +130,11 @@ export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,sec
    if(Object.keys(input).length)fail(400,'invalid-input');const p=await ownedProfile(token);const current=await guardedProfileUpdate(db,token.uid,p,current=>current.state==='active'?current:{...changedState(current,'active',clock()),verifiedAt:clock()});return{profile:view(current)};
   },
   async updateProfile(input,token){
-   const p=await ownedProfile(token);if(clock()/1000-token.auth_time>300)fail(401,'recent-login-required');
-   const values=validateProfile(input);await guardedProfileUpdate(db,token.uid,p,current=>({...current,...values,updatedAt:clock()}));
+   const p=await ownedProfile(token);recent(token,clock());
+   const values=validateProfile(input);
+   if('address' in input||'contactRevision' in input){const c=await config();localContactGate(db,c);if(!Number.isSafeInteger(input.contactRevision)||input.contactRevision<0||input.contactRevision>=Number.MAX_SAFE_INTEGER)fail(400,'invalid-input');
+    await companyTransaction(db,root=>{const current=checkOwner(root,p);if(JSON.stringify(root.controls?.config)!==JSON.stringify(c))fail(409,'configuration-changed');if((current.contactRevision||0)!==input.contactRevision)fail(409,'contact-changed');if(current.phone!==values.phone)withdrawContact(root,current,'sms',clock());if('address' in values&&JSON.stringify(current.address||null)!==JSON.stringify(values.address||null))withdrawContact(root,current,'postal',clock());root.profiles[token.uid]={...current,...values,contactRevision:input.contactRevision+1,updatedAt:clock()};return root;});
+   }else{await guardedProfileUpdate(db,token.uid,p,current=>{if(current.contactRevision)fail(409,'contact-refresh-required');return{...current,...values,updatedAt:clock()};});}
    // Do not mutate RTA users/{uid} or its display-name token invariant in this pass.
    return{updated:true};
   },

@@ -35,6 +35,8 @@ export function createAccountService(config, dependencies = {}) {
     });
     if (!response.ok) {
       if (response.status === 401) { await sdk.signOut(auth); throw problem('auth/requires-recent-login'); }
+      if(response.status===409&&!path.startsWith('registration/'))throw problem('service/state-changed');
+      if(response.status===400)throw problem('service/invalid-input');
       if(response.status===428)throw problem('service/policy-required');
       if (response.status === 403) throw problem(path.startsWith('registration/')?'service/registration-denied':'service/setup-required');
       if (response.status === 429) throw problem('auth/too-many-requests');
@@ -65,7 +67,7 @@ export function createAccountService(config, dependencies = {}) {
           typeof record.displayName !== 'string' || record.accountStatus !== 'active' ||
           (record.phone != null && typeof record.phone !== 'string')) throw problem('service/setup-required');
       const profile = { firebaseUid: record.firebaseUid, lovelySirenId: record.lovelySirenId,
-        displayName: record.displayName, phone: record.phone || null, accountStatus: record.accountStatus };
+        displayName: record.displayName, phone: record.phone || null, address:record.address||null,contactRevision:record.contactRevision||0, accountStatus: record.accountStatus };
       emit({status:'authenticated',user:publicUser(user),profile});
     } catch (error) {
       if (currentRevision === revision) emit({status:auth.currentUser?(error.code==='service/policy-required'?'policy-required':'setup-required'):'signed-out',user:auth.currentUser?publicUser(auth.currentUser):null,profile:null,error});
@@ -176,9 +178,12 @@ export function createAccountService(config, dependencies = {}) {
       // Authorization is checked by the verified backend, not a transient UI state during token refresh.
       const errors=registrationErrors({...values,birthDate:'2000-01-01',email:'validation@example.com',password:'validation only',confirmPassword:'validation only',accepted:true});
       if(errors.displayName||errors.phone)throw problem('service/invalid-input');
-      await backend('profile/update',{displayName:values.displayName.trim(),phone:normalizePhone(values.phone || '')||null});
+      await backend('profile/update',{displayName:values.displayName.trim(),phone:normalizePhone(values.phone || '')||null,...(config.contactPreferencesEnabled?{address:values.address||null,contactRevision:values.contactRevision}:{})});
       await reconcile(auth.currentUser);return state;
     },
+    contactPreferencesAvailable:()=>Boolean(configured()&&config.contactPreferencesEnabled&&config.emulators?.enabled),
+    async readPreferences(){await verifyAllowed();return backend('preferences/read');},
+    async updatePreferences(input){await verifyAllowed();const result=await backend('preferences/update',input);await reconcile(auth.currentUser);return result;},
     async connectGoogle(password){
       if(!config.googleEnabled)throw problem('service/not-ready');
       await verifyAllowed();
