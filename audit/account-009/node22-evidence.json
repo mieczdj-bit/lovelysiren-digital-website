@@ -1,0 +1,44 @@
+{
+  "reviewDate": "2026-11-02",
+  "nodeVersion": "v22.23.4",
+  "archive": {
+    "sha256": "cbc74b5e0982c9dbb41525fd8fb5dcd32fbee237863f7829072f4639a1ce5f20",
+    "archive": "node-v22.23.4-win-x64.zip",
+    "url": "https://nodejs.org/dist/latest-v22.x/node-v22.23.4-win-x64.zip",
+    "immutableUrl": "https://nodejs.org/dist/v22.23.4/node-v22.23.4-win-x64.zip"
+  },
+  "systemInstallation": false,
+  "globalNodeModified": false,
+  "lockedInstalls": [
+    {
+      "package": "full-functions",
+      "npmCiIgnoreScripts": true,
+      "nativeEsm": true,
+      "exports": [
+        "lovelysirenAccountsApi",
+        "lovelysirenIdentityApi"
+      ],
+      "identityInvoker": "private",
+      "disabledHttp503": true
+    },
+    {
+      "package": "registration-only",
+      "npmCiIgnoreScripts": true,
+      "nativeEsm": true,
+      "exports": [
+        "lovelysirenAccountsApi"
+      ],
+      "lifecycleIncluded": true,
+      "identityAndDeletionExcluded": true,
+      "disabledHttp503": true
+    }
+  ],
+  "emulatorsHostNodeMajor": 22,
+  "cloudStartupVerified": false,
+  "productionChanged": false,
+  "focusedTestsFromCleanInstall": true,
+  "focusedCases": 60,
+  "parentTests": 3,
+  "freshReadsLocalVerified": true,
+  "liveOAuthIamVerified": false
+}

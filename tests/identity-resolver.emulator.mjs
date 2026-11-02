@@ -11,7 +11,7 @@ await test('Pass 006 real Firebase emulator resolver with offline signed service
  const app=initializeApp({projectId,databaseURL:`https://${projectId}-default-rtdb.firebaseio.com`},'identity006_'+randomUUID()),auth=getAuth(app),db=getDatabase(app),prefix='identity006_'+randomUUID();
  const fixturePath='contractReconciliation006/'+prefix,configRef=db.ref(fixturePath+'/config'),uids=[],ids=[],clients=[];
  // Isolate only the config path so tests never activate shared company controls.
- const scopedDb={ref:path=>db.ref(path===NAMESPACE+'/controls/config'?fixturePath+'/config':path)};
+ const scopedDb={app:db.app,ref:path=>db.ref(path===NAMESPACE+'/controls/config'?fixturePath+'/config':path)};
  const resolve=createIdentityResolver({db:scopedDb,auth,projectId});
  const authorizeService=createServiceAuthorizer({audience,callers:[caller],verify:async token=>(await oidc.verifySignedJwtWithCertsAsync(token,certs,audience,['https://accounts.google.com'])).getPayload()});
  const handler=createIdentityHandler({resolve,authorizeService,enabled:()=>true});

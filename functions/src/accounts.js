@@ -1,5 +1,6 @@
 import {createHash,randomBytes,randomUUID,timingSafeEqual} from 'node:crypto';
 import {assertOpen,changedState,companyTransaction,guardedProfileUpdate} from './lifecycle.js';
+import {createFreshReader} from './fresh-reader.js';
 export const NAMESPACE='lovelySirenAccountsV1';
 export const hash=value=>createHash('sha256').update(String(value)).digest('hex');
 export const normalizeEmail=value=>String(value||'').trim().toLowerCase();
@@ -40,8 +41,8 @@ export function validateProfile(input){
  if([...displayName].length<2||[...displayName].length>40||!/^[\p{L}\p{M}\p{N} ._'’-]+$/u.test(displayName)||phone&&!/^\+[1-9]\d{6,14}$/.test(phone))fail(400,'invalid-input');
  return{displayName,phone:phone||null};
 }
-export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,secret=()=>randomBytes(32).toString('base64url')}){
- const ref=path=>db.ref(`${NAMESPACE}/${path}`);const read=async path=>(await ref(path).get()).val();
+export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,secret=()=>randomBytes(32).toString('base64url'),readValue=createFreshReader(db)}){
+ const ref=path=>db.ref(`${NAMESPACE}/${path}`);const read=path=>readValue(`${NAMESPACE}/${path}`);
  async function config(){const c=await read('controls/config');if(!c?.serviceEnabled||c.mode!=='controlled-test')fail(503,'not-ready');return c;}
  async function throttle(key,limit,period){let allowed=false;const now=clock();const outcome=await ref('throttles/'+hash(key)).transaction(current=>{const value=current&&current.expiresAt>now?current:{count:0,expiresAt:now+period};allowed=value.count<limit;if(!allowed)return;return{count:value.count+1,expiresAt:value.expiresAt};},undefined,false);if(!allowed||!outcome.committed)fail(429,'rate-limited');}
  function checkCode(code,expected){if(typeof code!=='string'||code.length<20||code.length>200||typeof expected!=='string'||!/^[a-f0-9]{64}$/.test(expected))return false;return timingSafeEqual(Buffer.from(hash(code),'hex'),Buffer.from(expected,'hex'));}

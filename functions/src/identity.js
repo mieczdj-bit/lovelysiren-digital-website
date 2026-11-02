@@ -1,4 +1,5 @@
 import {NAMESPACE,publishedPolicies} from './accounts.js';
+import {createFreshReader} from './fresh-reader.js';
 
 export class IdentityError extends Error{
  constructor(status,code,accountState='unknown',retryable=false){super(code);Object.assign(this,{status,code,accountState,retryable});}
@@ -9,8 +10,8 @@ const idPattern=/^lsid_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{
 const invalidCredential=new Set(['auth/argument-error','auth/invalid-argument','auth/invalid-id-token','auth/id-token-expired','auth/id-token-revoked','auth/user-disabled','auth/user-not-found']);
 
 // Read-only capability: deliberately has no registration/identity allocation dependency.
-export function createIdentityResolver({db,auth,projectId,clock=Date.now}){
- const read=async path=>(await db.ref(`${NAMESPACE}/${path}`).get()).val();
+export function createIdentityResolver({db,auth,projectId,clock=Date.now,readValue=createFreshReader(db)}){
+ const read=path=>readValue(`${NAMESPACE}/${path}`);
  return async function resolve(input){
   const now=clock();let token,user;
   try{token=await auth.verifyIdToken(input.endUserIdToken,true);}

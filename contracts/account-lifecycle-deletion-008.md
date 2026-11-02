@@ -1,5 +1,7 @@
 # Company lifecycle and deletion foundation — Pass 008
 
+Pass009 supersedes the transaction-journal, emergency interruption and ambiguous-effect retry details below: see [transaction/security review](../audit/account-009/transactions-and-security.md). The baseline description remains for traceability; current source uses durable effect intents and requires terminal reconciliation rather than blindly retrying an uncertain external mutation. All production restrictions remain.
+
 Development/local testing only. No deletion endpoint, trigger, scheduler or frontend action exists. `functions/src/deletion.js` refuses construction or privileged calls unless both SDK apps and the configured database URL identify `demo-road-trip-arcade`, FUNCTIONS_EMULATOR is true, and Auth/RTDB hosts are exactly the guarded loopback ports. There is deliberately no production-enable flag. Production use requires new source/security review, not changing an environment switch.
 
 ## Lifecycle model
