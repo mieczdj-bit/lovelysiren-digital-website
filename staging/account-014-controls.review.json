@@ -1,0 +1,30 @@
+{
+  "reviewOnly": true,
+  "projectId": "road-trip-arcade",
+  "namespace": "lovelySirenAccountsV1",
+  "serviceEnabled": false,
+  "registrationEnabled": false,
+  "googleEnrollmentEnabled": false,
+  "googleLinkingEnabled": false,
+  "identityResolutionEnabled": false,
+  "contactDeliveryEnabled": false,
+  "marketingPreferencesEnabled": false,
+  "marketingSendingEnabled": false,
+  "deletionEnabled": false,
+  "mode": "controlled-test",
+  "allowedOrigins": [],
+  "policy": {
+    "approved": false,
+    "minimumAge": 18,
+    "termsVersion": "website-terms-v1.0",
+    "privacyVersion": null,
+    "requiresReacceptance": false,
+    "documents": { "terms": null, "privacy": null }
+  },
+  "invitation": null,
+  "notes": [
+    "Template only; never write it to a live database without the separate approved deployment procedure.",
+    "A and B are the only first-account candidate feature gates; both stay false until an approved one-person window.",
+    "C through F are separate and inactive. Identity, contact, marketing and deletion handlers are excluded from the candidate package."
+  ]
+}

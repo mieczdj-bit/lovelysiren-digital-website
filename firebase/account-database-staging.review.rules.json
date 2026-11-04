@@ -1,0 +1,14 @@
+{
+  "rules": {
+    ".read": "auth != null && auth.uid === 'lovelysiren-account-service'",
+    ".write": "auth != null && auth.uid === 'lovelysiren-account-service'",
+    "lovelySirenAccountsV1": {
+      "registrationGrants": { ".indexOn": ["expiresAt"] },
+      "googleEnrollmentGrants": { ".indexOn": ["expiresAt"] },
+      "googleEnrollmentReservations": { ".indexOn": ["expiresAt"] },
+      "linkGrants": { ".indexOn": ["expiresAt"] },
+      "throttles": { ".indexOn": ["expiresAt"] },
+      "testInvitations": { ".indexOn": ["expiresAt"] }
+    }
+  }
+}

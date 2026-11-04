@@ -11,7 +11,11 @@ const local=process.env.FUNCTIONS_EMULATOR==='true';
 if(local&&projectId!=='demo-road-trip-arcade')throw new Error('Local tests must use the isolated demo namespace');
 if(!local&&(process.env.FIREBASE_AUTH_EMULATOR_HOST||process.env.FIREBASE_DATABASE_EMULATOR_HOST))throw new Error('Emulator hosts are forbidden in the live runtime');
 if(projectId!=='road-trip-arcade'&&!(local&&projectId==='demo-road-trip-arcade'))throw new Error('Unexpected Firebase project');
-const app=getApps()[0]||initializeApp({projectId,databaseURL:`https://${projectId}-default-rtdb.firebaseio.com`});
+const accountDatabaseServiceUid='lovelysiren-account-service';
+const defaultDatabaseURL=`https://${projectId}-default-rtdb.firebaseio.com`;
+const databaseURL=local?defaultDatabaseURL:process.env.ACCOUNT_DATABASE_URL;
+if(!local){let parsed;try{parsed=new URL(databaseURL);}catch{throw new Error('Dedicated account database URL is required');}if(parsed.protocol!=='https:'||parsed.username||parsed.password||parsed.search||parsed.hash||parsed.pathname!=='/'||parsed.origin===defaultDatabaseURL||!parsed.hostname.startsWith('road-trip-arcade-lovelysiren-accounts-')||!(/\.firebaseio\.com$|\.firebasedatabase\.app$/i).test(parsed.hostname))throw new Error('Dedicated isolated account database required');}
+const app=getApps()[0]||initializeApp({projectId,databaseURL,...(local?{}:{databaseAuthVariableOverride:{uid:accountDatabaseServiceUid}})});
 const auth=getAuth(app);const db=getDatabase(app);const backend=createAccountBackend({db,auth});
 let identityCallers;try{identityCallers=JSON.parse(process.env.IDENTITY_SERVICE_CALLERS||'[]');}catch{identityCallers=[];}
 export const lovelysirenIdentityApi=onRequest({region:'us-central1',invoker:'private',maxInstances:2,timeoutSeconds:30,memory:'256MiB'},createIdentityHandler({

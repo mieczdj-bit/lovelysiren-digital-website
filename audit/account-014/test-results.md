@@ -1,0 +1,17 @@
+# Pass 014 — Focused verification
+
+**Result: focused local checks passed.** All runs used the isolated Node 22.23.4 runtime and the Firebase Auth, Realtime Database, and Functions emulators bound to loopback under the demo project. No live Firebase call, real email/account, cloud deployment, production RTA record, or RTA source/database access was used. Emulator RTA compatibility assertions used disposable synthetic sentinel records.
+
+## Results
+
+- `scripts/test-preflight-009.cjs`: passed all six included suites — 63 tests total (preflight transaction/concurrency checks 8; lifecycle unit 3; lifecycle emulator 20; Pass 009 emulator hardening 11; resolver unit 11; resolver emulator 10). The fresh-reader checks reject the shared/default database URL, foreign project/path, wrong service override, and cached-data fallback.
+- `tests/accounts.emulator.mjs`: passed all 26 checks, including password invitation registration, Google UID-bound enrollment, verification/recovery, stable canonical ID under retries/concurrency, disabled/revoked credentials, client data denial, and unchanged synthetic RTA UID/Player ID/profile sentinels.
+- `scripts/prepare-account-candidate-014.cjs`: passed offline package generation. The candidate exports only `lovelysirenAccounts014Api`, retains both required Google enrollment routes, has every activation gate off, requires the isolated account RTDB URL and scoped service override, and contains no Hosting or Database deployment target. Generated source scan found no private key, test fixture, emulator permission, inactive identity/contact/marketing/deletion module or active control.
+- Dedicated-database rules emulator probe: with `firebase/account-database-staging.review.rules.json` loaded in an isolated loopback RTDB emulator, `lovelysiren-account-service` could read/write the account-only path and a foreign override UID was denied both read and write. No RTA/default database data was present in this emulator.
+- Candidate locked install: `npm ci --ignore-scripts --no-audit --no-fund` passed in the generated package with Node 22.23.4. Offline Functions import probe found exactly one export and no Hosting/database deployment target. npm emitted deprecation notices for transitive `node-domexception` and `glob` dependencies; install succeeded.
+- `tests/privacy-security-004.test.js` and `tests/privacy-readiness-007.test.js`: passed all 10 combined tests. Also corrected a stale preservation assertion so it compares the Pass 013 Google-enrollment control file to the exact verified Pass 013 base SHA rather than an older pre-Google baseline.
+- `scripts/prepare-privacy-review-014.cjs`: passed. Review copy retains the currently published combined policy, creates proposed Website/Account and separate RTA privacy routes, and marks the package `noindex`; repository/public allowlist and live pages are not modified.
+
+## Limits
+
+These tests do not prove Firebase's production IAM, dedicated database rules, Auth provider configuration, DNS/HTTPS, billing, email delivery, or RTA compatibility against current RTA source. The account-only database and runtime identity remain unprovisioned, so no live rules behavior has been tested. Policy drafts remain unapproved and unpublished. The prior attempt to run the candidate builder found a stale source anchor after the new database guard was inserted; the source order was corrected and the final build/scan/install passed.

@@ -1,7 +1,7 @@
 const fs=require('fs'),path=require('path'),crypto=require('crypto');
 function mergeNamespaceRules(existing,patch){
  if(existing?.rules?.['.read']!==false||existing?.rules?.['.write']!==false)throw Error('Unsafe or unverified root grants: child denies cannot revoke inherited access');
- const expectedKeys=['registrationGrants','linkGrants','throttles','testInvitations'];const namespace=patch?.lovelySirenAccountsV1;
+ const expectedKeys=['registrationGrants','googleEnrollmentGrants','googleEnrollmentReservations','linkGrants','throttles','testInvitations'];const namespace=patch?.lovelySirenAccountsV1;
  if(!namespace||namespace['.read']!==false||namespace['.write']!==false||Object.keys(patch).length!==1||Object.keys(namespace).some(k=>!['.read','.write',...expectedKeys].includes(k))||expectedKeys.some(k=>JSON.stringify(namespace[k])!==JSON.stringify({'.indexOn':['expiresAt']})))throw Error('Unexpected namespace patch');
  const copy=JSON.parse(JSON.stringify(existing));if(copy.rules.lovelySirenAccountsV1&&JSON.stringify(copy.rules.lovelySirenAccountsV1)!==JSON.stringify(namespace))throw Error('Existing namespace differs; manual comparison required');
  copy.rules.lovelySirenAccountsV1=JSON.parse(JSON.stringify(namespace));return copy;
