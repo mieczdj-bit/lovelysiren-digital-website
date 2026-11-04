@@ -14,6 +14,80 @@
       "effectiveDate": "2026-10-28",
       "url": "/legal/website-terms/v1.0/index.html",
       "sha256": "963bac3c70804f34e9aa184149b46c714d720e37ba6181529744d7d465ef44de"
+    },
+    {
+      "documentId": "website-privacy-v1.1",
+      "version": "1.1",
+      "effectiveDate": "2026-11-04",
+      "publishedDate": "2026-11-04",
+      "url": "https://lovelysirendigital.com/privacy.html",
+      "contentSha256": "7b0378ecb5f9d7a98cde17bc98688ca99b6c6e672c2a327cb66778f5fb805d7f",
+      "publishedHtmlSha256": "288ecef4901a7af82bb7c77a1375b419d91ff84e7148cd094e862e598c4165f6"
+    },
+    {
+      "documentId": "rta-privacy-v1.1",
+      "version": "1.1",
+      "effectiveDate": "2026-11-04",
+      "publishedDate": "2026-11-04",
+      "url": "https://lovelysirendigital.com/games/road-trip-arcade-privacy.html",
+      "contentSha256": "fa35596abd88c330f57987fa005c97fbd2acdba782c1ec0df36a1d1e0a459ec6",
+      "publishedHtmlSha256": "71631de16651f39b17a405ff8df71a6ae81d5912852197bc19e2e68208096e01"
+    },
+    {
+      "documentId": "account-data-deletion-v1.0",
+      "version": "1.0",
+      "effectiveDate": null,
+      "publishedDate": "2026-11-04",
+      "url": "https://lovelysirendigital.com/delete-account.html",
+      "contentSha256": "acd6959a3350cace5d271a5d0792ee99144e347238cf3cd310775ac6b9899483",
+      "publishedHtmlSha256": "7d139fbdba310c899237db2922a88d0ea041ac34a75babd555b7617067c268c7"
     }
-  ]
+  ],
+  "websitePrivacy": {
+    "documentId": "website-privacy-v1.1",
+    "version": "1.1",
+    "status": "published",
+    "effectiveDate": "2026-11-04",
+    "publishedDate": "2026-11-04",
+    "source": "legal/website-privacy/v1.1/source.md",
+    "publicationApproved": true,
+    "publishedUrl": "https://lovelysirendigital.com/privacy.html",
+    "contentSha256": "7b0378ecb5f9d7a98cde17bc98688ca99b6c6e672c2a327cb66778f5fb805d7f",
+    "publishedHtmlSha256": "288ecef4901a7af82bb7c77a1375b419d91ff84e7148cd094e862e598c4165f6"
+  },
+  "rtaPrivacy": {
+    "documentId": "rta-privacy-v1.1",
+    "version": "1.1",
+    "status": "published",
+    "effectiveDate": "2026-11-04",
+    "publishedDate": "2026-11-04",
+    "source": "legal/rta-privacy/v1.1/source.md",
+    "publicationApproved": true,
+    "publishedUrl": "https://lovelysirendigital.com/games/road-trip-arcade-privacy.html",
+    "contentSha256": "fa35596abd88c330f57987fa005c97fbd2acdba782c1ec0df36a1d1e0a459ec6",
+    "publishedHtmlSha256": "71631de16651f39b17a405ff8df71a6ae81d5912852197bc19e2e68208096e01"
+  },
+  "accountDataDeletion": {
+    "documentId": "account-data-deletion-v1.0",
+    "version": "1.0",
+    "status": "published",
+    "effectiveDate": null,
+    "publishedDate": "2026-11-04",
+    "source": "legal/account-data-deletion/v1.0/source.md",
+    "publicationApproved": true,
+    "publishedUrl": "https://lovelysirendigital.com/delete-account.html",
+    "contentSha256": "acd6959a3350cace5d271a5d0792ee99144e347238cf3cd310775ac6b9899483",
+    "publishedHtmlSha256": "7d139fbdba310c899237db2922a88d0ea041ac34a75babd555b7617067c268c7"
+  },
+  "archivedCombinedPrivacy": {
+    "documentId": "combined-privacy-2026-10-05",
+    "version": "combined-2026-10-05",
+    "status": "archived",
+    "effectiveDate": "2026-10-05",
+    "archivedDate": "2026-11-04",
+    "source": "legal/archive/privacy-2026-10-05.html",
+    "originalContentSha256": "eccda3577360e9d035b5135f5c6f31065467f33ce8bb43cd64a27316dbefd459",
+    "publishedHtmlSha256": "b36883cace87b0503c004ab91ad4431e4cfcb1584e56364ebd1ba92662b800f2",
+    "publishedUrl": "https://lovelysirendigital.com/legal/archive/privacy-2026-10-05.html"
+  }
 }
