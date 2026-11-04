@@ -1,0 +1,11 @@
+// Serve only the most recent ignored Pass 015 review artifact on loopback.
+const fs=require('node:fs'),path=require('node:path'),http=require('node:http');
+const root=path.resolve(__dirname,'..'),base=path.join(root,'work');
+const candidate=fs.readdirSync(base,{withFileTypes:true}).filter(e=>e.isDirectory()&&e.name.startsWith('staging-007-')).map(e=>path.join(base,e.name)).filter(dir=>fs.existsSync(path.join(dir,'policy-review-015-manifest.json'))).sort((a,b)=>fs.statSync(path.join(b,'policy-review-015-manifest.json')).mtimeMs-fs.statSync(path.join(a,'policy-review-015-manifest.json')).mtimeMs)[0];
+if(!candidate)throw Error('Build the Pass 015 review with scripts/prepare-privacy-review-015.cjs first');
+const publicRoot=path.join(candidate,'public');const manifest=JSON.parse(fs.readFileSync(path.join(candidate,'policy-review-015-manifest.json'),'utf8'));
+if(manifest.reviewOnly!==true||manifest.noindex!==true||manifest.notForDeployment!==true)throw Error('Refusing to serve a non-review artifact');
+const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.svg':'image/svg+xml','.ico':'image/x-icon'};
+const port=Number(process.env.POLICY_REVIEW_PORT||18765);
+const server=http.createServer((req,res)=>{try{const url=new URL(req.url||'/',`http://127.0.0.1:${port}`);let requestPath=decodeURIComponent(url.pathname);if(requestPath==='/'||requestPath.endsWith('/'))requestPath+='index.html';const file=path.resolve(publicRoot,'.'+requestPath);if(!file.startsWith(publicRoot+path.sep)){res.writeHead(400).end('Bad path');return;}if(!fs.existsSync(file)||!fs.statSync(file).isFile()){res.writeHead(404).end('Not found');return;}res.writeHead(200,{'content-type':types[path.extname(file).toLowerCase()]||'application/octet-stream','cache-control':'no-store','x-content-type-options':'nosniff','referrer-policy':'no-referrer'});fs.createReadStream(file).pipe(res);}catch{res.writeHead(400).end('Bad request');}});
+server.listen(port,'127.0.0.1',()=>process.stdout.write(`Pass 015 review preview: http://127.0.0.1:${port}/\nArtifact: ${candidate}\n`));

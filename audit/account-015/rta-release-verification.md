@@ -1,0 +1,35 @@
+# Pass 015 — RTA source and release verification notes
+
+**Read-only source inspection. No RTA files, data, builds, tests, purchases, or services were changed or run by this pass.**
+
+## Source reviewed
+
+- Local checkout: `C:\Users\miecz\Documents\GitHub\RoadTripArcade`
+- Branch: `main`
+- HEAD: `0cb1ce062e0518c8b6b91037eddaf50b37d271ac` (`Implement canonical LovelySiren identity adapter`, 2026-11-04)
+- Checkout status: dirty, 27 modified/untracked paths. Relevant edits include account/authentication, canonical identity, purchase verification, multiplayer, and an untracked lease-lifecycle migration. This makes the working tree unsuitable as proof of a released build. The committed source at HEAD was inspected; uncommitted changes were not treated as release facts.
+- RTA test source was inspected but not executed; the website handoff requested focused website checks and prohibited rebuilding RTA.
+
+## Evidence and exact verification gaps
+
+| Topic / Producer policy statement | Source evidence at inspected HEAD | Finding and required RTA Producer confirmation |
+|---|---|---|
+| Firebase/Google identity and game data | `package.json` includes Firebase/Auth plugins; `src/lib/firebase/*`, `firebase/database.rules.json`, game-session, friend, suggestion, and profile code use Firebase. Local game data is also stored by the app. | Data classes are present in source. Confirm exact deployed Firebase project/rules, current Android release behavior, SQL/provider deployment, and which local vs online records ship. |
+| Multiplayer, friends, invites and player identity | Current `src/lib/multiplayer/*`, Firebase session/profile/player-ID modules, and online routes implement private sessions and player relationships. | Code supports the categories described. Confirm current release feature flags and exact visible data to other participants. Do not claim public chat/matchmaking without evidence. |
+| Ads, age treatment and children | `@capacitor-community/admob` 8.1.0 is in `package.json`; `config/admob.json` contains production and official test units; `src/lib/age-treatment.ts`, `advertising-policy.ts`, `ad-privacy.ts`, Android `NativeAdPolicyPlugin.java`, and `RTA_PRIVACY_UMP_RELEASE.md` describe child/unknown-age restriction and UMP gating. The UMP report still calls for physical-device and AdMob message validation. | The implementation has age/ad controls in source, but source cannot establish Play Console target-age/Families settings, live AdMob messages, actual released SDK/config, or child-directed data handling. Producer must confirm audience, under-13 inclusion, parental safeguards, ads/cross-promotions, and child-data timeframes before release. |
+| Google Play purchases | `@capacitor-community` billing bridge, `android/app/build.gradle`, `src/lib/google-play-store.ts`, `src/routes/verifyGooglePlayPurchase.ts`, and server Play verification code are present. | A verification implementation exists. Confirm deployed backend credentials/API linkage, product IDs and Play Console status, refund/restore operation, current release build, purchase retention, and Data Safety entries. Do not infer live transaction readiness from source. |
+| Retention and cleanup | `server/lib/multiplayer-session-cleanup.ts` contains session expiry/terminal cleanup, including a seven-day terminal retention constant; cron route exists. Other data classes have separate behavior. | The seven-day code constant is not a comprehensive legal retention schedule. Confirm the production cron is scheduled, its environment, actual classes removed/retained, provider logs/backups, and child-data schedule. |
+| RTA trusted deletion | **Confirmed stale statement in Producer document 05:** the text “RTA trusted data deletion remains unimplemented” conflicts with committed source at this HEAD. `src/routes/lovelysiren/account/delete-rta-data.ts`, `server/lib/rta-data-deletion.ts`, `migrations/0005/0006/0007`, and `scripts/rta-deletion.test.mjs` contain an authenticated server route, Firebase/SQL cleanup logic, SQL deletion function, and focused test source. The implementation keeps Play purchase verification evidence while detaching user ownership and retains some shared session/history context. | This is a source-level implementation, not proof of a deployed or complete release capability. The account UI exposes the direct RTA data-delete action only when `import.meta.env.DEV` is true (`src/components/game/account.tsx`); production uses an externally configured Delete Account link. No production deployment, migration state, runtime permissions, endpoint availability, test execution, or end-to-end proof was checked. The release blocker therefore remains until RTA Producer independently runs the deletion tests, inventories data/retention exceptions, verifies current deployed code/rules/SQL migration and trusted authority, and supplies a functioning in-app and external request route as applicable. Do not describe all online data as automatically erased. |
+| Privacy and deletion URLs | `src/lib/external-links.ts` points `PRIVACY_URL` to `https://lovelysirendigital.com/privacy.html` and `ACCOUNT_DELETION_URL` to `/delete-account.html`; `DELETE_ACCOUNT_URL` is supplied by Vite configuration. | Current game source still points at the combined website privacy route, not the proposed standalone RTA URL. Confirm the final RTA policy URL is linked in the released app and Play listing, and confirm the external deletion URL is configured and functional. Website preview changes do not update the RTA app. |
+| RTA Terms | Website source has separate RTA Terms material; RTA release verification source lists legal links as a required check. | The RTA Terms link and operative version were not verified against the current Android build/store listing. Do not modify RTA Terms in this pass. |
+
+## Required RTA Producer sign-off before publication/release
+
+1. Confirm the current release branch/build and whether it includes the committed deletion endpoint and the dirty-tree changes are excluded.
+2. Independently execute the scoped deletion tests and end-to-end tests against an isolated disposable Firebase/SQL environment; review what is retained, especially purchase ledger, shared sessions, local saves, backups, suggestions and provider logs.
+3. Confirm production route configuration, authentication/resolver behavior, SQL migration state, Firebase paths/rules/service access and rollback/retry/partial-failure reporting.
+4. Enable and verify an in-app request path and external deletion-request URL in the actual release as required; a website email link is intake, not proof of deletion.
+5. Verify target audience, Families/Data Safety, age/ad configuration, AdMob/UMP messages, child-specific data minimization and retention, and actual SDKs in the shipped Android build.
+6. Replace/confirm website and RTA policy URLs in app settings and Play listing; verify the final public page bytes and linked RTA Terms.
+
+No RTA test, build, migration, deployment, or source edit was performed for this website integration.

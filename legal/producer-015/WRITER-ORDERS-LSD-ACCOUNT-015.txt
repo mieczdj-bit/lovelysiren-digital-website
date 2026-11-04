@@ -1,0 +1,133 @@
+LOVELYSIREN DIGITAL — WRITER / CODEX ORDER
+LSD-ACCOUNT-015 — PRODUCER POLICY COPY INTEGRATION
+
+REPOSITORY: mieczdj-bit/lovelysiren-digital-website
+BASE BRANCH: lsd-account-first-launch-014
+VERIFIED BASE COMMIT: 5c9a4d8020670f5923ece9b100eb14f9d8c53ff9
+NEW BRANCH: lsd-account-policy-integration-015
+
+INPUT MATERIALS
+The Executive Producer will attach the Producer-authored ZIP named
+lovelysiren_policy_handoff_015.zip. Read its actual files; do not invent or
+redraft their contents. If the ZIP is not attached or not accessible, STOP
+and report that exact missing input rather than using old Pass014 drafts.
+
+MISSION
+Integrate the finished Producer-authored public policy language into a
+reviewable website candidate, preserve current live disclosures, and keep
+all production services and deployment gates closed. This is primarily an
+implementation pass, NOT a request to independently draft new legal text.
+
+1. BASELINE
+Fetch and verify the development branch SHA; create the named branch.
+Preserve Pass014 registration candidate, code, tests and policy controls.
+Do not rewrite Website Terms v1.0 or RTA Terms.
+
+2. IMPORT PRODUCER DOCUMENTS
+Store source copies under a private-to-deployment repo directory such as
+legal/producer-015/ (tracked in Git but NOT included in public Hosting).
+Use these exact ZIP documents:
+
+01-Website-and-Account-Privacy-v1.1.md
+02-Road-Trip-Arcade-Privacy-v1.1.md
+03-Account-and-Data-Deletion-Page.md
+04-Internal-Data-Retention-and-Support-SOP.md
+05-Release-Verification-and-Sources.md
+
+Public policy text must be faithfully rendered. Correct only typographical,
+formatting, link-encoding or HTML accessibility issues. If a statement
+conflicts with verified product behavior, FLAG that exact statement with
+evidence in the review report; do not quietly invent or alter policy.
+Never publish the internal SOP or source notes on the public site.
+
+3. CREATE LOCAL REVIEW PAGES (NO LIVE PUBLICATION)
+Extend existing Pass014 local/noindex review tooling to render:
+- Proposed Website & LovelySiren Account Privacy at /privacy.html
+- Proposed RTA Privacy at /games/road-trip-arcade-privacy.html
+- Proposed Account and Data Deletion at /delete-account.html
+- The superseded October 5, 2026 combined Privacy Policy retained in the
+  review package at /legal/archive/privacy-2026-10-05.html
+
+Preview must preserve existing website design, mobile readability,
+accessible navigation/contrast, working relative links and easy comparison.
+The proposed pages must be produced only in ignored local preview outputs,
+not overwriting the production-served HTML until separately authorized.
+Do not accidentally expose repository legal/, audit/, drafts/, work/, tokens
+or source files through a static-hosting allowlist.
+
+4. POLICY VERSION AND ACCEPTANCE
+Keep document IDs website-privacy-v1.1 and rta-privacy-v1.1.
+The effective-date placeholders MUST NOT be present on a live published page.
+Do not invent an effective date, approved hash, active policy registry,
+acceptance receipt or any consent on a user's behalf.
+Do not change current Website Terms v1.0 acceptance.
+Prepare an offline publication-check tool/manifest that will, in a later
+approved publication pass, confirm actual final effective date, policy
+route, exact final published HTML content/hash and acceptance metadata.
+All publication/registration/Google/identity gates remain disabled.
+
+5. RTA CURRENT RELEASE-EVIDENCE CHECK
+The supplied RTA policy is complete proposed copy, but the website repo's
+RTA evidence is pinned to an older historical revision.
+If the current RTA checkout is available locally with authorized read-only
+access, identify current branch/SHA and review ONLY the factual statements
+about data classes, SDKs, target age, ads/cross-promotions, Billing,
+multiplayer, privacy/deletion links and retention. Do not edit RTA.
+If unavailable, report each exact release assertion awaiting RTA Producer
+verification. Do not pretend a source read was performed.
+
+In either case, explicitly retain the release blockers:
+- Working trusted RTA inventory/fence/account-data deletion and proof
+- In-app and external deletion request access when applicable
+- Current Play Data Safety/Privacy URL/age-ad configuration reconciliation
+- Specific child-data retention and parental safeguards if under-13
+  children are in the selected target audience
+
+Do not present the website deletion-request email link as proof that RTA
+deletes cloud records. Do not remove release blockers via wording alone.
+
+6. INTERNAL RETENTION SOP
+Keep document 04 as an INTERNAL operational recommendation.
+Do not implement automatic cleanup, data deletion, email sender,
+marketing job, backup purge or security/retention access merely because
+an internal schedule appears in the copy.
+Create a compact operator decision checklist distinguishing:
+- Adoptable business review targets and named human owner
+- Provider-specific live log/backup facts still unknown
+- Capabilities not yet implemented
+- Platform/release blockers requiring RTA changes
+
+7. TESTS
+Run focused local checks for:
+- Exact textual fidelity between source Markdown and review HTML (excluding
+  transparent Markdown-to-HTML normalization)
+- Relative/absolute link resolution, mobile and accessibility basics
+- The three public pages and archival copy in local preview
+- Stable separate RTA and company policy scopes
+- Policy version/effective-date/consent gates fail closed
+- Public output does not expose internal SOP, credentials or drafts
+- Existing disabled first-account candidate still builds or passes its
+  scoped packaging checks without changes
+
+Use Node22 and local/isolated test tooling. No Firebase live requests.
+Do not rerun unrelated historical suites or rebuild RTA.
+
+8. ABSOLUTE RESTRICTIONS
+NO website publication, production/main merge, Firebase/Hosting deployment,
+DNS change, billing/API/IAM update, Auth provider toggle, policy registry
+activation, real invitation/account, RTA source change, purchase migration,
+contact-delivery or marketing activation, or deletion-service activation.
+Only source commits and pushes to the new development branch are authorized.
+
+9. FINISH
+Commit and push the branch. Report exact verified commit SHA and GitHub URL,
+preview instructions, tests actually run, and a short list of specific
+remaining live-activation and RTA-evidence blockers.
+Avoid another broad security audit or a new policy-writing cycle.
+
+SUCCESS
+Producer-authored documents are integrated into polished local website
+review pages; current live disclosures remain intact and no service is
+activated. Ready for an explicit Executive Producer publication decision.
+
+END LSD-ACCOUNT-015
