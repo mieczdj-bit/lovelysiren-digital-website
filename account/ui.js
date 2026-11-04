@@ -53,8 +53,11 @@ if(createForm){
  createForm.addEventListener('submit',event=>{event.preventDefault();clearErrors();const data=values(createForm);data.accepted=document.getElementById('accepted').checked;const errors=registrationErrors(data);if(!data.invitationCode||data.invitationCode.trim().length<20)errors.invitationCode='Enter your authorized test invitation code.';if(Object.keys(errors).length){showErrors(errors);return;}void run('register',async()=>{const result=await service.register(data);createForm.reset();if(result.verificationSent)sessionStorage.setItem('lovelysiren-verification-sent','1');routeAfterSignIn(result.state);});});
 }
 const signinForm=document.getElementById('signin-form');
+if(signinForm)signinForm.querySelector('button[type="submit"]').disabled=!service.available();
 signinForm?.addEventListener('submit',event=>{event.preventDefault();clearErrors();const data=values(signinForm);const errors={};if(!validEmail(normalizeEmail(data.email)))errors.email='Enter a valid email address.';if(!data.password)errors.password='Enter your password.';if(Object.keys(errors).length){showErrors(errors);return;}void run('signin',async()=>routeAfterSignIn(await service.signIn(data.email,data.password)));});
-document.getElementById('forgot-form')?.addEventListener('submit',event=>{event.preventDefault();clearErrors();const data=values(event.currentTarget);if(!validEmail(normalizeEmail(data.email))){showErrors({email:'Enter a valid email address.'});return;}void run('reset',async()=>{await service.resetPassword(data.email);announce("If an account is associated with that email address, you'll receive password-reset instructions.",true);});});
+const forgotForm=document.getElementById('forgot-form');
+if(forgotForm)forgotForm.querySelector('button[type="submit"]').disabled=!service.available();
+forgotForm?.addEventListener('submit',event=>{event.preventDefault();clearErrors();const data=values(event.currentTarget);if(!validEmail(normalizeEmail(data.email))){showErrors({email:'Enter a valid email address.'});return;}void run('reset',async()=>{await service.resetPassword(data.email);announce("If an account is associated with that email address, you'll receive password-reset instructions.",true);});});
 document.querySelectorAll('[data-google]').forEach(button=>{
  button.disabled=!(service.googleAvailable?.() ?? false);
  button.addEventListener('click',()=>{

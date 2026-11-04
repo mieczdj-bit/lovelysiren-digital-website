@@ -10,7 +10,7 @@ if(menu && summary){
  const base=new URL('./',import.meta.url);
  const addLink=(text,path)=>{const link=document.createElement('a');link.textContent=text;link.href=new URL(path,base).href;menu.append(link);};
  accountService.subscribe(state=>{
-  if(!state.user){menu.replaceChildren(...signedOutContent.map(node=>node.cloneNode(true)));if(signInLabel)signInLabel.textContent='Sign In';if(avatar)avatar.textContent='♟';summary.setAttribute('aria-label',originalLabel||'Sign-in options');return;}
+  if(!state.user){menu.replaceChildren(...signedOutContent.map(node=>node.cloneNode(true)));if(signInLabel)signInLabel.textContent='Account';if(avatar)avatar.textContent='♟';summary.setAttribute('aria-label',originalLabel||'Account options');return;}
   const name=state.profile?.displayName || state.user.displayName || 'Your Account';
   if(signInLabel)signInLabel.textContent=[...name].slice(0,24).join('');
   if(avatar)avatar.textContent=Array.from(name.trim())[0]?.toUpperCase()||'A';
