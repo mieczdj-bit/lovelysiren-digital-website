@@ -10,7 +10,9 @@ const requests=Object.freeze([
  ['databases','https://firebasedatabase.googleapis.com',`/v1beta/projects/${PROJECT}/locations/-/instances`],
  ['hosting','https://firebasehosting.googleapis.com',`/v1beta1/projects/${PROJECT}/sites`],
  ['billing','https://cloudbilling.googleapis.com',`/v1/projects/${PROJECT}/billingInfo`],
+ ['serviceAccounts','https://iam.googleapis.com',`/v1/projects/${PROJECT}/serviceAccounts`],
  ['iam','https://cloudresourcemanager.googleapis.com',`/v1/projects/${PROJECT}:getIamPolicy`,'POST'],
+ ...['cloudfunctions.googleapis.com','cloudbuild.googleapis.com','artifactregistry.googleapis.com','run.googleapis.com','eventarc.googleapis.com','firebase.googleapis.com','firebasedatabase.googleapis.com','identitytoolkit.googleapis.com','securetoken.googleapis.com','firebasehosting.googleapis.com','storage.googleapis.com','serviceusage.googleapis.com','iam.googleapis.com','logging.googleapis.com'].map(service=>[`api:${service}`,'https://serviceusage.googleapis.com',`/v1/projects/${PROJECT}/services/${service}`]),
  ['accountControls','https://road-trip-arcade-default-rtdb.firebaseio.com','/lovelySirenAccountsV1/controls/config.json']
 ]);
 function safeSummary(kind,b){
@@ -22,7 +24,9 @@ function safeSummary(kind,b){
  if(kind==='databases')return{instances:(b.instances||[]).map(i=>({name:i.name,databaseUrl:i.databaseUrl,type:i.type,state:i.state}))};
  if(kind==='hosting')return{sites:(b.sites||[]).map(s=>({name:s.name,defaultUrl:s.defaultUrl})),nextPageTokenPresent:!!b.nextPageToken};
  if(kind==='billing')return{billingEnabled:b.billingEnabled};
- if(kind==='iam')return{roles:(b.bindings||[]).map(x=>({role:x.role,memberCount:x.members?.length||0})),conditionalBindings:(b.bindings||[]).filter(x=>x.condition).length};
+ if(kind==='serviceAccounts')return{accounts:(b.accounts||[]).map(a=>({email:a.email,displayName:a.displayName,disabled:!!a.disabled})),nextPageTokenPresent:!!b.nextPageToken};
+ if(kind==='iam')return{roles:(b.bindings||[]).map(x=>({role:x.role,memberCount:x.members?.length||0})),serviceAccountRoleBindings:(b.bindings||[]).flatMap(x=>(x.members||[]).filter(m=>m.startsWith('serviceAccount:')).map(m=>({email:m.slice('serviceAccount:'.length),role:x.role,conditional:!!x.condition}))),conditionalBindings:(b.bindings||[]).filter(x=>x.condition).length};
+ if(kind.startsWith('api:'))return{service:b.name,state:b.state};
  if(kind==='accountControls')return b?{serviceEnabled:b.serviceEnabled,registrationEnabled:b.registrationEnabled,mode:b.mode,googleLinkingEnabled:b.googleLinkingEnabled,allowedOrigins:b.allowedOrigins,policyApproved:b.policy?.approved,termsVersion:b.policy?.termsVersion,privacyVersion:b.policy?.privacyVersion}: {present:false};
  return{};
 }
@@ -36,7 +40,7 @@ async function main(){
  report.authentication='existing-cli-session';save();
  for(const [kind,origin,resource,method='GET']of requests){
   try{
-   const fields={google:'enabled,clientId',auth:'authorizedDomains,signIn(email(enabled,passwordRequired),anonymous(enabled),allowDuplicateEmails),passwordPolicyConfig,emailPrivacyConfig,blockingFunctions,notification(sendEmail(method,verifyEmailTemplate,resetPasswordTemplate))',functionsV2:'functions(name,state,buildConfig(runtime),serviceConfig(uri,serviceAccountEmail)),unreachable,nextPageToken',functionsV1:'functions(name,status,runtime,httpsTrigger(url)),unreachable,nextPageToken'}[kind];
+   const fields={google:'enabled,clientId',auth:'authorizedDomains,signIn(email(enabled,passwordRequired),anonymous(enabled),allowDuplicateEmails),passwordPolicyConfig,emailPrivacyConfig,blockingFunctions,notification(sendEmail(method,verifyEmailTemplate,resetPasswordTemplate))',functionsV2:'functions(name,state,buildConfig(runtime),serviceConfig(uri,serviceAccountEmail)),unreachable,nextPageToken',functionsV1:'functions(name,status,runtime,httpsTrigger(url)),unreachable,nextPageToken',serviceAccounts:'accounts(email,displayName,disabled),nextPageToken'}[kind];
    // Do not request OAuth secrets or function environment values merely to inspect settings.
    const options={timeout:12000,retries:0,...(fields?{queryParams:{fields}}:{})};const client=new Client({urlPrefix:origin,auth:true});const result=method==='POST'?await client.post(resource,{},options):await client.get(resource,options);const b=result.body;
    if(kind==='rules'){

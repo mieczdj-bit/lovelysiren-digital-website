@@ -24,7 +24,7 @@ export function createAccountService(config, dependencies = {}) {
   function configured() {
     const transportSafe=origin?.startsWith('https://')||/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin||'');
     if(!transportSafe)return false;
-    const local = config.emulators?.enabled && ['http://127.0.0.1:18766','http://localhost:18766'].includes(origin) &&
+    const local = config.emulators?.enabled && config.emulators?.origin === origin && /^http:\/\/127\.0\.0\.1:\d+$/.test(origin||'') &&
       config.firebase?.projectId === 'demo-road-trip-arcade' && config.backendBaseUrl?.startsWith('http://127.0.0.1:19501/demo-road-trip-arcade/');
     if(config.emulators?.enabled&&!local)return false;
     return config.enabled && (config.firebase?.projectId === 'road-trip-arcade' || local) && config.firebase.apiKey && config.firebase.appId &&
