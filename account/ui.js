@@ -62,7 +62,7 @@ document.querySelectorAll('[data-google]').forEach(button=>{
   if(page==='create'){
    const data=values(createForm);data.accepted=document.getElementById('accepted').checked;const errors=registrationErrors(data);delete errors.password;delete errors.confirmPassword;
    if(Object.keys(errors).length){showErrors(errors);return;}
-   void run('register',async()=>{const result=await service.register(data,'google');createForm.reset();routeAfterSignIn(result.state);});
+   void run('register',async()=>{const result=await service.registerExistingGoogle(data);createForm.reset();routeAfterSignIn(result.state);});
   } else void run('signin',async()=>routeAfterSignIn(await service.googleSignIn()));
  });
 });

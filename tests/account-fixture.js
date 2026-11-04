@@ -10,6 +10,7 @@ export function fixture(options={}){
   if(options.backendError?.[path])return{ok:false,status:options.backendError[path]};
   let result={};if(path==='policies/status')result={terms:{version:'reviewed-terms',url:'https://lovelysirendigital.com/terms.html'},privacy:{version:'reviewed-privacy',url:'https://lovelysirendigital.com/privacy.html'}};if(path==='profile/read')result={profile:options.profile||{firebaseUid:auth.currentUser.uid,lovelySirenId:'server-assigned-existing-id',displayName:'Captain',phone:null,accountStatus:'active'}};
   if(path==='registration/prepare')result={registrationGrant:'server-grant',flow:'controlled-provisioning'};
+  if(path==='registration/google/prepare')result={registrationGrant:'server-google-grant',flow:'existing-google-account'};
   if(path==='registration/provision'){provisioned=true;result={provisioned:true};}
   if(path==='providers/google/prepare')result={linkGrant:'server-link-grant'};
   return{ok:true,status:200,json:async()=>result};

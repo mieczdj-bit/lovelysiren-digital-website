@@ -1,6 +1,7 @@
 {
   "serviceEnabled": false,
   "registrationEnabled": false,
+  "googleEnrollmentEnabled": false,
   "googleLinkingEnabled": false,
   "mode": "controlled-test",
   "allowedOrigins": [],

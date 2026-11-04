@@ -1,6 +1,6 @@
 import {NAMESPACE} from './accounts.js';
 // Server-only helper, dry-run by default. Never scans permanent account or RTA paths.
-const GROUPS=Object.freeze(['registrationGrants','linkGrants','throttles','testInvitations']);
+const GROUPS=Object.freeze(['registrationGrants','googleEnrollmentGrants','googleEnrollmentReservations','linkGrants','throttles','testInvitations']);
 export async function pruneExpiredCapabilities(db,{now=Date.now(),limit=100,dryRun=true}={}){
  if(!Number.isInteger(limit)||limit<1||limit>500||!Number.isFinite(now)||now<0||typeof dryRun!=='boolean')throw new Error('Valid time, boolean dry-run and bounded cleanup limit required');
  const counts={},removed={},skipped={};

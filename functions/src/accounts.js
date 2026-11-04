@@ -84,15 +84,88 @@ export function createAccountBackend({db,auth,clock=Date.now,uuid=randomUUID,sec
    await companyTransaction(db,root=>{const current=root.profiles?.[token.uid];assertOpen(current,p);if(JSON.stringify(root.controls?.config)!==JSON.stringify(c))fail(409,'policy-changed');root.policyHistory??={};root.policyHistory[token.uid]??={};root.policyHistory[token.uid][key]??=acceptance;root.profiles[token.uid]={...current,policyAcceptance:acceptance,updatedAt:clock()};return root;});return{accepted:true};
   },
   async prepare(input,context){
-   const c=await config();if(!c.registrationEnabled)fail(403,'not-authorized');
+   const c=await config();if(!c.registrationEnabled)fail(403,'not-authorized');if(input.method!=='password')fail(403,'provider-disabled');
    await throttle('registration-ip:'+context.ip,20,3600000);
    const emailKey=hash(normalizeEmail(input.email));await throttle('registration-email:'+emailKey,10,3600000);
    const invite=await assertInvitation(emailKey);if(invite.existingUid&&!/^[A-Za-z0-9_-]{1,128}$/.test(invite.existingUid))fail(503,'not-ready');if(!checkCode(input.invitationCode,invite.codeHash))fail(403,'not-authorized');
-   const profile=validatePreparation(input,c.policy,clock());if(input.method!=='password')fail(403,'provider-disabled');
+   const profile=validatePreparation(input,c.policy,clock());
    const token=secret(),proposedUid=invite.existingUid||'webtest_'+uuid();
-   const root=await companyTransaction(db,root=>{if(JSON.stringify(root.controls?.config)!==JSON.stringify(c))fail(409,'policy-changed');const invitation=root.testInvitations?.[emailKey];if(!invitation?.enabled||invitation.expiresAt<=clock()||!checkCode(input.invitationCode,invitation.codeHash))fail(403,'not-authorized');const reservation=root.registrationReservations?.[emailKey]||{authUid:proposedUid,createdAt:clock(),existingAccount:Boolean(invite.existingUid)};if(reservation.completed)fail(403,'not-authorized');if(root.profiles?.[reservation.authUid])assertOpen(root.profiles[reservation.authUid]);root.registrationReservations??={};root.registrationReservations[emailKey]=reservation;root.registrationGrants??={};root.registrationGrants[hash(token)]={state:'prepared',emailKey,authUid:reservation.authUid,existingAccount:reservation.existingAccount,profile,createdAt:clock(),expiresAt:clock()+15*60000};return root;});
+   const root=await companyTransaction(db,root=>{if(JSON.stringify(root.controls?.config)!==JSON.stringify(c))fail(409,'policy-changed');const invitation=root.testInvitations?.[emailKey];if(!invitation?.enabled||invitation.expiresAt<=clock()||!checkCode(input.invitationCode,invitation.codeHash))fail(403,'not-authorized');const reservation=root.registrationReservations?.[emailKey]||{authUid:proposedUid,createdAt:clock(),existingAccount:Boolean(invite.existingUid)};if(reservation.completed)fail(403,'not-authorized');if(root.googleEnrollmentReservations?.[reservation.authUid]?.expiresAt>clock())fail(409,'registration-in-progress');if(root.profiles?.[reservation.authUid])assertOpen(root.profiles[reservation.authUid]);root.registrationReservations??={};root.registrationReservations[emailKey]=reservation;root.registrationGrants??={};root.registrationGrants[hash(token)]={state:'prepared',emailKey,authUid:reservation.authUid,existingAccount:reservation.existingAccount,profile,createdAt:clock(),expiresAt:clock()+15*60000};return root;});
    const reservation=root.registrationReservations[emailKey];
    return{registrationGrant:token,flow:reservation.existingAccount?'sign-in-existing':'controlled-provisioning'};
+  },
+  async prepareGoogleEnrollment(input,context){
+   const c=await config();if(!c.registrationEnabled)fail(403,'not-authorized');if(c.googleEnrollmentEnabled!==true)fail(403,'provider-disabled');
+   if(Object.keys(input).some(k=>!['invitationCode','displayName','birthDate','email','phone','accepted','termsVersion','privacyVersion'].includes(k)))fail(400,'invalid-input');
+   await throttle('google-enrollment-ip:'+context.ip,10,3600000);
+   const profile=validatePreparation(input,c.policy,clock());const emailKey=hash(profile.email);await throttle('google-enrollment-email:'+emailKey,5,3600000);
+   const invite=await assertInvitation(emailKey);const uid=invite.existingUid;
+   if(!/^[A-Za-z0-9_-]{1,128}$/.test(uid||'')||!checkCode(input.invitationCode,invite.codeHash))fail(403,'not-authorized');
+   let account;try{account=await auth.getUser(uid);}catch(error){if(error?.code==='auth/user-not-found')fail(403,'not-authorized');fail(503,'temporarily-unavailable');}
+   if(account.disabled||account.emailVerified!==true||normalizeEmail(account.email)!==profile.email||!account.providerData?.some(p=>p.providerId==='google.com'))fail(403,'not-authorized');
+   const existing=await read('profiles/'+uid),mapping=await read('identityByUid/'+uid),deletion=await read('deletionByUid/'+uid);
+   if(existing||mapping||deletion)fail(existing&&mapping&&existing.firebaseUid===uid&&existing.lovelySirenId===mapping.lovelySirenId?409:503,existing&&mapping&&existing.firebaseUid===uid&&existing.lovelySirenId===mapping.lovelySirenId?'already-enrolled':'identity-conflict');
+   const grant=secret(),key=hash(grant),now=clock();
+   await companyTransaction(db,root=>{
+    if(JSON.stringify(root.controls?.config)!==JSON.stringify(c))fail(409,'policy-changed');
+    const currentInvite=root.testInvitations?.[emailKey];if(!currentInvite?.enabled||currentInvite.expiresAt<=now||currentInvite.existingUid!==uid||!checkCode(input.invitationCode,currentInvite.codeHash))fail(403,'not-authorized');
+    if(root.profiles?.[uid]||root.identityByUid?.[uid]||root.deletionByUid?.[uid])fail(409,'already-enrolled');
+    const reservation=root.googleEnrollmentReservations?.[uid];if(reservation&&(!Number.isFinite(reservation.expiresAt)||reservation.expiresAt>now))fail(409,'registration-in-progress');
+    root.googleEnrollmentGrants??={};root.googleEnrollmentGrants[key]={uid,emailKey,profile,existingAccount:true,state:'prepared',createdAt:now,expiresAt:now+15*60000};
+    root.googleEnrollmentReservations??={};root.googleEnrollmentReservations[uid]={grantHash:key,emailKey,expiresAt:now+15*60000};
+    root.registrationReservations??={};const prior=root.registrationReservations[emailKey];if(prior?.completed)fail(409,'already-enrolled');if(prior&&prior.authUid!==uid)fail(503,'identity-conflict');if(Object.values(root.registrationGrants||{}).some(g=>g.authUid===uid&&g.state!=='completed'&&g.expiresAt>now))fail(409,'registration-in-progress');root.registrationReservations[emailKey]=prior||{authUid:uid,createdAt:now,existingAccount:true};
+    return root;
+   });
+   return{registrationGrant:grant,flow:'existing-google-account'};
+  },
+  async completeGoogleEnrollment(input,token){
+   const c=await config();if(!c.registrationEnabled)fail(403,'not-authorized');if(c.googleEnrollmentEnabled!==true)fail(403,'provider-disabled');const documents=publishedPolicies(c.policy,clock());
+   if(Object.keys(input).some(k=>k!=='registrationGrant')||typeof input.registrationGrant!=='string'||input.registrationGrant.length<20||input.registrationGrant.length>200)fail(403,'not-authorized');
+   const key=hash(input.registrationGrant),record=await read('googleEnrollmentGrants/'+key);if(!record||!['prepared','completed'].includes(record.state)||record.state!=='completed'&&record.expiresAt<=clock())fail(403,'not-authorized');
+   if(token.uid!==record.uid||token.firebase?.sign_in_provider!=='google.com'||token.email_verified!==true||normalizeEmail(token.email)!==record.profile.email)fail(403,'not-authorized');
+   let account;try{account=await auth.getUser(record.uid);}catch(error){if(error?.code==='auth/user-not-found')fail(403,'not-authorized');fail(503,'temporarily-unavailable');}
+   if(account.disabled||account.emailVerified!==true||normalizeEmail(account.email)!==record.profile.email||!account.providerData?.some(p=>p.providerId==='google.com'))fail(403,'not-authorized');
+   if(record.profile.policyAcceptance.termsVersion!==c.policy.termsVersion||record.profile.policyAcceptance.privacyVersion!==c.policy.privacyVersion||record.profile.policyAcceptance.termsSha256!==documents.terms.sha256||record.profile.policyAcceptance.privacySha256!==documents.privacy.sha256)fail(403,'policy-pending');
+   const prior=await read('profiles/'+record.uid);
+   if(prior){if(prior.registrationGrantHash===key&&prior.state==='active'&&prior.firebaseUid===record.uid)return{completed:true,lovelySirenId:prior.lovelySirenId};fail(409,'already-enrolled');}
+   if(await read('deletionByUid/'+record.uid))fail(403,'account-unavailable');
+   const mapping=await read('identityByUid/'+record.uid);if(mapping)fail(503,'identity-conflict');
+   const completionLease=secret();
+   const claimed=await companyTransaction(db,root=>{
+    if(JSON.stringify(root.controls?.config)!==JSON.stringify(c)||!root.controls?.config?.registrationEnabled||!root.controls?.config?.googleEnrollmentEnabled||!root.controls?.config?.serviceEnabled)fail(409,'policy-changed');
+    const current=root.googleEnrollmentGrants?.[key],currentProfile=root.profiles?.[record.uid];
+    if(currentProfile){if(currentProfile.registrationGrantHash===key&&currentProfile.state==='active')return root;fail(409,'already-enrolled');}
+    const reservation=root.googleEnrollmentReservations?.[record.uid],currentInvite=root.testInvitations?.[record.emailKey];
+    const invitationReady=currentInvite?.enabled===true&&currentInvite.expiresAt>clock()||currentInvite?.consumedByGrant===key;
+    if(!current||current.uid!==record.uid||current.expiresAt<=clock()||!reservation||reservation.grantHash!==key||reservation.expiresAt<=clock()||!invitationReady||currentInvite.existingUid!==record.uid)fail(403,'not-authorized');
+    if(current.state==='completing'&&current.leaseUntil>clock())fail(409,'retry-later');
+    const leaseUntil=clock()+60000,expiresAt=clock()+60*60000;
+    root.googleEnrollmentGrants[key]={...current,state:'completing',completionLease,leaseUntil,expiresAt};
+    root.googleEnrollmentReservations[record.uid]={...reservation,expiresAt};currentInvite.enabled=false;currentInvite.consumedByGrant=key;currentInvite.consumedAt??=clock();return root;
+   });
+   if(claimed.profiles?.[record.uid])return{completed:true,lovelySirenId:claimed.profiles[record.uid].lovelySirenId};
+   const acceptanceKey=hash(record.profile.policyAcceptance.termsVersion+'|'+record.profile.policyAcceptance.privacyVersion);
+   for(let attempt=0;attempt<5;attempt++){
+    const lovelySirenId='lsid_'+uuid(),createdAt=clock();
+    const result=await companyTransaction(db,root=>{
+     if(JSON.stringify(root.controls?.config)!==JSON.stringify(c)||!root.controls?.config?.registrationEnabled||!root.controls?.config?.googleEnrollmentEnabled||!root.controls?.config?.serviceEnabled)fail(409,'policy-changed');
+     const currentGrant=root.googleEnrollmentGrants?.[key],reservation=root.googleEnrollmentReservations?.[record.uid],currentInvite=root.testInvitations?.[record.emailKey];
+     if(!currentGrant||currentGrant.uid!==record.uid||currentGrant.state!=='completing'||currentGrant.completionLease!==completionLease||currentGrant.leaseUntil<=clock())fail(409,'retry-later');
+     const current=root.profiles?.[record.uid];if(current){if(current.registrationGrantHash===key&&current.state==='active')return root;fail(409,'already-enrolled');}
+     if(!reservation||reservation.grantHash!==key||reservation.expiresAt<=clock()||currentInvite?.consumedByGrant!==key||currentInvite.existingUid!==record.uid)fail(403,'not-authorized');
+     if(root.deletionByUid?.[record.uid]||root.identityByUid?.[record.uid]||root.identityClaims?.[record.uid])fail(503,'identity-conflict');
+     if(root.uidByIdentity?.[lovelySirenId]&&root.uidByIdentity[lovelySirenId]!==record.uid)return root;
+     const identityRecord={lovelySirenId,createdAt};
+     root.identityClaims??={};root.identityClaims[record.uid]=identityRecord;root.identityByUid??={};root.identityByUid[record.uid]=identityRecord;root.uidByIdentity??={};root.uidByIdentity[lovelySirenId]=record.uid;
+     const profile={registrationGrantHash:key,firebaseUid:record.uid,lovelySirenId,displayName:record.profile.displayName,...(record.profile.phone?{phone:record.profile.phone}:{}),ageCategory:'adult',policyAcceptance:record.profile.policyAcceptance,state:'active',lifecycleRevision:0,createdAt,updatedAt:createdAt,verifiedAt:createdAt};
+     root.profiles??={};root.profiles[record.uid]=profile;root.policyHistory??={};root.policyHistory[record.uid]??={};root.policyHistory[record.uid][acceptanceKey]??=record.profile.policyAcceptance;
+     const {completionLease:discardLease,leaseUntil:discardExpiry,...completedGrant}=currentGrant;root.googleEnrollmentGrants[key]={...completedGrant,state:'completed',completedAt:currentGrant.completedAt||createdAt};root.googleEnrollmentReservations[record.uid]={...reservation,state:'completed'};
+     if(root.registrationReservations?.[record.emailKey])root.registrationReservations[record.emailKey].completed=true;return root;
+    });
+    const completed=result.profiles?.[record.uid];if(completed?.registrationGrantHash===key&&completed.firebaseUid===record.uid)return{completed:true,lovelySirenId:completed.lovelySirenId};
+    if(result.uidByIdentity?.[lovelySirenId]&&result.uidByIdentity[lovelySirenId]!==record.uid)continue;
+   }
+   fail(503,'retry-later');
   },
   async provision(input,context){
    const c=await config();if(!c.registrationEnabled)fail(403,'not-authorized');const documents=publishedPolicies(c.policy,clock());await throttle('provision-ip:'+context.ip,20,3600000);

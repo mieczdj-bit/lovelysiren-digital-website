@@ -10,6 +10,17 @@ export function createAccountService(config, dependencies = {}) {
   let state = { status: 'unavailable', user: null, profile: null };
   const listeners = new Set();
   function emit(next) { state = next; listeners.forEach(listener => listener(state)); }
+  async function settledState() {
+    if (state.status !== 'checking') return state;
+    return new Promise(resolve => {
+      let timer;
+      const finish = next => { clearTimeout(timer); listeners.delete(listener); resolve(next); };
+      const listener = next => { if (next.status !== 'checking') finish(next); };
+      listeners.add(listener);
+      timer = setTimeout(() => finish(state), 20000);
+      if (state.status !== 'checking') listener(state);
+    });
+  }
   function configured() {
     const transportSafe=origin?.startsWith('https://')||/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin||'');
     if(!transportSafe)return false;
@@ -155,6 +166,27 @@ export function createAccountService(config, dependencies = {}) {
       if(!result.user.emailVerified){await service.resendVerification();verificationSent=true;}
       await reconcile(auth.currentUser);return {state,verificationSent};
     },
+    async registerExistingGoogle(values){
+      if(!registrationReady()||!config.googleEnabled)throw problem('service/policy-pending');
+      await requireAuth();
+      const errors=registrationErrors(values);delete errors.password;delete errors.confirmPassword;
+      if(typeof values.invitationCode!=='string'||values.invitationCode.trim().length<20)errors.invitationCode='Enter your authorized test invitation code.';
+      if(Object.keys(errors).length)throw problem('service/invalid-input');
+      const grant=await backend('registration/google/prepare',{
+        invitationCode:values.invitationCode.trim(),displayName:values.displayName.trim(),birthDate:values.birthDate,email:normalizeEmail(values.email),
+        ...(values.phone?.trim()?{phone:normalizePhone(values.phone)}:{}),accepted:values.accepted===true,
+        termsVersion:config.policies.termsVersion,privacyVersion:config.policies.privacyVersion
+      },false);
+      if(typeof grant.registrationGrant!=='string'||grant.flow!=='existing-google-account')throw problem('service/not-ready');
+      const provider=new sdk.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});
+      const result=await sdk.signInWithPopup(auth,provider);
+      const token=await sdk.getIdTokenResult(result.user,true);
+      if(result.user.emailVerified!==true||token.claims.email_verified!==true){await sdk.signOut(auth);await reconcile(null);throw problem('service/verify-required');}
+      if(normalizeEmail(result.user.email)!==normalizeEmail(values.email)){await sdk.signOut(auth);await reconcile(null);throw problem('service/registration-denied');}
+      try{await backend('registration/google/complete',{registrationGrant:grant.registrationGrant});}
+      catch(error){await sdk.signOut(auth);await reconcile(null);throw error;}
+      await reconcile(auth.currentUser);return{state,verificationSent:false};
+    },
     async resetPassword(email){
       await requireAuth();
       try{await sdk.sendPasswordResetEmail(auth,normalizeEmail(email),{...actionSettings(),url:new URL('sign-in.html',config.emailContinueUrl).href});}
@@ -171,7 +203,7 @@ export function createAccountService(config, dependencies = {}) {
       await sdk.sendEmailVerification(auth.currentUser,actionSettings());lastSend=now();return true;
     },
     resendSecondsRemaining(){return Math.max(0,Math.ceil((lastSend+Math.max(60,config.resendCooldownSeconds||60)*1000-now())/1000));},
-    async refresh(){await requireAuth();if(auth.currentUser){await sdk.reload(auth.currentUser);await sdk.getIdTokenResult(auth.currentUser,true);}await reconcile(auth.currentUser);return state;},
+    async refresh(){await requireAuth();if(auth.currentUser){await sdk.reload(auth.currentUser);await sdk.getIdTokenResult(auth.currentUser,true);}await reconcile(auth.currentUser);return settledState();},
     async signOut(){await requireAuth();revision++;await sdk.signOut(auth);emit({status:'signed-out',user:null,profile:null});},
     async updateProfile(values){
       await verifyAllowed();
