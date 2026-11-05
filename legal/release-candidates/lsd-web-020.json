@@ -1,0 +1,53 @@
+{
+  "authorization": "LSD-WEB-020 Executive Producer public website update authorization",
+  "documents": [
+    {
+      "documentId": "website-terms-v1.1",
+      "version": "1.1",
+      "effectiveDate": null,
+      "publishedDate": null,
+      "url": "https://lovelysirendigital.com/terms.html",
+      "source": "legal/website-terms/v1.1/source.md",
+      "contentSha256": "ca343dcd9f36f7796b78f29d1d7faf1eab3a99219ea01385723fe6e4af21a96c",
+      "publishedHtmlSha256": "39de387bed2fe09c5c4586b9f0cb2ee4db17f0e6ef20bf064de57c444589b40f",
+      "status": "approved-pending-publication"
+    },
+    {
+      "documentId": "website-privacy-v1.2",
+      "version": "1.2",
+      "effectiveDate": null,
+      "publishedDate": null,
+      "url": "https://lovelysirendigital.com/privacy.html",
+      "source": "legal/website-privacy/v1.2/source.md",
+      "contentSha256": "367ffb5e5b21581de70318660c1493c43742d7b403fb9db2311d646972c3918c",
+      "publishedHtmlSha256": "38c9613ba0fc2f58e3804ae71bb70f79bda43905f7886da0ea52920467dbd2c0",
+      "status": "approved-pending-publication"
+    },
+    {
+      "documentId": "account-data-deletion-v1.1",
+      "version": "1.1",
+      "effectiveDate": null,
+      "publishedDate": null,
+      "url": "https://lovelysirendigital.com/delete-account.html",
+      "source": "legal/account-data-deletion/v1.1/source.md",
+      "contentSha256": "c4ca62842a75b7848233441279e243b074dbcf6e2a4ba8f5f1ac3cb3eb385359",
+      "publishedHtmlSha256": "e204f5edf0ab97294d8aca2e46884fee6078068941029bc755d42824b04827a0",
+      "status": "approved-pending-publication"
+    }
+  ],
+  "unchangedLegalDocument": {
+    "documentId": "rta-privacy-v1.1",
+    "status": "not-revised-pending-contact-requirement-review",
+    "source": "legal/rta-privacy/v1.1/source.md",
+    "publishedUrl": "https://lovelysirendigital.com/games/road-trip-arcade-privacy.html",
+    "contentSha256": "fa35596abd88c330f57987fa005c97fbd2acdba782c1ec0df36a1d1e0a459ec6",
+    "publishedHtmlSha256": "cf7f954a0d1d9e453c2e65afe8822d73a3cf5206755e7a03944e67d7832a8890"
+  },
+  "notes": [
+    "Website Terms v1.0 source, published snapshot, hash, and effective date are preserved unchanged.",
+    "RTA Privacy v1.1 text was not revised because COPPA applicability and required nonresidential mailing/phone contacts need factual resolution; the displayed site navigation shell was updated.",
+    "No live publication or effective date is asserted until the Pages deployment succeeds."
+  ],
+  "preparedDate": "2026-11-05",
+  "status": "approved-pending-publication"
+}
