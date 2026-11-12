@@ -1,5 +1,5 @@
 {
-  "authorization": "LSD-WEB-020 Executive Producer public website update authorization",
+  "authorization": "LSD-WEB-020A Website Producer Orders",
   "documents": [
     {
       "documentId": "website-terms-v1.1",
@@ -9,8 +9,9 @@
       "url": "https://lovelysirendigital.com/terms.html",
       "source": "legal/website-terms/v1.1/source.md",
       "contentSha256": "ca343dcd9f36f7796b78f29d1d7faf1eab3a99219ea01385723fe6e4af21a96c",
-      "publishedHtmlSha256": "39de387bed2fe09c5c4586b9f0cb2ee4db17f0e6ef20bf064de57c444589b40f",
-      "status": "approved-pending-publication"
+      "publishedHtmlSha256": null,
+      "status": "approved-pending-publication",
+      "candidateHtmlSha256": "39de387bed2fe09c5c4586b9f0cb2ee4db17f0e6ef20bf064de57c444589b40f"
     },
     {
       "documentId": "website-privacy-v1.2",
@@ -20,8 +21,9 @@
       "url": "https://lovelysirendigital.com/privacy.html",
       "source": "legal/website-privacy/v1.2/source.md",
       "contentSha256": "367ffb5e5b21581de70318660c1493c43742d7b403fb9db2311d646972c3918c",
-      "publishedHtmlSha256": "38c9613ba0fc2f58e3804ae71bb70f79bda43905f7886da0ea52920467dbd2c0",
-      "status": "approved-pending-publication"
+      "publishedHtmlSha256": null,
+      "status": "approved-pending-publication",
+      "candidateHtmlSha256": "38c9613ba0fc2f58e3804ae71bb70f79bda43905f7886da0ea52920467dbd2c0"
     },
     {
       "documentId": "account-data-deletion-v1.1",
@@ -31,8 +33,9 @@
       "url": "https://lovelysirendigital.com/delete-account.html",
       "source": "legal/account-data-deletion/v1.1/source.md",
       "contentSha256": "c4ca62842a75b7848233441279e243b074dbcf6e2a4ba8f5f1ac3cb3eb385359",
-      "publishedHtmlSha256": "e204f5edf0ab97294d8aca2e46884fee6078068941029bc755d42824b04827a0",
-      "status": "approved-pending-publication"
+      "publishedHtmlSha256": null,
+      "status": "approved-pending-publication",
+      "candidateHtmlSha256": "e204f5edf0ab97294d8aca2e46884fee6078068941029bc755d42824b04827a0"
     }
   ],
   "unchangedLegalDocument": {
@@ -41,13 +44,44 @@
     "source": "legal/rta-privacy/v1.1/source.md",
     "publishedUrl": "https://lovelysirendigital.com/games/road-trip-arcade-privacy.html",
     "contentSha256": "fa35596abd88c330f57987fa005c97fbd2acdba782c1ec0df36a1d1e0a459ec6",
-    "publishedHtmlSha256": "cf7f954a0d1d9e453c2e65afe8822d73a3cf5206755e7a03944e67d7832a8890"
+    "publishedHtmlSha256": "71631de16651f39b17a405ff8df71a6ae81d5912852197bc19e2e68208096e01"
   },
   "notes": [
     "Website Terms v1.0 source, published snapshot, hash, and effective date are preserved unchanged.",
-    "RTA Privacy v1.1 text was not revised because COPPA applicability and required nonresidential mailing/phone contacts need factual resolution; the displayed site navigation shell was updated.",
-    "No live publication or effective date is asserted until the Pages deployment succeeds."
+    "RTA Privacy v1.1 page and source are unchanged from production main; no RTA Privacy correction is included while the child-privacy contact review remains open.",
+    "New Website legal versions remain approved-pending-publication with null effective/published dates and null published HTML hashes. Candidate HTML hashes identify the review artifacts only.",
+    "No live publication or effective date is asserted until a separately approved Pages deployment succeeds."
   ],
-  "preparedDate": "2026-11-05",
-  "status": "approved-pending-publication"
+  "preparedDate": "2026-11-12",
+  "status": "approved-pending-publication",
+  "legacyContactExceptions": [
+    {
+      "path": "games/road-trip-arcade-privacy.html",
+      "reason": "Unchanged published RTA Privacy v1.1; existing Gmail contact and street mailing address remain pending the separate RTA child-privacy/contact review."
+    },
+    {
+      "path": "legal/rta-privacy/v1.1/source.md",
+      "reason": "Source for the unchanged published RTA Privacy v1.1; historical contact details retained."
+    },
+    {
+      "path": "legal/archive/privacy-2026-10-05.html",
+      "reason": "Historical combined policy archive; historical Gmail address retained."
+    },
+    {
+      "path": "legal/website-terms/v1.0/source.md and legal/website-terms/v1.0/index.html",
+      "reason": "Superseded Website Terms v1.0 historical artifacts; prior contact details preserved."
+    },
+    {
+      "path": "legal/website-privacy/v1.1/source.md",
+      "reason": "Superseded Website Privacy v1.1 historical source; prior contact details preserved."
+    },
+    {
+      "path": "legal/account-data-deletion/v1.0/source.md",
+      "reason": "Superseded Account & Data Deletion v1.0 historical source; prior contact details preserved."
+    }
+  ],
+  "reviewItems": [
+    "Website Terms v1.1 and Website Privacy v1.2 omit the street mailing address that appeared in prior versions. Confirm this change is intended and that no applicable notice rule requires a mailing address before publication.",
+    "The unchanged published RTA Privacy v1.1 still displays the legacy Gmail contact and street mailing address. Its child-privacy/contact review remains separate and unresolved; this release does not revise it."
+  ]
 }

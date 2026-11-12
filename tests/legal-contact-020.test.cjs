@@ -20,6 +20,7 @@ test('company information exposes only approved business details and purpose-spe
   ]) assert.match(company, new RegExp(`href="mailto:${address.replaceAll('.', '\\.')}"[^>]*>${address.replaceAll('.', '\\.')}<`));
   for (const detail of ['Independent game and application development and publishing studio', 'Virginia sole proprietorship operating under a registered trade name', 'Virginia, United States']) assert.ok(company.includes(detail));
   assert.doesNotMatch(company, /lovelysirenstudios@gmail\.com|Whitmell|Dry Fork|24549|\b\d{3}[- .]\d{3}[- .]\d{4}\b/i);
+  assert.equal((company.match(/href="company\.html">Company Information<\/a>/g) || []).length, 1, 'Company Information appears once in the footer');
   for (const href of ['support.html', 'privacy.html', 'terms.html', 'delete-account.html']) assert.ok(company.includes(`href="${href}"`));
 });
 
@@ -35,11 +36,14 @@ test('active revised legal artifacts have matching publication metadata and SHA-
   for (const item of current) {
     assert.equal(item.status, 'approved-pending-publication');
     assert.equal(item.publicationApproved, true);
+    assert.equal(item.effectiveDate, null);
+    assert.equal(item.publishedDate ?? null, null);
     const source = read(item.source);
     const page = read(pages[item.documentId]);
     assert.equal(item.contentSha256, sha(source));
-    assert.equal(item.publishedHtmlSha256, sha(page));
-    assert.ok(record.documents.some((entry) => entry.documentId === item.documentId && entry.contentSha256 === item.contentSha256 && entry.publishedHtmlSha256 === item.publishedHtmlSha256));
+    assert.equal(item.candidateHtmlSha256, sha(page));
+    assert.equal(item.publishedHtmlSha256, null, 'publication hash is added only after deployment');
+    assert.ok(record.documents.some((entry) => entry.documentId === item.documentId && entry.contentSha256 === item.contentSha256 && entry.candidateHtmlSha256 === item.candidateHtmlSha256 && entry.publishedHtmlSha256 === null));
   }
   assert.equal(registry.websiteTerms.priorVersion.documentId, 'website-terms-v1.0');
   assert.equal(registry.websitePrivacy.priorVersion.documentId, 'website-privacy-v1.1');
@@ -70,11 +74,31 @@ test('current site contact links are correct and company navigation is consisten
   assert.match(read('terms.html'), /mailto:support@lovelysirendigital\.com/);
   assert.match(read('terms.html'), /mailto:privacy@lovelysirendigital\.com/);
   assert.match(read('index.html'), /Sign-in and registration are unavailable/);
+  for (const file of ['index.html', 'about.html', 'studio.html', 'games/road-trip-arcade.html']) {
+    assert.doesNotMatch(read(file), /account\/nav\.js/, `${file} does not request the missing inactive account menu module`);
+  }
+  for (const file of ['index.html', 'about.html', 'studio.html', 'support.html', 'privacy.html', 'terms.html', 'delete-account.html', 'company.html', 'games/road-trip-arcade.html', 'account/index.html', 'account/sign-in.html']) {
+    assert.doesNotMatch(read(file), /lovelysirenstudios@gmail\.com/, `${file} uses current purpose-specific company contacts`);
+  }
 });
 
 test('RTA policy remains unchanged pending COPPA contact requirement resolution', () => {
   const record = JSON.parse(read('legal/release-candidates/lsd-web-020.json'));
   assert.match(read('games/road-trip-arcade-privacy.html'), /lovelysirenstudios@gmail\.com/);
-  assert.match(record.notes.join(' '), /COPPA applicability and required nonresidential mailing\/phone contacts need factual resolution/);
+  assert.match(record.reviewItems.join(' '), /child-privacy\/contact review remains separate and unresolved/);
+  assert.ok(record.legacyContactExceptions.some((item) => item.path === 'games/road-trip-arcade-privacy.html' && /Gmail contact and street mailing address remain/.test(item.reason)));
   assert.match(read('games/road-trip-arcade-privacy.html'), /Complete automatic removal of all online RTA records is not currently available\./);
+  const baseline = execFileSync('git', ['show', `origin/main:games/road-trip-arcade-privacy.html`], { cwd: root, encoding: 'utf8' }).replace(/\r\n/g, '\n');
+  assert.equal(read('games/road-trip-arcade-privacy.html'), baseline, 'published RTA privacy page remains byte-for-byte unchanged');
+  assert.equal(record.unchangedLegalDocument.contentSha256, sha(read(record.unchangedLegalDocument.source)));
+  assert.equal(record.unchangedLegalDocument.publishedHtmlSha256, sha(read('games/road-trip-arcade-privacy.html')));
+});
+
+test('Website Terms history does not assign a publication date to pending v1.1', () => {
+  const history = read('legal/website-terms/index.html');
+  assert.match(history, /website-terms-v1\.1<\/a> — approved, pending publication; not yet effective/);
+  assert.doesNotMatch(history, /website-terms-v1\.1<\/a> — effective/);
+  const snapshot = read('legal/website-terms/v1.1/index.html');
+  assert.match(snapshot, /href="\.\.\/\.\.\/\.\.\/styles\.css"/);
+  assert.match(snapshot, /href="\.\.\/\.\.\/\.\.\/company\.html">Company Information/);
 });

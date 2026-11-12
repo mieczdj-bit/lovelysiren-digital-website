@@ -13,7 +13,7 @@ const htmlText = (html) => decode(html.replace(/<br\s*\/?\s*>/gi, ' ').replace(/
 const markdownText = (md) => md.replace(/^\s*(?:-|\d+\.)\s+/gm, '').replace(/^#{1,6}\s+/gm, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/\*\*([^*]+)\*\*/g, '$1').replace(/`([^`]+)`/g, '$1').replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '$1').replace(/\s+/g, ' ').trim();
 const article = (html) => html.match(/<article class="legal-reading">([\s\S]*?)<\/article>/)?.[1];
 
-test('published legal pages render the approved Pass 017 text with only final publication metadata', () => {
+test('Pass 019 published legal pages remain verifiable against the pre-020 production snapshot', () => {
   const pairs = [
     ['legal/website-privacy/v1.1/source.md', 'privacy.html'],
     ['legal/rta-privacy/v1.1/source.md', 'games/road-trip-arcade-privacy.html'],
@@ -21,31 +21,35 @@ test('published legal pages render the approved Pass 017 text with only final pu
   ];
   for (const [sourcePath, pagePath] of pairs) {
     const source = read(sourcePath);
-    const page = read(pagePath);
+    const page = execFileSync('git', ['show', `origin/main:${pagePath}`], { cwd: root, encoding: 'utf8' }).replace(/\r\n/g, '\n');
     assert.ok(article(page), `${pagePath} has a legal article`);
     assert.equal(htmlText(article(page)), markdownText(source), `${pagePath} matches its publication source`);
     assert.doesNotMatch(page, /noindex,nofollow|Local review preview|RTA release-status review note|NOT APPROVED|NOT PUBLISHED|\[(?:SET ON APPROVED PUBLICATION|REPLACE EXISTING PLACEHOLDER)/i);
+    if (pagePath === 'delete-account.html') assert.match(page, /Published:<\/strong> 2026-11-04/);
+    else assert.match(page, /Effective date:<\/strong> 2026-11-04/);
   }
-  assert.match(read('privacy.html'), /Effective date:<\/strong> 2026-11-04/);
-  assert.match(read('games/road-trip-arcade-privacy.html'), /Effective date:<\/strong> 2026-11-04/);
-  assert.match(read('delete-account.html'), /Published:<\/strong> 2026-11-04/);
 });
 
 test('registry and publication record match final source and served HTML hashes', () => {
   const registry = JSON.parse(read('legal/policy-versions.json'));
   const record = JSON.parse(read('legal/publication-records/2026-11-04.json'));
-  for (const item of [registry.websitePrivacy, registry.rtaPrivacy, registry.accountDataDeletion]) {
-    assert.equal(item.status, 'published');
-    assert.equal(item.publicationApproved, true);
+  const pages = {
+    'website-privacy-v1.1': 'privacy.html',
+    'rta-privacy-v1.1': 'games/road-trip-arcade-privacy.html',
+    'account-data-deletion-v1.0': 'delete-account.html',
+  };
+  for (const item of record.documents) {
     assert.equal(item.publishedDate, '2026-11-04');
     assert.equal(item.contentSha256, sha(read(item.source)));
-    const page = item.documentId === 'website-privacy-v1.1' ? 'privacy.html' : item.documentId === 'rta-privacy-v1.1' ? 'games/road-trip-arcade-privacy.html' : 'delete-account.html';
-    assert.equal(item.publishedHtmlSha256, sha(read(page)));
+    const deployedHtml = execFileSync('git', ['show', `origin/main:${pages[item.documentId]}`], { cwd: root, encoding: 'utf8' }).replace(/\r\n/g, '\n');
+    assert.equal(item.publishedHtmlSha256, sha(deployedHtml));
   }
   assert.deepEqual(record.documents.map((x) => x.documentId), ['website-privacy-v1.1', 'rta-privacy-v1.1', 'account-data-deletion-v1.0']);
   assert.equal(record.publicationDate, '2026-11-04');
   assert.equal(record.termsPreserved.documentId, 'website-terms-v1.0');
-  assert.equal(registry.websiteTerms.effectiveDate, '2026-10-28');
+  assert.equal(registry.websiteTerms.priorVersion.effectiveDate, '2026-10-28');
+  assert.equal(registry.rtaPrivacy.status, 'published');
+  assert.equal(registry.rtaPrivacy.publishedHtmlSha256, sha(read('games/road-trip-arcade-privacy.html')));
 });
 
 test('historical combined policy is preserved and RTA deletion limits remain explicit', () => {
@@ -62,9 +66,9 @@ test('historical combined policy is preserved and RTA deletion limits remain exp
 });
 
 test('Terms v1.0 wording, account gate, navigation, and legal links are preserved', () => {
-  const publishedTerms = execFileSync('git', ['show', 'origin/main:terms.html'], { cwd: root, encoding: 'utf8' });
-  assert.equal(article(read('terms.html')), article(publishedTerms));
   assert.equal(read('legal/website-terms/v1.0/index.html'), execFileSync('git', ['show', 'origin/main:legal/website-terms/v1.0/index.html'], { cwd: root, encoding: 'utf8' }).replace(/\r\n/g, '\n'));
+  assert.match(read('terms.html'), /website-terms-v1\.1/);
+  assert.equal(article(read('terms.html')), article(read('legal/website-terms/v1.1/index.html')));
   const home = read('index.html');
   assert.match(home, /Account Management/);
   assert.match(home, /Sign-in and registration are unavailable/);
